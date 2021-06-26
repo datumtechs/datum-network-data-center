@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platon.rosettanet.storage.dao.PowerServerMapper">
+  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.PowerServer">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="identity_id" jdbcType="VARCHAR" property="identityId" />
+    <result column="server_name" jdbcType="VARCHAR" property="serverName" />
+    <result column="internal_ip" jdbcType="VARCHAR" property="internalIp" />
+    <result column="internal_port" jdbcType="VARCHAR" property="internalPort" />
+    <result column="external_ip" jdbcType="VARCHAR" property="externalIp" />
+    <result column="external_port" jdbcType="VARCHAR" property="externalPort" />
+    <result column="remarks" jdbcType="VARCHAR" property="remarks" />
+    <result column="memory" jdbcType="BIGINT" property="memory" />
+    <result column="core" jdbcType="INTEGER" property="core" />
+    <result column="bandwidth" jdbcType="BIGINT" property="bandwidth" />
+    <result column="used_memory" jdbcType="BIGINT" property="usedMemory" />
+    <result column="used_core" jdbcType="INTEGER" property="usedCore" />
+    <result column="used_bandwidth" jdbcType="BIGINT" property="usedBandwidth" />
+    <result column="published" jdbcType="BIT" property="published" />
+    <result column="published_at" jdbcType="TIMESTAMP" property="publishedAt" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, identity_id, server_name, internal_ip, internal_port, external_ip, external_port, 
+    remarks, memory, core, bandwidth, used_memory, used_core, used_bandwidth, published, 
+    published_at, status
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from power_server
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <update id="deleteByPrimaryKey" parameterType="java.lang.String">
+    update power_server set status = 'disabled'
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.PowerServer">
+    insert into power_server (id, identity_id, server_name, 
+      internal_ip, internal_port, external_ip, 
+      external_port, remarks, memory, 
+      core, bandwidth, used_memory, 
+      used_core, used_bandwidth, published, 
+      published_at, status)
+    values (#{id,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{serverName,jdbcType=VARCHAR}, 
+      #{internalIp,jdbcType=VARCHAR}, #{internalPort,jdbcType=VARCHAR}, #{externalIp,jdbcType=VARCHAR}, 
+      #{externalPort,jdbcType=VARCHAR}, #{remarks,jdbcType=VARCHAR}, #{memory,jdbcType=BIGINT}, 
+      #{core,jdbcType=INTEGER}, #{bandwidth,jdbcType=BIGINT}, #{usedMemory,jdbcType=BIGINT}, 
+      #{usedCore,jdbcType=INTEGER}, #{usedBandwidth,jdbcType=BIGINT}, #{published,jdbcType=BIT}, 
+      #{publishedAt,jdbcType=TIMESTAMP}, #{status,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.PowerServer">
+    insert into power_server
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="identityId != null">
+        identity_id,
+      </if>
+      <if test="serverName != null">
+        server_name,
+      </if>
+      <if test="internalIp != null">
+        internal_ip,
+      </if>
+      <if test="internalPort != null">
+        internal_port,
+      </if>
+      <if test="externalIp != null">
+        external_ip,
+      </if>
+      <if test="externalPort != null">
+        external_port,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+      <if test="memory != null">
+        memory,
+      </if>
+      <if test="core != null">
+        core,
+      </if>
+      <if test="bandwidth != null">
+        bandwidth,
+      </if>
+      <if test="usedMemory != null">
+        used_memory,
+      </if>
+      <if test="usedCore != null">
+        used_core,
+      </if>
+      <if test="usedBandwidth != null">
+        used_bandwidth,
+      </if>
+      <if test="published != null">
+        published,
+      </if>
+      <if test="publishedAt != null">
+        published_at,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="identityId != null">
+        #{identityId,jdbcType=VARCHAR},
+      </if>
+      <if test="serverName != null">
+        #{serverName,jdbcType=VARCHAR},
+      </if>
+      <if test="internalIp != null">
+        #{internalIp,jdbcType=VARCHAR},
+      </if>
+      <if test="internalPort != null">
+        #{internalPort,jdbcType=VARCHAR},
+      </if>
+      <if test="externalIp != null">
+        #{externalIp,jdbcType=VARCHAR},
+      </if>
+      <if test="externalPort != null">
+        #{externalPort,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="memory != null">
+        #{memory,jdbcType=BIGINT},
+      </if>
+      <if test="core != null">
+        #{core,jdbcType=INTEGER},
+      </if>
+      <if test="bandwidth != null">
+        #{bandwidth,jdbcType=BIGINT},
+      </if>
+      <if test="usedMemory != null">
+        #{usedMemory,jdbcType=BIGINT},
+      </if>
+      <if test="usedCore != null">
+        #{usedCore,jdbcType=INTEGER},
+      </if>
+      <if test="usedBandwidth != null">
+        #{usedBandwidth,jdbcType=BIGINT},
+      </if>
+      <if test="published != null">
+        #{published,jdbcType=BIT},
+      </if>
+      <if test="publishedAt != null">
+        #{publishedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.platon.rosettanet.storage.dao.entity.PowerServer">
+    update power_server
+    <set>
+      <if test="identityId != null">
+        identity_id = #{identityId,jdbcType=VARCHAR},
+      </if>
+      <if test="serverName != null">
+        server_name = #{serverName,jdbcType=VARCHAR},
+      </if>
+      <if test="internalIp != null">
+        internal_ip = #{internalIp,jdbcType=VARCHAR},
+      </if>
+      <if test="internalPort != null">
+        internal_port = #{internalPort,jdbcType=VARCHAR},
+      </if>
+      <if test="externalIp != null">
+        external_ip = #{externalIp,jdbcType=VARCHAR},
+      </if>
+      <if test="externalPort != null">
+        external_port = #{externalPort,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="memory != null">
+        memory = #{memory,jdbcType=BIGINT},
+      </if>
+      <if test="core != null">
+        core = #{core,jdbcType=INTEGER},
+      </if>
+      <if test="bandwidth != null">
+        bandwidth = #{bandwidth,jdbcType=BIGINT},
+      </if>
+      <if test="usedMemory != null">
+        used_memory = #{usedMemory,jdbcType=BIGINT},
+      </if>
+      <if test="usedCore != null">
+        used_core = #{usedCore,jdbcType=INTEGER},
+      </if>
+      <if test="usedBandwidth != null">
+        used_bandwidth = #{usedBandwidth,jdbcType=BIGINT},
+      </if>
+      <if test="published != null">
+        published = #{published,jdbcType=BIT},
+      </if>
+      <if test="publishedAt != null">
+        published_at = #{publishedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.platon.rosettanet.storage.dao.entity.PowerServer">
+    update power_server
+    set identity_id = #{identityId,jdbcType=VARCHAR},
+      server_name = #{serverName,jdbcType=VARCHAR},
+      internal_ip = #{internalIp,jdbcType=VARCHAR},
+      internal_port = #{internalPort,jdbcType=VARCHAR},
+      external_ip = #{externalIp,jdbcType=VARCHAR},
+      external_port = #{externalPort,jdbcType=VARCHAR},
+      remarks = #{remarks,jdbcType=VARCHAR},
+      memory = #{memory,jdbcType=BIGINT},
+      core = #{core,jdbcType=INTEGER},
+      bandwidth = #{bandwidth,jdbcType=BIGINT},
+      used_memory = #{usedMemory,jdbcType=BIGINT},
+      used_core = #{usedCore,jdbcType=INTEGER},
+      used_bandwidth = #{usedBandwidth,jdbcType=BIGINT},
+      published = #{published,jdbcType=BIT},
+      published_at = #{publishedAt,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+
+  <select id="listPowerServer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from power_server
+    order by identity_id
+  </select>
+
+
+  <select id="countPowerByOrgId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select sum(core) as core, sum(memory) as memory, sum(bandwidth) as bandwidth, sum(used_core) as used_core, sum(used_memory) as used_memory, sum(used_bandwidth) as used_bandwidth
+    from power_server
+    where identity_id = #{identityId,jdbcType=VARCHAR}
+  </select>
+
+  <resultMap id="OrgPowerTaskSummaryResultMap" type="com.platon.rosettanet.storage.dao.entity.OrgPowerTaskSummary">
+    <result column="identity_id" jdbcType="VARCHAR" property="identityId" />
+    <result column="memory" jdbcType="BIGINT" property="memory" />
+    <result column="core" jdbcType="INTEGER" property="core" />
+    <result column="bandwidth" jdbcType="BIGINT" property="bandwidth" />
+    <result column="used_memory" jdbcType="BIGINT" property="usedMemory" />
+    <result column="used_core" jdbcType="INTEGER" property="usedCore" />
+    <result column="power_task_count" jdbcType="INTEGER" property="powerTaskCount" />
+  </resultMap>
+  <select id ="countPowerGroupByOrgId" resultMap="OrgPowerTaskSummaryResultMap">
+    select o.identity_id, o.org_name, a.core, a.memory, a.bandwidth, a.used_core, a.used_memory, a.used_bandwidth, b.power_task_count
+    from org_info o
+    left join (
+      select identity_id, sum(core) as core, sum(memory) as memory, sum(bandwidth) as bandwidth, sum(used_core) as used_core, sum(used_memory) as used_memory, sum(used_bandwidth) as used_bandwidth
+      from power_server
+      group by identity_id
+    ) a on o.identity_id = a.identity_id
+    left join (
+      select identity_id, count(task_id) as power_task_count
+      from task_power_provider
+      group by identity_id
+    ) b on o.identity_id = b.identity_id
+  </select>
+</mapper>

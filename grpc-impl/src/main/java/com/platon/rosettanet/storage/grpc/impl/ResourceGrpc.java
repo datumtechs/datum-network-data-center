@@ -1,0 +1,210 @@
+package com.platon.rosettanet.storage.grpc.impl;
+
+import com.platon.rosettanet.storage.common.util.ValueUtils;
+import com.platon.rosettanet.storage.dao.entity.OrgInfo;
+import com.platon.rosettanet.storage.dao.entity.OrgPowerTaskSummary;
+import com.platon.rosettanet.storage.dao.entity.PowerServer;
+import com.platon.rosettanet.storage.grpc.lib.*;
+import com.platon.rosettanet.storage.service.ConvertorService;
+import com.platon.rosettanet.storage.service.OrgInfoService;
+import com.platon.rosettanet.storage.service.PowerServerService;
+import com.platon.rosettanet.storage.service.TaskService;
+import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
+@GrpcService
+@Service
+public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
+
+    @Autowired
+    private PowerServerService powerServerService;
+
+    @Autowired
+    private OrgInfoService orgInfoService;
+
+    @Autowired
+    private ConvertorService convertorService;
+
+    @Autowired
+    private TaskService taskService;
+    /**
+     * <pre>
+     * 存储资源
+     * </pre>
+     */
+    public void publishPower(com.platon.rosettanet.storage.grpc.lib.PublishPowerRequest request,
+                             io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.SimpleResponse> responseObserver) {
+        PowerServer powerServer = new PowerServer();
+        powerServer.setId(request.getPowerId());
+        //todo:接口中要提供唯一的名称
+        powerServer.setServerName(request.getPowerId());
+        powerServer.setIdentityId(request.getOwner().getIdentityId());
+        powerServer.setCore(request.getInformation().getProcessor());
+        powerServer.setMemory(request.getInformation().getMem());
+        powerServer.setBandwidth(request.getInformation().getBandwidth());
+        powerServer.setPublished(true);
+        powerServer.setPublishedAt(LocalDateTime.now());
+        powerServer.setStatus("enabled");
+        powerServerService.insert(powerServer);
+
+        //接口返回值
+        SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+
+    /**
+     * <pre>
+     * 新增，算力同步，实时通知算力的使用情况（组织下的具体的服务器）
+     * </pre>
+     */
+    public void syncPower(com.platon.rosettanet.storage.grpc.lib.SyncPowerRequest request,
+                          io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.SimpleResponse> responseObserver) {
+        PowerServer powerServer = new PowerServer();
+        powerServer.setId(request.getPower().getPowerId());
+
+        powerServer.setUsedCore(request.getPower().getInformation().getUsedProcessor());
+        powerServer.setUsedMemory(request.getPower().getInformation().getUsedMem());
+        powerServer.setUsedBandwidth(request.getPower().getInformation().getUsedBandwidth());
+        powerServerService.updateByPrimaryKeySelective(powerServer);
+
+        //接口返回值
+        SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    /**
+     * <pre>
+     * 撤销资源
+     * </pre>
+     */
+    public void revokePower(com.platon.rosettanet.storage.grpc.lib.RevokePowerRequest request,
+                            io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.SimpleResponse> responseObserver) {
+        powerServerService.deleteByPK(request.getPowerId());
+
+        //接口返回值
+        SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    /**
+     * <pre>
+     * 新增，用于同步给管理台，获取所有算力资源信息
+     * </pre>
+     */
+    public void getPowerList(com.platon.rosettanet.storage.grpc.lib.PowerListRequest request,
+                             io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.PowerListResponse> responseObserver) {
+        List<PowerServer> powerServerList = powerServerService.listPowerServer();
+
+        List<Power> powerList = powerServerList.stream().map(powerServer -> {
+            return Power.newBuilder()
+                    .setPowerId(powerServer.getId())
+                    .setInformation(ResourceUsed.newBuilder()
+                            .setTotalProcessor(powerServer.getCore())
+                            .setTotalMem(powerServer.getUsedMemory())
+                            .setTotalBandwidth(powerServer.getUsedBandwidth())
+                            .setUsedProcessor(powerServer.getUsedCore())
+                            .setUsedMem(powerServer.getUsedMemory())
+                            .setUsedBandwidth(powerServer.getUsedBandwidth())
+                            .build())
+                    .build();
+        }).collect(Collectors.toList());
+
+        //接口返回值
+        PowerListResponse response = PowerListResponse.newBuilder().addAllPowerList(powerList).build();
+
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+
+    /**
+     * <pre>
+     * 查看指定节点的总算力摘要
+     * </pre>
+     */
+    public void getPowerSummaryByNodeId(com.platon.rosettanet.storage.grpc.lib.PowerSummaryByNodeIdRequest request,
+                                        io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.PowerTotalSummaryResponse> responseObserver) {
+        String identityId = request.getNodeId();
+        OrgInfo owner = orgInfoService.findByPK(identityId);
+
+        int taskCounts = taskService.countTask(identityId);
+
+        PowerServer powerServer = powerServerService.countPowerByOrgId(identityId);
+
+        if (powerServer==null){
+            powerServer = new PowerServer();
+        }
+
+        PowerTotalSummaryResponse response = PowerTotalSummaryResponse.newBuilder()
+                .setOwner(convertorService.toProtoOrganization(owner))
+                .setPower(PowerTotalSummary.newBuilder()
+                        .setInformation(ResourceUsed.newBuilder()
+                                .setTotalProcessor(ValueUtils.intValue(powerServer.getCore()))
+                                .setTotalMem(ValueUtils.longValue(powerServer.getMemory()))
+                                .setTotalBandwidth(ValueUtils.longValue(powerServer.getUsedBandwidth()))
+                                .setUsedProcessor(ValueUtils.intValue(powerServer.getUsedCore()))
+                                .setUsedMem(ValueUtils.longValue(powerServer.getUsedMemory()))
+                                .setUsedBandwidth(ValueUtils.longValue(powerServer.getUsedBandwidth()))
+                                .build())
+                        .setTotalTaskCount(taskCounts)
+                        .build())
+                .build();
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+    /**
+     * <pre>
+     * 查看各个节点的总算力摘要列表 (不包含 任务描述)
+     * </pre>
+     */
+    public void getPowerTotalSummaryList(com.google.protobuf.Empty request,
+                                         io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.PowerTotalSummaryListResponse> responseObserver) {
+
+        List<OrgPowerTaskSummary> orgPowerTaskSummaryList = powerServerService.countPowerGroupByOrgId();
+
+        List<PowerTotalSummaryResponse> powerTotalSummaryResponseList = orgPowerTaskSummaryList.stream().map(orgPowerTaskSummary -> {
+            return PowerTotalSummaryResponse.newBuilder()
+                    .setOwner(Organization.newBuilder().setIdentityId((String)orgPowerTaskSummary.getIdentityId()).build())
+                    .setPower(PowerTotalSummary.newBuilder()
+                            .setInformation(ResourceUsed.newBuilder()
+                                    .setTotalProcessor(ValueUtils.intValue(orgPowerTaskSummary.getCore()))
+                                    .setTotalMem(ValueUtils.longValue(orgPowerTaskSummary.getMemory()))
+                                    .setTotalBandwidth(ValueUtils.longValue(orgPowerTaskSummary.getBandwidth()))
+                                    .setUsedProcessor(ValueUtils.intValue(orgPowerTaskSummary.getUsedCore()))
+                                    .setUsedMem(ValueUtils.longValue(orgPowerTaskSummary.getUsedMemory()))
+                                    .setUsedBandwidth(ValueUtils.longValue(orgPowerTaskSummary.getUsedBandwidth()))
+                                    .build())
+                            .setTotalTaskCount(ValueUtils.intValue(orgPowerTaskSummary.getPowerTaskCount()))
+                            .build())
+                    .build();
+        }).collect(Collectors.toList());
+
+        //结果
+        PowerTotalSummaryListResponse response = PowerTotalSummaryListResponse.newBuilder()
+                .addAllPowerList(powerTotalSummaryResponseList)
+                .build();
+
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+}

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platon.rosettanet.storage.dao.DataFileMapper">
+  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.DataFile">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="identity_id" jdbcType="VARCHAR" property="identityId" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="file_path" jdbcType="VARCHAR" property="filePath" />
+    <result column="file_type" jdbcType="VARCHAR" property="fileType" />
+    <result column="resource_name" jdbcType="VARCHAR" property="resourceName" />
+    <result column="size" jdbcType="BIGINT" property="size" />
+    <result column="rows" jdbcType="BIGINT" property="rows" />
+    <result column="columns" jdbcType="INTEGER" property="columns" />
+    <result column="published" jdbcType="BIT" property="published" />
+    <result column="published_at" jdbcType="TIMESTAMP" property="publishedAt" />
+    <result column="has_title" jdbcType="BIT" property="hasTitle" />
+    <result column="remarks" jdbcType="VARCHAR" property="remarks" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="meta_data_id" jdbcType="VARCHAR" property="metaDataId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, identity_id, file_name, file_path, file_type, resource_name, `size`, `rows`, columns,
+    published, published_at, has_title, remarks, status, meta_data_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from data_file
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from data_file
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
+    insert into data_file (id, identity_id, file_name, 
+      file_path, file_type, resource_name, 
+      `size`, `rows`, columns,
+      published, published_at, has_title, 
+      remarks, status, meta_data_id
+      )
+    values (#{id,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR}, 
+      #{filePath,jdbcType=VARCHAR}, #{fileType,jdbcType=VARCHAR}, #{resourceName,jdbcType=VARCHAR}, 
+      #{size,jdbcType=BIGINT}, #{rows,jdbcType=BIGINT}, #{columns,jdbcType=INTEGER}, 
+      #{published,jdbcType=BIT}, #{publishedAt,jdbcType=TIMESTAMP}, #{hasTitle,jdbcType=BIT}, 
+      #{remarks,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{metaDataId,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
+    insert into data_file
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="identityId != null">
+        identity_id,
+      </if>
+      <if test="fileName != null">
+        file_name,
+      </if>
+      <if test="filePath != null">
+        file_path,
+      </if>
+      <if test="fileType != null">
+        file_type,
+      </if>
+      <if test="resourceName != null">
+        resource_name,
+      </if>
+      <if test="size != null">
+        size,
+      </if>
+      <if test="rows != null">
+        rows,
+      </if>
+      <if test="columns != null">
+        columns,
+      </if>
+      <if test="published != null">
+        published,
+      </if>
+      <if test="publishedAt != null">
+        published_at,
+      </if>
+      <if test="hasTitle != null">
+        has_title,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="metaDataId != null">
+        meta_data_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="identityId != null">
+        #{identityId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null">
+        #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="filePath != null">
+        #{filePath,jdbcType=VARCHAR},
+      </if>
+      <if test="fileType != null">
+        #{fileType,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceName != null">
+        #{resourceName,jdbcType=VARCHAR},
+      </if>
+      <if test="size != null">
+        #{size,jdbcType=BIGINT},
+      </if>
+      <if test="rows != null">
+        #{rows,jdbcType=BIGINT},
+      </if>
+      <if test="columns != null">
+        #{columns,jdbcType=INTEGER},
+      </if>
+      <if test="published != null">
+        #{published,jdbcType=BIT},
+      </if>
+      <if test="publishedAt != null">
+        #{publishedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="hasTitle != null">
+        #{hasTitle,jdbcType=BIT},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="metaDataId != null">
+        #{metaDataId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
+    update data_file
+    <set>
+      <if test="identityId != null">
+        identity_id = #{identityId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null">
+        file_name = #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="filePath != null">
+        file_path = #{filePath,jdbcType=VARCHAR},
+      </if>
+      <if test="fileType != null">
+        file_type = #{fileType,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceName != null">
+        resource_name = #{resourceName,jdbcType=VARCHAR},
+      </if>
+      <if test="size != null">
+        `size` = #{size,jdbcType=BIGINT},
+      </if>
+      <if test="rows != null">
+        `rows` = #{rows,jdbcType=BIGINT},
+      </if>
+      <if test="columns != null">
+        columns = #{columns,jdbcType=INTEGER},
+      </if>
+      <if test="published != null">
+        published = #{published,jdbcType=BIT},
+      </if>
+      <if test="publishedAt != null">
+        published_at = #{publishedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="hasTitle != null">
+        has_title = #{hasTitle,jdbcType=BIT},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="metaDataId != null">
+        meta_data_id = #{metaDataId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
+    update data_file
+    set identity_id = #{identityId,jdbcType=VARCHAR},
+      file_name = #{fileName,jdbcType=VARCHAR},
+      file_path = #{filePath,jdbcType=VARCHAR},
+      file_type = #{fileType,jdbcType=VARCHAR},
+      resource_name = #{resourceName,jdbcType=VARCHAR},
+      `size` = #{size,jdbcType=BIGINT},
+      `rows` = #{rows,jdbcType=BIGINT},
+      columns = #{columns,jdbcType=INTEGER},
+      published = #{published,jdbcType=BIT},
+      published_at = #{publishedAt,jdbcType=TIMESTAMP},
+      has_title = #{hasTitle,jdbcType=BIT},
+      remarks = #{remarks,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      meta_data_id = #{metaDataId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+
+  <select id="listDataFile" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from data_file
+    where status = #{status,jdbcType=VARCHAR}
+    order by identity_id, resource_name
+  </select>
+
+  <select id="findByMetaDataId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from data_file
+    where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
+  </select>
+
+
+  <delete id="deleteByMetaDataId" parameterType="java.lang.String">
+    UPDATE data_file set status = 'disabled'
+    where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
+  </delete>
+
+</mapper>

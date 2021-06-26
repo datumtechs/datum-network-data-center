@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platon.rosettanet.storage.dao.ScheduleServerMapper">
+  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.ScheduleServer">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="identity_id" jdbcType="VARCHAR" property="identityId" />
+    <result column="internal_ip" jdbcType="VARCHAR" property="internalIp" />
+    <result column="internal_port" jdbcType="VARCHAR" property="internalPort" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, identity_id, internal_ip, internal_port, status
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from schedule_server
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from schedule_server
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.ScheduleServer">
+    insert into schedule_server (id, identity_id, internal_ip, 
+      internal_port, status)
+    values (#{id,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{internalIp,jdbcType=VARCHAR}, 
+      #{internalPort,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.ScheduleServer">
+    insert into schedule_server
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="identityId != null">
+        identity_id,
+      </if>
+      <if test="internalIp != null">
+        internal_ip,
+      </if>
+      <if test="internalPort != null">
+        internal_port,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="identityId != null">
+        #{identityId,jdbcType=VARCHAR},
+      </if>
+      <if test="internalIp != null">
+        #{internalIp,jdbcType=VARCHAR},
+      </if>
+      <if test="internalPort != null">
+        #{internalPort,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.platon.rosettanet.storage.dao.entity.ScheduleServer">
+    update schedule_server
+    <set>
+      <if test="identityId != null">
+        identity_id = #{identityId,jdbcType=VARCHAR},
+      </if>
+      <if test="internalIp != null">
+        internal_ip = #{internalIp,jdbcType=VARCHAR},
+      </if>
+      <if test="internalPort != null">
+        internal_port = #{internalPort,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.platon.rosettanet.storage.dao.entity.ScheduleServer">
+    update schedule_server
+    set identity_id = #{identityId,jdbcType=VARCHAR},
+      internal_ip = #{internalIp,jdbcType=VARCHAR},
+      internal_port = #{internalPort,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

@@ -1,0 +1,16 @@
+# ==================================== tidb conf  ==========================================
+spring:
+  profiles:
+    active: test
+
+# ==================================== conf for mybatis =====================================
+mybatis:
+  mapper-locations: classpath:/mapper/**/*.xml
+  type-aliases-package: com.platon.rosettanet.storage.dao.entity
+
+# =============================== conf for logger ===================================
+logging:
+  level: debug
+  level.com.platon: INFO
+  path: logs/
+  file: core.log

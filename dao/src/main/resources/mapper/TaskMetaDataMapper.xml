@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platon.rosettanet.storage.dao.TaskMetaDataMapper">
+  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.TaskMetaData">
+    <id column="task_id" jdbcType="VARCHAR" property="taskId" />
+    <id column="meta_data_id" jdbcType="VARCHAR" property="metaDataId" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from task_meta_data
+    where task_id = #{taskId,jdbcType=VARCHAR}
+      and meta_data_id = #{metaDataId,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.TaskMetaData">
+    insert into task_meta_data (task_id, meta_data_id)
+    values (#{taskId,jdbcType=VARCHAR}, #{metaDataId,jdbcType=VARCHAR}
+      )
+  </insert>
+
+  <insert id="insertBatch">
+    insert into task_meta_data (task_id, meta_data_id)
+    values
+    <foreach collection ="list" item="taskMetaData" separator =",">
+      (#{taskMetaData.taskId,jdbcType=VARCHAR}, #{taskMetaData.metaDataId,jdbcType=VARCHAR}
+      )
+    </foreach>
+  </insert>
+
+
+  <select id="listTaskMetaData" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select task_id, meta_data_id
+    from task_meta_data
+    where task_id = #{taskId,jdbcType=VARCHAR}
+  </select>
+
+</mapper>

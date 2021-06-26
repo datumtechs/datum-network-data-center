@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platon.rosettanet.storage.dao.TaskMetaDataColumnMapper">
+  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.TaskMetaDataColumn">
+    <id column="task_id" jdbcType="VARCHAR" property="taskId" />
+    <id column="meta_data_id" jdbcType="VARCHAR" property="metaDataId" />
+    <id column="column_idx" jdbcType="INTEGER" property="columnIdx" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from task_meta_data_column
+    where task_id = #{taskId,jdbcType=VARCHAR}
+      and meta_data_id = #{metaDataId,jdbcType=VARCHAR}
+      and column_idx = #{columnIdx,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.TaskMetaDataColumn">
+    insert into task_meta_data_column (task_id, meta_data_id, column_idx
+      )
+    values (#{taskId,jdbcType=VARCHAR}, #{metaDataId,jdbcType=VARCHAR}, #{columnIdx,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.TaskMetaDataColumn">
+    insert into task_meta_data_column
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="taskId != null">
+        task_id,
+      </if>
+      <if test="metaDataId != null">
+        meta_data_id,
+      </if>
+      <if test="columnIdx != null">
+        column_idx,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="taskId != null">
+        #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="metaDataId != null">
+        #{metaDataId,jdbcType=VARCHAR},
+      </if>
+      <if test="columnIdx != null">
+        #{columnIdx,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+  <insert id="insertBatch">
+    insert into task_meta_data_column (task_id, meta_data_id, column_idx
+    )
+    values
+    <foreach collection ="list" item="taskMetaDataColumn" separator =",">
+      (#{taskMetaDataColumn.taskId,jdbcType=VARCHAR}, #{taskMetaDataColumn.metaDataId,jdbcType=VARCHAR}, #{taskMetaDataColumn.columnIdx,jdbcType=INTEGER}
+      )
+    </foreach>
+  </insert>
+
+
+  <select id="listTaskMetaDataColumn" parameterType="map" resultMap="BaseResultMap">
+    select task_id, meta_data_id, column_idx
+    from task_meta_data_column
+    where task_id = #{taskId,jdbcType=VARCHAR} and meta_data_id = #{metaDataId,jdbcType=VARCHAR}
+  </select>
+</mapper>

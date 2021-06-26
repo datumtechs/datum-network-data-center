@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platon.rosettanet.storage.dao.TaskPowerProviderMapper">
+  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.TaskPowerProvider">
+    <id column="task_id" jdbcType="VARCHAR" property="taskId" />
+    <id column="identity_id" jdbcType="VARCHAR" property="identityId" />
+    <result column="used_memory" jdbcType="BIGINT" property="usedMemory" />
+    <result column="used_core" jdbcType="INTEGER" property="usedCore" />
+    <result column="used_bandwidth" jdbcType="BIGINT" property="usedBandwidth" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    task_id, identity_id, used_memory, used_core, used_bandwidth
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from task_power_provider
+    where task_id = #{taskId,jdbcType=VARCHAR}
+      and identity_id = #{identityId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from task_power_provider
+    where task_id = #{taskId,jdbcType=VARCHAR}
+      and identity_id = #{identityId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.TaskPowerProvider">
+    insert into task_power_provider (task_id, identity_id, used_memory, 
+      used_core, used_bandwidth)
+    values (#{taskId,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{usedMemory,jdbcType=BIGINT}, 
+      #{usedCore,jdbcType=INTEGER}, #{usedBandwidth,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.TaskPowerProvider">
+    insert into task_power_provider
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="taskId != null">
+        task_id,
+      </if>
+      <if test="identityId != null">
+        identity_id,
+      </if>
+      <if test="usedMemory != null">
+        used_memory,
+      </if>
+      <if test="usedCore != null">
+        used_core,
+      </if>
+      <if test="usedBandwidth != null">
+        used_bandwidth,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="taskId != null">
+        #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="identityId != null">
+        #{identityId,jdbcType=VARCHAR},
+      </if>
+      <if test="usedMemory != null">
+        #{usedMemory,jdbcType=BIGINT},
+      </if>
+      <if test="usedCore != null">
+        #{usedCore,jdbcType=INTEGER},
+      </if>
+      <if test="usedBandwidth != null">
+        #{usedBandwidth,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.platon.rosettanet.storage.dao.entity.TaskPowerProvider">
+    update task_power_provider
+    <set>
+      <if test="usedMemory != null">
+        used_memory = #{usedMemory,jdbcType=BIGINT},
+      </if>
+      <if test="usedCore != null">
+        used_core = #{usedCore,jdbcType=INTEGER},
+      </if>
+      <if test="usedBandwidth != null">
+        used_bandwidth = #{usedBandwidth,jdbcType=BIGINT},
+      </if>
+    </set>
+    where task_id = #{taskId,jdbcType=VARCHAR}
+      and identity_id = #{identityId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.platon.rosettanet.storage.dao.entity.TaskPowerProvider">
+    update task_power_provider
+    set used_memory = #{usedMemory,jdbcType=BIGINT},
+      used_core = #{usedCore,jdbcType=INTEGER},
+      used_bandwidth = #{usedBandwidth,jdbcType=BIGINT}
+    where task_id = #{taskId,jdbcType=VARCHAR}
+      and identity_id = #{identityId,jdbcType=VARCHAR}
+  </update>
+
+  <insert id="insertBatch">
+    insert into task_power_provider (task_id, identity_id, used_memory,
+    used_core, used_bandwidth)
+    values
+    <foreach collection ="list" item="taskPowerProvider" separator =",">
+      (#{taskPowerProvider.taskId,jdbcType=VARCHAR}, #{taskPowerProvider.identityId,jdbcType=VARCHAR}, #{taskPowerProvider.usedMemory,jdbcType=BIGINT},
+      #{taskPowerProvider.usedCore,jdbcType=INTEGER}, #{taskPowerProvider.usedBandwidth,jdbcType=BIGINT})
+    </foreach>
+  </insert>
+
+
+  <select id="listTaskPowerProvider" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from task_power_provider
+    where task_id = #{taskId,jdbcType=VARCHAR}
+  </select>
+</mapper>
