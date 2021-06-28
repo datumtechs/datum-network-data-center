@@ -10,10 +10,12 @@
     <result column="accumulative_core" jdbcType="INTEGER" property="accumulativeCore" />
     <result column="accumulative_Bandwidth" jdbcType="BIGINT" property="accumulativeBandwidth" />
     <result column="accumulative_power_task_count" jdbcType="INTEGER" property="accumulativePowerTaskCount" />
-
+    <result column="accumulative_data_task_count" jdbcType="INTEGER" property="accumulativeDataTaskCount" />
+    <result column="accumulative_data_file_count" jdbcType="INTEGER" property="accumulativeDataFileCount" />
   </resultMap>
   <sql id="Base_Column_List">
-    identity_id, identity_type, org_name, status, accumulative_memory, accumulative_core, accumulative_Bandwidth, accumulative_power_task_count
+    identity_id, identity_type, org_name, status, accumulative_memory, accumulative_core, accumulative_Bandwidth,
+    accumulative_power_task_count, accumulative_data_task_count, accumulative_data_file_count
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
@@ -28,10 +30,11 @@
   </update>
   <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.OrgInfo">
     insert into org_info (identity_id, identity_type, org_name, status,
-      accumulative_memory, accumulative_core, accumulative_Bandwidth, accumulative_power_task_count
+      accumulative_memory, accumulative_core, accumulative_Bandwidth, accumulative_power_task_count, accumulative_data_task_count, accumulative_data_file_count
       )
     values (#{identityId,jdbcType=VARCHAR}, #{identityType,jdbcType=VARCHAR}, #{orgName,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
-      #{accumulativeMemory,jdbcType=BIGINT}, #{accumulativeCore,jdbcType=INTEGER}, #{accumulativeBandwidth,jdbcType=BIGINT}, #{accumulativePowerTaskCount,jdbcType=INTEGER}
+      #{accumulativeMemory,jdbcType=BIGINT}, #{accumulativeCore,jdbcType=INTEGER}, #{accumulativeBandwidth,jdbcType=BIGINT},
+      #{accumulativePowerTaskCount,jdbcType=INTEGER} , #{accumulativeDataTaskCount,jdbcType=INTEGER}, #{accumulativeDataFileCount,jdbcType=INTEGER}
       )
   </insert>
 
@@ -57,7 +60,13 @@
         accumulative_Bandwidth = #{accumulativeBandwidth,jdbcType=BIGINT},
       </if>
       <if test="accumulativePowerTaskCount != null">
-        accumulative_power_task_count = #{accumulativePowerTaskCount,jdbcType=BIGINT},
+        accumulative_power_task_count = #{accumulativePowerTaskCount,jdbcType=INTEGER},
+      </if>
+      <if test="accumulativePowerTaskCount != null">
+        accumulative_data_task_count = #{accumulativeDataTaskCount,jdbcType=INTEGER},
+      </if>
+      <if test="accumulativePowerTaskCount != null">
+        accumulative_data_file_count = #{accumulativeDataFileCount,jdbcType=INTEGER},
       </if>
     </set>
     where identity_id = #{identityId,jdbcType=VARCHAR}
@@ -70,7 +79,9 @@
       accumulative_core = #{accumulativeCore,jdbcType=INTEGER},
       accumulative_Bandwidth = #{accumulativeBandwidth,jdbcType=BIGINT},
       accumulative_memory = #{accumulativeMemory,jdbcType=BIGINT},
-      accumulative_power_task_count = #{accumulativePowerTaskCount,jdbcType=BIGINT}
+      accumulative_power_task_count = #{accumulativePowerTaskCount,jdbcType=INTEGER},
+      accumulative_data_task_count = #{accumulativeDataTaskCount,jdbcType=INTEGER},
+      accumulative_data_file_count = #{accumulativeDataFileCount,jdbcType=INTEGER}
     where identity_id = #{identityId,jdbcType=VARCHAR}
   </update>
 

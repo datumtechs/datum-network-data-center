@@ -11,10 +11,12 @@ CREATE TABLE org_info (
 	identity_type VARCHAR(100) NOT NULL COMMENT '身份认证标识的类型 (ca 或者 did)',
     org_name VARCHAR(100) COMMENT '组织身份名称',
     status VARCHAR(10) NOT NULL DEFAULT 'enabled' COMMENT '状态,enabled/disabled',
-    accumulative_memory BIGINT DEFAULT 0 COMMENT '组织算力累积的内存数量, 字节',
     accumulative_core INT DEFAULT 0 COMMENT '组织算力累积的core数量',
+    accumulative_memory BIGINT DEFAULT 0 COMMENT '组织算力累积的内存数量, 字节',
     accumulative_bandwidth BIGINT DEFAULT 0 COMMENT '组织算力累积的带宽数量, bps',
-    accumulative_power_task_count INT DEFAULT 0 COMMENT '组织算力参与的任务累积数量',
+    accumulative_power_task_count INT DEFAULT 0 COMMENT '组织作为算力提供方参与的任务累积数量',
+    accumulative_data_task_count INT DEFAULT 0 COMMENT '组织作为数据提供方参与的任务累积数量',
+    accumulative_data_file_count INT DEFAULT 0 COMMENT '组织的文件累积数量',
     PRIMARY KEY (identity_id)
 ) comment '组织信息';
 
@@ -205,6 +207,30 @@ CREATE trigger task_power_provider_insert_trigger AFTER INSERT ON task_power_pro
 begin
     update org_info
     set accumulative_power_task_count  = ifnull(accumulative_power_task_count,0) + 1
+    where identity_id = NEW.identity_id;
+end
+$$
+DELIMITER ;
+
+-- 统计 org 提供数据的任务累积数量
+DELIMITER $$
+drop trigger if exists task_meta_data_insert_trigger $$
+CREATE trigger task_meta_data_insert_trigger AFTER INSERT ON task_meta_data FOR EACH Row
+begin
+    update org_info
+    set accumulative_data_task_count  = ifnull(accumulative_data_task_count,0) + 1
+    where identity_id = (select identity_id from data_file where meta_data_id = NEW.meta_data_id);
+end
+$$
+DELIMITER ;
+
+-- 统计 org 提供的数据文件的累积数量
+DELIMITER $$
+drop trigger if exists data_file_insert_trigger $$
+CREATE trigger data_file_insert_trigger AFTER INSERT ON data_file FOR EACH Row
+begin
+    update org_info
+    set accumulative_data_file_count  = ifnull(accumulative_data_file_count,0) + 1
     where identity_id = NEW.identity_id;
 end
 $$

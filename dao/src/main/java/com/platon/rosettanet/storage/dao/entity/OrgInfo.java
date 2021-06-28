@@ -16,6 +16,8 @@ public class OrgInfo {
     private Long accumulativeBandwidth;
 
     private Integer accumulativePowerTaskCount;
+    private Integer accumulativeDataTaskCount;
+    private Integer accumulativeDataFileCount;
 
     public String getIdentityId() {
         return identityId;
@@ -79,5 +81,21 @@ public class OrgInfo {
 
     public void setAccumulativePowerTaskCount(Integer accumulativePowerTaskCount) {
         this.accumulativePowerTaskCount = accumulativePowerTaskCount;
+    }
+
+    public Integer getAccumulativeDataTaskCount() {
+        return accumulativeDataTaskCount;
+    }
+
+    public void setAccumulativeDataTaskCount(Integer accumulativeDataTaskCount) {
+        this.accumulativeDataTaskCount = accumulativeDataTaskCount;
+    }
+
+    public Integer getAccumulativeDataFileCount() {
+        return accumulativeDataFileCount;
+    }
+
+    public void setAccumulativeDataFileCount(Integer accumulativeDataFileCount) {
+        this.accumulativeDataFileCount = accumulativeDataFileCount;
     }
 }

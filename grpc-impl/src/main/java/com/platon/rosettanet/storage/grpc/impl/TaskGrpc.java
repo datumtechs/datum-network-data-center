@@ -141,11 +141,11 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
         List<TaskResultConsumer> taskResultConsumerList = new ArrayList<>();
         for (com.platon.rosettanet.storage.grpc.lib.TaskResultReceiver taskResultReceiver : request.getReceiversList()) {
             for(Organization organization : taskResultReceiver.getProviderList()){
-                TaskResultConsumer resultReceiver = new TaskResultConsumer();
-                resultReceiver.setTaskId(task.getId());
-                resultReceiver.setConsumerIdentityId(taskResultReceiver.getMemberInfo().getIdentityId());
-                resultReceiver.setProducerIdentityId(organization.getIdentityId());
-                taskResultConsumerList.add(resultReceiver);
+                TaskResultConsumer taskResultConsumer = new TaskResultConsumer();
+                taskResultConsumer.setTaskId(task.getId());
+                taskResultConsumer.setConsumerIdentityId(taskResultReceiver.getMemberInfo().getIdentityId());
+                taskResultConsumer.setProducerIdentityId(organization.getIdentityId());
+                taskResultConsumerList.add(taskResultConsumer);
             }
         }
 
