@@ -225,10 +225,14 @@ $$
 DELIMITER ;
 
 -- 统计 org 提供的数据文件的累积数量
+-- 统计 data_file数量, data_file_size总数
 DELIMITER $$
 drop trigger if exists data_file_insert_trigger $$
 CREATE trigger data_file_insert_trigger AFTER INSERT ON data_file FOR EACH Row
 begin
+    insert into data_file_change_history (id, size, trend, status, update_at)
+    values (NEW.id, NEW.size, NEW.status, 'increased', CURRENT_DATE());
+
     update org_info
     set accumulative_data_file_count  = ifnull(accumulative_data_file_count,0) + 1
     where identity_id = NEW.identity_id;
@@ -236,7 +240,8 @@ end
 $$
 DELIMITER ;
 
--- 统计 power_server数量
+-- 统计 power_server 数量
+-- 统计 org 提供的算力的累积数量
 DELIMITER $$
 drop trigger if exists power_server_insert_trigger $$
 CREATE trigger power_server_insert_trigger AFTER INSERT ON power_server FOR EACH Row
@@ -267,16 +272,8 @@ $$
 DELIMITER ;
 
 
--- 统计 data_file数量, data_file_size总数
-DELIMITER $$
-drop trigger if exists data_file_insert_trigger $$
-CREATE trigger data_file_insert_trigger AFTER INSERT ON data_file FOR EACH Row
-begin
-    insert into data_file_change_history (id, size, trend, status, update_at)
-    values (NEW.id, NEW.size, NEW.status, 'increased', CURRENT_DATE());
-end
-$$
-DELIMITER ;
+
+
 
 
 DELIMITER $$
