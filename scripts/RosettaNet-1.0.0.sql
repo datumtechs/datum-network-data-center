@@ -1,8 +1,8 @@
-drop database if exists dev_rosettanet;
+drop database if exists rosettanet_storage;
 
-CREATE DATABASE dev_rosettanet DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE rosettanet_storage DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE dev_rosettanet;
+USE rosettanet_storage;
 
 -- 组织计算资源的使用率是动态的，当有任务正在计算时才有意义。
 DROP TABLE IF EXISTS org_info;
