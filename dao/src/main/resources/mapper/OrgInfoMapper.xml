@@ -38,6 +38,19 @@
       )
   </insert>
 
+  <insert id="insertBatch" >
+    insert into org_info (identity_id, identity_type, org_name, status,
+      accumulative_memory, accumulative_core, accumulative_Bandwidth, accumulative_power_task_count, accumulative_data_task_count, accumulative_data_file_count
+      )
+    values
+    <foreach collection ="list" item="item" separator =",">
+      (#{item.identityId,jdbcType=VARCHAR}, #{item.identityType,jdbcType=VARCHAR}, #{item.orgName,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR},
+        #{item.accumulativeMemory,jdbcType=BIGINT}, #{item.accumulativeCore,jdbcType=INTEGER}, #{item.accumulativeBandwidth,jdbcType=BIGINT},
+        #{item.accumulativePowerTaskCount,jdbcType=INTEGER} , #{item.accumulativeDataTaskCount,jdbcType=INTEGER}, #{item.accumulativeDataFileCount,jdbcType=INTEGER}
+        )
+    </foreach>
+  </insert>
+
   <update id="updateByPrimaryKeySelective" parameterType="com.platon.rosettanet.storage.dao.entity.OrgInfo">
     update org_info
     <set>

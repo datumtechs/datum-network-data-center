@@ -20,4 +20,6 @@ public interface TaskMapper {
     List<Task> listTask();
 
     int countTask(String ownerIdentityId);
+
+    void insertBatch(List<Task> taskList);
 }

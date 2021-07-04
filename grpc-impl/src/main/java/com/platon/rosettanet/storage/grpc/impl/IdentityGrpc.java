@@ -34,12 +34,17 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
     public void getIdentityList(com.platon.rosettanet.storage.grpc.lib.IdentityListRequest request,
                                 io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.IdentityListResponse> responseObserver) {
 
+        log.debug("getIdentityList, request:{}", request);
+
         List<OrgInfo> orgInfoList = orgInfoService.listOrgInfo();
         List<Organization> organizationList = orgInfoList.stream().map(orgInfo -> {
             return this.convertorService.toProtoOrganization(orgInfo);
         }).collect(Collectors.toList());
 
         IdentityListResponse response = IdentityListResponse.newBuilder().addAllIdentityList(organizationList).build();
+
+        log.debug("getIdentityList response:{}", response);
+
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
@@ -52,6 +57,9 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
      */
     public void saveIdentity(com.platon.rosettanet.storage.grpc.lib.SaveIdentityRequest request,
                              io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.SimpleResponse> responseObserver) {
+
+        log.debug("saveIdentity, request:{}", request);
+
         OrgInfo orgInfo = new OrgInfo();
         orgInfo.setIdentityId(request.getMember().getIdentityId());
         orgInfo.setOrgName(request.getMember().getName());
@@ -60,6 +68,9 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
         orgInfoService.insert(orgInfo);
 
         SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+
+        log.debug("saveIdentity response:{}", response);
+
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
@@ -73,10 +84,14 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
     public void revokeIdentityJoin(com.platon.rosettanet.storage.grpc.lib.RevokeIdentityJoinRequest request,
                                    io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.SimpleResponse> responseObserver) {
 
+        log.debug("revokeIdentityJoin, request:{}", request);
 
         orgInfoService.deleteByPK(request.getMember().getIdentityId());
 
         SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+
+        log.debug("revokeIdentityJoin response:{}", response);
+
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();

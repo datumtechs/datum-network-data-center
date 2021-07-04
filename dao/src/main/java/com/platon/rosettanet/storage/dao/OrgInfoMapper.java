@@ -18,4 +18,6 @@ public interface OrgInfoMapper {
     OrgInfo findByMetaDataId(String metaDataId);
 
     List<OrgInfo> listOrgInfo();
+
+    int insertBatch(List<OrgInfo> orgInfoList);
 }

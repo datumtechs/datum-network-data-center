@@ -24,6 +24,11 @@ public class PowerServerServiceImpl implements PowerServerService {
     }
 
     @Override
+    public void insert(List<PowerServer> powerServerList) {
+        powerServerMapper.insertBatch(powerServerList);
+    }
+
+    @Override
     public int updateByPrimaryKeySelective(PowerServer powerServer) {
         return powerServerMapper.updateByPrimaryKeySelective(powerServer);
     }

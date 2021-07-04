@@ -38,6 +38,22 @@
       #{externalPort,jdbcType=VARCHAR}, #{remarks,jdbcType=VARCHAR}, #{published,jdbcType=BIT}, 
       #{publishedAt,jdbcType=TIMESTAMP}, #{status,jdbcType=VARCHAR})
   </insert>
+
+
+  <insert id="insertBatch" >
+    insert into data_server (id, identity_id, server_name,
+      internal_ip, internal_port, external_ip,
+      external_port, remarks, published,
+      published_at, status)
+    values
+    <foreach collection ="list" item="item" separator =",">
+    (#{item.id,jdbcType=VARCHAR}, #{item.identityId,jdbcType=VARCHAR}, #{item.serverName,jdbcType=VARCHAR},
+      #{item.internalIp,jdbcType=VARCHAR}, #{item.internalPort,jdbcType=VARCHAR}, #{item.externalIp,jdbcType=VARCHAR},
+      #{item.externalPort,jdbcType=VARCHAR}, #{item.remarks,jdbcType=VARCHAR}, #{item.published,jdbcType=BIT},
+      #{item.publishedAt,jdbcType=TIMESTAMP}, #{item.status,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+
   <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.DataServer">
     insert into data_server
     <trim prefix="(" suffix=")" suffixOverrides=",">

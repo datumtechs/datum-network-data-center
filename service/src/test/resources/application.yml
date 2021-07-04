@@ -10,7 +10,10 @@ mybatis:
 
 # =============================== conf for logger ===================================
 logging:
-  level: debug
-  level.com.platon: INFO
-  path: logs/
-  file: core.log
+  level: DEBUG
+  level.com.platon: DEBUG
+  pattern:
+    console: '%d{yyyy-MMM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{15}[%line] - %msg%n'
+    file: '%d{yyyy-MMM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{15}[%line] - %msg%n'
+  file:
+    name: logs/service_ut.log

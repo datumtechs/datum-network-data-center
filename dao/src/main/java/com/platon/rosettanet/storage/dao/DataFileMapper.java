@@ -22,4 +22,6 @@ public interface DataFileMapper {
     DataFile findByMetaDataId(String metaDataId);
 
     void deleteByMetaDataId(String metaDataId);
+
+    void insertBatch(List<DataFile> dataFileList);
 }

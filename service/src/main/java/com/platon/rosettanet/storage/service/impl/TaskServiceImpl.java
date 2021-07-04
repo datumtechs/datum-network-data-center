@@ -23,6 +23,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public void insert(List<Task> taskList) {
+        taskMapper.insertBatch(taskList);
+    }
+
+    @Override
     public Task findByPK(String taskId){
        return taskMapper.selectByPrimaryKey(taskId);
     }

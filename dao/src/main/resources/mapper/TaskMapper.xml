@@ -45,6 +45,24 @@
       #{endAt,jdbcType=TIMESTAMP}, #{usedMemory,jdbcType=BIGINT}, #{usedCore,jdbcType=INTEGER}, 
       #{usedBandwidth,jdbcType=BIGINT}, #{usedFileSize,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR})
   </insert>
+
+  <insert id="insertBatch">
+    insert into task (id, task_name, required_memory,
+      required_core, required_bandwidth, required_duration,
+      owner_identity_id, create_at, start_at,
+      end_at, used_memory, used_core,
+      used_bandwidth, used_file_size, status)
+    values
+    <foreach collection ="list" item="item" separator =",">
+    (#{item.id,jdbcType=VARCHAR}, #{item.taskName,jdbcType=VARCHAR}, #{item.requiredMemory,jdbcType=BIGINT},
+      #{item.requiredCore,jdbcType=INTEGER}, #{item.requiredBandwidth,jdbcType=BIGINT}, #{item.requiredDuration,jdbcType=BIGINT},
+      #{item.ownerIdentityId,jdbcType=VARCHAR}, #{item.createAt,jdbcType=TIMESTAMP}, #{item.startAt,jdbcType=TIMESTAMP},
+      #{item.endAt,jdbcType=TIMESTAMP}, #{item.usedMemory,jdbcType=BIGINT}, #{item.usedCore,jdbcType=INTEGER},
+      #{item.usedBandwidth,jdbcType=BIGINT}, #{item.usedFileSize,jdbcType=BIGINT}, #{item.status,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+
+
   <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.Task">
     insert into task
     <trim prefix="(" suffix=")" suffixOverrides=",">

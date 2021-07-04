@@ -64,6 +64,8 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
     public void saveTask(com.platon.rosettanet.storage.grpc.lib.TaskDetail request,
                          io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.SimpleResponse> responseObserver) {
 
+        log.debug("saveTask, request:{}", request);
+
         // 业务代码
 
         String taskId = request.getTaskId();
@@ -154,6 +156,8 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
         //接口返回值
         SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
 
+
+        log.debug("saveTask, response:{}", response);
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
@@ -167,6 +171,8 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
      */
     public void getDetailTask(com.platon.rosettanet.storage.grpc.lib.DetailTaskRequest request,
                               io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.TaskDetail> responseObserver) {
+
+        log.debug("getDetailTask, request:{}", request);
 
         // 业务代码
         String taskId = request.getTaskId();
@@ -192,6 +198,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
                 .addAllReceivers(convertorService.toProtoResultReceiver(taskResultConsumerList))
                 .build();
 
+        log.debug("getDetailTask, taskDetail:{}", taskDetail);
 
         // 返回
         responseObserver.onNext(taskDetail);
@@ -206,6 +213,9 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
      */
     public void listTask(com.platon.rosettanet.storage.grpc.lib.TaskListRequest request,
                          io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.TaskListResponse> responseObserver) {
+
+        log.debug("listTask, request:{}", request);
+
         List<Task> taskList = taskService.listTask();
 
         List<com.platon.rosettanet.storage.grpc.lib.TaskDetail> grpcTaskList =
@@ -232,6 +242,8 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
                 }).collect(Collectors.toList());
 
         TaskListResponse response = TaskListResponse.newBuilder().addAllTaskList(grpcTaskList).build();
+
+        log.debug("listTask, response:{}", response);
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
@@ -245,6 +257,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
      */
     public void listTaskEvent(com.platon.rosettanet.storage.grpc.lib.TaskEventRequest request,
                               io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.TaskEventResponse> responseObserver) {
+        log.debug("listTaskEvent, request:{}", request);
 
         List<TaskEvent> taskEventList = taskEventService.listTaskEventByTaskId(request.getTaskId());
 
@@ -252,6 +265,8 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
                 grpcTaskEventList = convertorService.toProtoTaskEvent(taskEventList);
 
         TaskEventResponse response = TaskEventResponse.newBuilder().addAllTaskEventList(grpcTaskEventList).build();
+
+        log.debug("listTaskEvent, response:{}", response);
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();

@@ -33,6 +33,8 @@ public class MetaDataGrpc extends MetaDataServiceGrpc.MetaDataServiceImplBase {
     public void metaDataSave(com.platon.rosettanet.storage.grpc.lib.MetaDataSaveRequest request,
                              io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.SimpleResponse> responseObserver) {
 
+        log.debug("metaDataSave, request:{}", request);
+
         DataFile dataFile = new DataFile();
         dataFile.setId(request.getMetaSummary().getOriginId());
         dataFile.setMetaDataId(request.getMetaSummary().getMetaDataId());
@@ -66,6 +68,7 @@ public class MetaDataGrpc extends MetaDataServiceGrpc.MetaDataServiceImplBase {
         SimpleResponse response = SimpleResponse.newBuilder()
                 .setStatus(0)
                 .build();
+        log.debug("metaDataSave, response:{}", response);
 
         // 返回
         responseObserver.onNext(response);
@@ -79,6 +82,7 @@ public class MetaDataGrpc extends MetaDataServiceGrpc.MetaDataServiceImplBase {
      */
     public void getMetaDataSummaryList(com.google.protobuf.Empty request,
                                        io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.MetaDataSummaryListResponse> responseObserver) {
+        log.debug("getMetaDataSummaryList, request:{}", request);
 
         List<DataFile> dataFileList = metaDataService.listDataFile("released");
 
@@ -87,7 +91,7 @@ public class MetaDataGrpc extends MetaDataServiceGrpc.MetaDataServiceImplBase {
         MetaDataSummaryListResponse response = MetaDataSummaryListResponse.newBuilder()
                 .addAllMetadataSummaryList(metaDataSummaryOwnerList)
                 .build();
-
+        log.debug("getMetaDataSummaryList, response:{}", response);
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
@@ -100,6 +104,9 @@ public class MetaDataGrpc extends MetaDataServiceGrpc.MetaDataServiceImplBase {
      */
     public void getMetadataList(com.platon.rosettanet.storage.grpc.lib.MetadataListRequest request,
                                 io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.MetadataListResponse> responseObserver) {
+
+        log.debug("getMetadataList, request:{}", request);
+
         List<DataFile> dataFileList = metaDataService.listDataFile("released");
 
 
@@ -122,6 +129,9 @@ public class MetaDataGrpc extends MetaDataServiceGrpc.MetaDataServiceImplBase {
         }).collect(Collectors.toList());
 
         MetadataListResponse response = MetadataListResponse.newBuilder().addAllMetadataList(metadataList).build();
+
+        log.debug("getMetadataList, response:{}", response);
+
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
@@ -134,6 +144,8 @@ public class MetaDataGrpc extends MetaDataServiceGrpc.MetaDataServiceImplBase {
      */
     public void getMetadataById(com.platon.rosettanet.storage.grpc.lib.MetadataByIdRequest request,
                                 io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.MetadataByIdResponse> responseObserver) {
+
+        log.debug("getMetadataById, request:{}", request);
 
         String metaDataId = request.getMetadataId();
         Metadata metadata = null;
@@ -158,6 +170,8 @@ public class MetaDataGrpc extends MetaDataServiceGrpc.MetaDataServiceImplBase {
         }
 
         MetadataByIdResponse response = MetadataByIdResponse.newBuilder().setMetadata(metadata).build();
+
+        log.debug("getMetadataById, response:{}", response);
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
@@ -170,10 +184,16 @@ public class MetaDataGrpc extends MetaDataServiceGrpc.MetaDataServiceImplBase {
      */
     public void revokeMetaData(com.platon.rosettanet.storage.grpc.lib.RevokeMetaDataRequest request,
                                io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.SimpleResponse> responseObserver) {
+
+        log.debug("revokeMetaData, request:{}", request);
+
         String metaDataId = request.getMetaDataId();
         metaDataService.deleteByMetaDataId(metaDataId);
 
         SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+
+        log.debug("revokeMetaData, response:{}", response);
+
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();

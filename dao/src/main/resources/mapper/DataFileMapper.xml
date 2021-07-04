@@ -46,6 +46,26 @@
       #{remarks,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{metaDataId,jdbcType=VARCHAR}
       )
   </insert>
+
+  <insert id="insertBatch">
+    insert into data_file (id, identity_id, file_name,
+      file_path, file_type, resource_name,
+      `size`, `rows`, columns,
+      published, published_at, has_title,
+      remarks, status, meta_data_id
+      )
+    values
+    <foreach collection ="list" item="item" separator =",">
+    (#{item.id,jdbcType=VARCHAR}, #{item.identityId,jdbcType=VARCHAR}, #{item.fileName,jdbcType=VARCHAR},
+      #{item.filePath,jdbcType=VARCHAR}, #{item.fileType,jdbcType=VARCHAR}, #{item.resourceName,jdbcType=VARCHAR},
+      #{item.size,jdbcType=BIGINT}, #{item.rows,jdbcType=BIGINT}, #{item.columns,jdbcType=INTEGER},
+      #{item.published,jdbcType=BIT}, #{item.publishedAt,jdbcType=TIMESTAMP}, #{item.hasTitle,jdbcType=BIT},
+      #{item.remarks,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.metaDataId,jdbcType=VARCHAR}
+      )
+    </foreach>
+  </insert>
+
+
   <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
     insert into data_file
     <trim prefix="(" suffix=")" suffixOverrides=",">

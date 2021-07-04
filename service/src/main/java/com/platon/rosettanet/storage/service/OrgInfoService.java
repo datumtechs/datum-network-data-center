@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface OrgInfoService {
     int insert(OrgInfo orgInfo);
+    int insert(List<OrgInfo> orgInfoList);
+
     OrgInfo findByPK(String identityId);
 
     OrgInfo findByMetaDataId(String metaDataId);
@@ -13,4 +15,5 @@ public interface OrgInfoService {
     List<OrgInfo> listOrgInfo();
 
     int deleteByPK(String identityId);
+
 }

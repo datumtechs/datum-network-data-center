@@ -7,6 +7,10 @@ import java.util.List;
 
 public interface PowerServerService {
     int insert(PowerServer powerServer);
+
+    void insert(List<PowerServer> powerServerList);
+
+
     int updateByPrimaryKeySelective(PowerServer record);
 
     int deleteByPK(String powerId);

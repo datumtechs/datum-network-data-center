@@ -2,16 +2,20 @@ package com.platon.rosettanet.storage.dao;
 
 import com.platon.rosettanet.storage.dao.entity.DataServer;
 
+import java.util.List;
+
 public interface DataServerMapper {
     int deleteByPrimaryKey(String id);
 
-    int insert(DataServer record);
+    int insert(DataServer dataServer);
 
-    int insertSelective(DataServer record);
+    void insertBatch(List<DataServer> dataServerList);
+
+    int insertSelective(DataServer dataServer);
 
     DataServer selectByPrimaryKey(String id);
 
-    int updateByPrimaryKeySelective(DataServer record);
+    int updateByPrimaryKeySelective(DataServer dataServer);
 
-    int updateByPrimaryKey(DataServer record);
+    int updateByPrimaryKey(DataServer dataServer);
 }

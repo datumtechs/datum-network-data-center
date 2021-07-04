@@ -15,5 +15,7 @@ public interface MetaDataService {
 
     List<DataFile> listDataFile(String status);
 
+    void insertDataFile(List<DataFile> dataFileList);
+    void insertMetaDataColumn(List<MetaDataColumn> metaDataColumnList);
     void deleteByMetaDataId(String metaDataId);
 }

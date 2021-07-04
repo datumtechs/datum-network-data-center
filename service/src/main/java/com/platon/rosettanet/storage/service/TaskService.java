@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface TaskService {
     int insert(Task task);
+    void insert(List<Task> taskList);
+
     Task findByPK(String taskId);
     List<Task> listTask();
     int countTask(String ownerIdentityId);

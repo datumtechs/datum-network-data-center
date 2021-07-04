@@ -24,6 +24,11 @@ public class OrgInfoServiceImpl implements OrgInfoService {
     }
 
     @Override
+    public int insert(List<OrgInfo> orgInfoList) {
+        return orgInfoMapper.insertBatch(orgInfoList);
+    }
+
+    @Override
     public OrgInfo findByPK(String identityId) {
         return orgInfoMapper.selectByPrimaryKey(identityId);
     }

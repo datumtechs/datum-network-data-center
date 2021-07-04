@@ -28,4 +28,6 @@ public interface PowerServerMapper {
     PowerServer countPowerByOrgId(String identityId);
 
     List<OrgPowerTaskSummary> countPowerGroupByOrgId();
+
+    void insertBatch(List<PowerServer> powerServerList);
 }

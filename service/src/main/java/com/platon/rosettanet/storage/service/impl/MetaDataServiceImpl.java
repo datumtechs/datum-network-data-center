@@ -35,6 +35,16 @@ public class MetaDataServiceImpl implements MetaDataService {
     }
 
     @Override
+    public void insertDataFile(List<DataFile> dataFileList) {
+        dataFileMapper.insertBatch(dataFileList);
+    }
+
+    @Override
+    public void insertMetaDataColumn(List<MetaDataColumn> metaDataColumnList) {
+        metaDataColumnMapper.insertBatch(metaDataColumnList);
+    }
+
+    @Override
     public void deleteByMetaDataId(String metaDataId) {
         dataFileMapper.deleteByMetaDataId(metaDataId);
         //metaDataColumnMapper.deleteByMetaDataId(metaDataId);

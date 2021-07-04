@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = TestApplication.class)
 @Transactional //这个有看需要，测试方法如果要作为一个整体事务，则加上
 @Rollback(true) // 默认值：true, UT默认都会回滚数据库，不会增加新数据
 public class TaskServiceTest {
@@ -36,6 +36,9 @@ public class TaskServiceTest {
         task.setRequiredMemory(128L);
         task.setRequiredCore(3);
         task.setRequiredBandwidth(100L);
+        task.setUsedMemory(128L);
+        task.setUsedCore(3);
+        task.setUsedBandwidth(100L);
         task.setRequiredDuration(600000L);
         task.setCreateAt(LocalDateTime.now());
         task.setStartAt(LocalDateTime.now());
@@ -59,6 +62,7 @@ public class TaskServiceTest {
         orgInfo.setIdentityId("identityId");
         orgInfo.setIdentityType("DID");
         orgInfo.setOrgName("orgName");
+        orgInfo.setStatus("enabled");
         orgInfo.setAccumulativeBandwidth(100L);
         orgInfo.setAccumulativeCore(10);
         orgInfo.setAccumulativeMemory(100L);
