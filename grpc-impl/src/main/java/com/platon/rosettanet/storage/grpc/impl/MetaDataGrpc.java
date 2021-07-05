@@ -54,7 +54,7 @@ public class MetaDataGrpc extends MetaDataServiceGrpc.MetaDataServiceImplBase {
 
         List<MetaDataColumn> metaDataColumnList = request.getColumnMetaList().stream().map(column -> {
             MetaDataColumn metaDataColumn = new MetaDataColumn();
-            metaDataColumn.setMetaDataId(request.getMetaSummary().getOriginId());
+            metaDataColumn.setMetaDataId(request.getMetaSummary().getMetaDataId());
             metaDataColumn.setColumnIdx(column.getCindex());
             metaDataColumn.setColumnName(column.getCname());
             metaDataColumn.setColumnType(column.getCtype());

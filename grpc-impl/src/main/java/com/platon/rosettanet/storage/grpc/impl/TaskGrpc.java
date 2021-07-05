@@ -15,10 +15,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -50,6 +47,9 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
 
     @Autowired
     private ConvertorService convertorService;
+
+    @Autowired
+    private MetaDataService metaDataService;
     /**
      * <pre>
      * 存储任务
@@ -109,8 +109,19 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
             for(MetaDataColumnDetail columnDetail : dataSupplier.getColumnMetaList()){
                 TaskMetaDataColumn dataProvider = new TaskMetaDataColumn();
                 dataProvider.setTaskId(taskId);
-                dataProvider.setMetaDataId(dataSupplier.getMetaId());
-                dataProvider.setColumnIdx(columnDetail.getCindex());
+
+                String metaId = dataSupplier.getMetaId();
+                int cindex = columnDetail.getCindex();
+
+                //元数据校验
+                List<MetaDataColumn> metaDataColumns = metaDataService.listMetaDataColumn(metaId);
+                Optional<MetaDataColumn> first = metaDataColumns.stream().filter(metaDataColumn -> {
+                    return cindex == metaDataColumn.getColumnIdx();
+                }).findFirst();
+                first.orElseThrow(() -> new RuntimeException("元数据校验失败,metaId=" + metaId + ",cindex=" + cindex));
+
+                dataProvider.setMetaDataId(metaId);
+                dataProvider.setColumnIdx(cindex);
                 taskMetaDataColumnList.add(dataProvider);
             }
         }
