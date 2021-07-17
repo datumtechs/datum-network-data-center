@@ -17,6 +17,8 @@ public class Task {
 
     private String ownerIdentityId;
 
+    private String ownerPartyId;
+
     private LocalDateTime createAt;
 
     private LocalDateTime startAt;
@@ -87,6 +89,14 @@ public class Task {
 
     public void setOwnerIdentityId(String ownerIdentityId) {
         this.ownerIdentityId = ownerIdentityId;
+    }
+
+    public String getOwnerPartyId() {
+        return ownerPartyId;
+    }
+
+    public void setOwnerPartyId(String ownerPartyId) {
+        this.ownerPartyId = ownerPartyId;
     }
 
     public LocalDateTime getCreateAt() {

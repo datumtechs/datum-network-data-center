@@ -58,6 +58,7 @@ public class MetaDataGrpc extends MetaDataServiceGrpc.MetaDataServiceImplBase {
             metaDataColumn.setColumnIdx(column.getCindex());
             metaDataColumn.setColumnName(column.getCname());
             metaDataColumn.setColumnType(column.getCtype());
+            metaDataColumn.setColumnSize(column.getCsize());
             metaDataColumn.setRemarks(column.getCcomment());
             metaDataColumn.setPublished(true);
             return metaDataColumn;
@@ -84,7 +85,7 @@ public class MetaDataGrpc extends MetaDataServiceGrpc.MetaDataServiceImplBase {
                                        io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.MetaDataSummaryListResponse> responseObserver) {
         log.debug("getMetaDataSummaryList, request:{}", request);
 
-        List<DataFile> dataFileList = metaDataService.listDataFile("released");
+        List<DataFile> dataFileList = metaDataService.listDataFile("release");
 
         List<MetaDataSummaryOwner> metaDataSummaryOwnerList = convertorService.toProtoMetaDataSummaryOwner(dataFileList);
 
@@ -107,16 +108,16 @@ public class MetaDataGrpc extends MetaDataServiceGrpc.MetaDataServiceImplBase {
 
         log.debug("getMetadataList, request:{}", request);
 
-        List<DataFile> dataFileList = metaDataService.listDataFile("released");
+        List<DataFile> dataFileList = metaDataService.listDataFile("release");
 
 
         List<MetaDataSummaryOwner> metaDataSummaryOwnerList = convertorService.toProtoMetaDataSummaryOwner(dataFileList);
 
-        List<Metadata> metadataList = metaDataSummaryOwnerList.stream().map(summaryOwner -> {
+        List<Metadata> metadataList = metaDataSummaryOwnerList.parallelStream().map(summaryOwner -> {
             String metaDataId = summaryOwner.getInformation().getMetaDataId();
 
             List<MetaDataColumn> metaDataColumnList = metaDataService.listMetaDataColumn(metaDataId);
-            List<MetaDataColumnDetail> metaDataColumnDetailList = metaDataColumnList.stream().map(column ->{
+            List<MetaDataColumnDetail> metaDataColumnDetailList = metaDataColumnList.parallelStream().map(column ->{
                 return this.convertorService.toProtoMetaDataColumnDetail(column);
             }).collect(Collectors.toList());
 

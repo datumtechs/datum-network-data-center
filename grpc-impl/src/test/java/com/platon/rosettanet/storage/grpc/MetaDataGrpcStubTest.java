@@ -69,7 +69,7 @@ public class MetaDataGrpcStubTest {
     @Test
     public void getMetadataById() {
         log.info("start to test getMetadataById()...");
-        MetadataByIdRequest request = MetadataByIdRequest.newBuilder().setMetadataId("test_meta_data_1").build();
+        MetadataByIdRequest request = MetadataByIdRequest.newBuilder().setMetadataId("metaDataId_000003_000073").build();
         MetadataByIdResponse response = metaDataServiceBlockingStub.getMetadataById(request);
 
         log.info("getMetadataById(), response:{}", response.getMetadata());

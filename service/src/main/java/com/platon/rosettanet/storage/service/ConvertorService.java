@@ -15,6 +15,8 @@ public interface ConvertorService {
 
     com.platon.rosettanet.storage.grpc.lib.Organization toProtoOrganization(OrgInfo orgInfo);
 
+    com.platon.rosettanet.storage.grpc.lib.TaskOrganization toProtoTaskOrganization(OrgInfo orgInfo, String partyId);
+
     List<com.platon.rosettanet.storage.grpc.lib.TaskEvent> toProtoTaskEvent(List<com.platon.rosettanet.storage.dao.entity.TaskEvent> taskEventList);
 
     com.platon.rosettanet.storage.grpc.lib.TaskEvent toProtoTaskEvent(com.platon.rosettanet.storage.dao.entity.TaskEvent taskEvent);

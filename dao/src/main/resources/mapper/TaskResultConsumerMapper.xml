@@ -5,6 +5,8 @@
     <id column="task_id" jdbcType="VARCHAR" property="taskId" />
     <id column="consumer_identity_id" jdbcType="VARCHAR" property="consumerIdentityId" />
     <id column="producer_identity_id" jdbcType="VARCHAR" property="producerIdentityId" />
+    <result column="consumer_party_id" jdbcType="VARCHAR" property="consumerPartyId" />
+    <result column="producer_party_id" jdbcType="VARCHAR" property="producerPartyId" />
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="map">
     delete from task_result_consumer
@@ -13,9 +15,9 @@
       and producer_identity_id = #{producerIdentityId,jdbcType=VARCHAR}
   </delete>
   <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.TaskResultConsumer">
-    insert into task_result_consumer (task_id, consumer_identity_id, producer_identity_id
+    insert into task_result_consumer (task_id, consumer_identity_id, consumer_party_id, producer_identity_id, producer_party_id
       )
-    values (#{taskId,jdbcType=VARCHAR}, #{consumerIdentityId,jdbcType=VARCHAR}, #{producerIdentityId,jdbcType=VARCHAR}
+    values (#{taskId,jdbcType=VARCHAR}, #{consumerIdentityId,jdbcType=VARCHAR}, #{consumerPartyId,jdbcType=VARCHAR}, #{producerIdentityId,jdbcType=VARCHAR}, #{producerPartyId,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.TaskResultConsumer">
@@ -27,8 +29,14 @@
       <if test="consumerIdentityId != null">
         consumer_identity_id,
       </if>
+      <if test="consumerPartyId != null">
+        consumer_party_id,
+      </if>
       <if test="producerIdentityId != null">
         producer_identity_id,
+      </if>
+      <if test="producerPartyId != null">
+        producer_party_id,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -38,26 +46,33 @@
       <if test="consumerIdentityId != null">
         #{consumerIdentityId,jdbcType=VARCHAR},
       </if>
+      <if test="consumerPartyId != null">
+        #{consumerPartyId,jdbcType=VARCHAR},
+      </if>
       <if test="producerIdentityId != null">
         #{producerIdentityId,jdbcType=VARCHAR},
+      </if>
+      <if test="producerPartyId != null">
+        #{producerPartyId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
 
   <insert id="insertBatch">
-    insert into task_result_consumer (task_id, consumer_identity_id, producer_identity_id
+    insert into task_result_consumer (task_id, consumer_identity_id, consumer_party_id, producer_identity_id, producer_party_id
     )
     values
     <foreach collection ="list" item="taskResultReceiver" separator =",">
-      (#{taskResultReceiver.taskId,jdbcType=VARCHAR}, #{taskResultReceiver.consumerIdentityId,jdbcType=VARCHAR}, #{taskResultReceiver.producerIdentityId,jdbcType=VARCHAR}
+      (#{taskResultReceiver.taskId,jdbcType=VARCHAR}, #{taskResultReceiver.consumerIdentityId,jdbcType=VARCHAR}, #{taskResultReceiver.consumerPartyId,jdbcType=VARCHAR}, #{taskResultReceiver.producerIdentityId,jdbcType=VARCHAR}, #{taskResultReceiver.producerPartyId,jdbcType=VARCHAR}
       )
     </foreach>
   </insert>
 
 
   <select id="listTaskResultConsumer" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select task_id, consumer_identity_id, producer_identity_id
+    select task_id, consumer_identity_id, consumer_party_id, producer_identity_id, producer_party_id
     from task_result_consumer
     where task_id = #{taskId,jdbcType=VARCHAR}
+    order by consumer_identity_id
   </select>
 </mapper>

@@ -4,17 +4,15 @@
   <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.OrgInfo">
     <id column="identity_id" jdbcType="VARCHAR" property="identityId" />
     <result column="identity_type" jdbcType="VARCHAR" property="identityType" />
+    <result column="node_id" jdbcType="VARCHAR" property="nodeId" />
     <result column="org_name" jdbcType="VARCHAR" property="orgName" />
     <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="accumulative_memory" jdbcType="BIGINT" property="accumulativeMemory" />
-    <result column="accumulative_core" jdbcType="INTEGER" property="accumulativeCore" />
-    <result column="accumulative_Bandwidth" jdbcType="BIGINT" property="accumulativeBandwidth" />
     <result column="accumulative_power_task_count" jdbcType="INTEGER" property="accumulativePowerTaskCount" />
     <result column="accumulative_data_task_count" jdbcType="INTEGER" property="accumulativeDataTaskCount" />
     <result column="accumulative_data_file_count" jdbcType="INTEGER" property="accumulativeDataFileCount" />
   </resultMap>
   <sql id="Base_Column_List">
-    identity_id, identity_type, org_name, status, accumulative_memory, accumulative_core, accumulative_Bandwidth,
+    identity_id, identity_type, node_id, org_name, status,
     accumulative_power_task_count, accumulative_data_task_count, accumulative_data_file_count
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
@@ -29,23 +27,21 @@
     where identity_id = #{identityId,jdbcType=VARCHAR}
   </update>
   <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.OrgInfo">
-    insert into org_info (identity_id, identity_type, org_name, status,
-      accumulative_memory, accumulative_core, accumulative_Bandwidth, accumulative_power_task_count, accumulative_data_task_count, accumulative_data_file_count
+    insert into org_info (identity_id, identity_type, node_id, org_name, status,
+      accumulative_power_task_count, accumulative_data_task_count, accumulative_data_file_count
       )
-    values (#{identityId,jdbcType=VARCHAR}, #{identityType,jdbcType=VARCHAR}, #{orgName,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
-      #{accumulativeMemory,jdbcType=BIGINT}, #{accumulativeCore,jdbcType=INTEGER}, #{accumulativeBandwidth,jdbcType=BIGINT},
+    values (#{identityId,jdbcType=VARCHAR}, #{identityType,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{orgName,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
       #{accumulativePowerTaskCount,jdbcType=INTEGER} , #{accumulativeDataTaskCount,jdbcType=INTEGER}, #{accumulativeDataFileCount,jdbcType=INTEGER}
       )
   </insert>
 
   <insert id="insertBatch" >
-    insert into org_info (identity_id, identity_type, org_name, status,
-      accumulative_memory, accumulative_core, accumulative_Bandwidth, accumulative_power_task_count, accumulative_data_task_count, accumulative_data_file_count
+    insert into org_info (identity_id, identity_type, node_id, org_name, status,
+      accumulative_power_task_count, accumulative_data_task_count, accumulative_data_file_count
       )
     values
     <foreach collection ="list" item="item" separator =",">
-      (#{item.identityId,jdbcType=VARCHAR}, #{item.identityType,jdbcType=VARCHAR}, #{item.orgName,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR},
-        #{item.accumulativeMemory,jdbcType=BIGINT}, #{item.accumulativeCore,jdbcType=INTEGER}, #{item.accumulativeBandwidth,jdbcType=BIGINT},
+      (#{item.identityId,jdbcType=VARCHAR}, #{item.identityType,jdbcType=VARCHAR}, #{item.nodeId,jdbcType=VARCHAR}, #{item.orgName,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR},
         #{item.accumulativePowerTaskCount,jdbcType=INTEGER} , #{item.accumulativeDataTaskCount,jdbcType=INTEGER}, #{item.accumulativeDataFileCount,jdbcType=INTEGER}
         )
     </foreach>
@@ -57,20 +53,14 @@
       <if test="identityType != null">
         identity_type = #{identityType,jdbcType=VARCHAR},
       </if>
+      <if test="nodeId != null">
+        node_id = #{nodeId,jdbcType=VARCHAR},
+      </if>
       <if test="orgName != null">
         org_name = #{orgName,jdbcType=VARCHAR},
       </if>
       <if test="stauts != null">
         stauts = #{stauts,jdbcType=VARCHAR},
-      </if>
-      <if test="accumulativeMemory != null">
-        accumulative_memory = #{accumulativeMemory,jdbcType=BIGINT},
-      </if>
-      <if test="accumulativeCore != null">
-        accumulative_core = #{accumulativeCore,jdbcType=INTEGER},
-      </if>
-      <if test="accumulativeBandwidth != null">
-        accumulative_Bandwidth = #{accumulativeBandwidth,jdbcType=BIGINT},
       </if>
       <if test="accumulativePowerTaskCount != null">
         accumulative_power_task_count = #{accumulativePowerTaskCount,jdbcType=INTEGER},
@@ -87,11 +77,9 @@
   <update id="updateByPrimaryKey" parameterType="com.platon.rosettanet.storage.dao.entity.OrgInfo">
     update org_info
     set identity_type = #{identityType,jdbcType=VARCHAR},
+      node_id = #{nodeId,jdbcType=VARCHAR},
       org_name = #{orgName,jdbcType=VARCHAR},
       status = #{status,jdbcType=VARCHAR},
-      accumulative_core = #{accumulativeCore,jdbcType=INTEGER},
-      accumulative_Bandwidth = #{accumulativeBandwidth,jdbcType=BIGINT},
-      accumulative_memory = #{accumulativeMemory,jdbcType=BIGINT},
       accumulative_power_task_count = #{accumulativePowerTaskCount,jdbcType=INTEGER},
       accumulative_data_task_count = #{accumulativeDataTaskCount,jdbcType=INTEGER},
       accumulative_data_file_count = #{accumulativeDataFileCount,jdbcType=INTEGER}

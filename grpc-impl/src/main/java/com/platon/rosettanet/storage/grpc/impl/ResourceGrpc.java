@@ -44,18 +44,15 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
 
         log.debug("publishPower, request:{}", request);
 
-
         PowerServer powerServer = new PowerServer();
         powerServer.setId(request.getPowerId());
-        //todo:接口中要提供唯一的名称
-        powerServer.setServerName(request.getPowerId());
         powerServer.setIdentityId(request.getOwner().getIdentityId());
+
         powerServer.setCore(request.getInformation().getProcessor());
         powerServer.setMemory(request.getInformation().getMem());
         powerServer.setBandwidth(request.getInformation().getBandwidth());
         powerServer.setPublished(true);
         powerServer.setPublishedAt(LocalDateTime.now());
-        powerServer.setStatus("enabled");
         powerServerService.insert(powerServer);
 
         //接口返回值
@@ -134,13 +131,14 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         List<Power> powerList = powerServerList.stream().map(powerServer -> {
             return Power.newBuilder()
                     .setPowerId(powerServer.getId())
+
                     .setInformation(ResourceUsed.newBuilder()
-                            .setTotalProcessor(powerServer.getCore())
-                            .setTotalMem(powerServer.getUsedMemory())
-                            .setTotalBandwidth(powerServer.getUsedBandwidth())
-                            .setUsedProcessor(powerServer.getUsedCore())
-                            .setUsedMem(powerServer.getUsedMemory())
-                            .setUsedBandwidth(powerServer.getUsedBandwidth())
+                            .setTotalProcessor(ValueUtils.intValue(powerServer.getCore()))
+                            .setTotalMem(ValueUtils.longValue(powerServer.getUsedMemory()))
+                            .setTotalBandwidth(ValueUtils.longValue(powerServer.getUsedBandwidth()))
+                            .setUsedProcessor(ValueUtils.intValue(powerServer.getUsedCore()))
+                            .setUsedMem(ValueUtils.longValue(powerServer.getUsedMemory()))
+                            .setUsedBandwidth(ValueUtils.longValue(powerServer.getUsedBandwidth()))
                             .build())
                     .build();
         }).collect(Collectors.toList());
@@ -161,11 +159,11 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * 查看指定节点的总算力摘要
      * </pre>
      */
-    public void getPowerSummaryByNodeId(com.platon.rosettanet.storage.grpc.lib.PowerSummaryByNodeIdRequest request,
+    public void getPowerSummaryByIdentityId(com.platon.rosettanet.storage.grpc.lib.PowerSummaryByIdentityRequest request,
                                         io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.PowerTotalSummaryResponse> responseObserver) {
         log.debug("getPowerSummaryByNodeId, request:{}", request);
 
-        String identityId = request.getNodeId();
+        String identityId = request.getIdentityId();
         OrgInfo owner = orgInfoService.findByPK(identityId);
 
         int taskCounts = taskService.countTask(identityId);

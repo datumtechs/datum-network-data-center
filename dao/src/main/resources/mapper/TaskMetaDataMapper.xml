@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.TaskMetaData">
     <id column="task_id" jdbcType="VARCHAR" property="taskId" />
     <id column="meta_data_id" jdbcType="VARCHAR" property="metaDataId" />
+    <result column="party_id" jdbcType="VARCHAR" property="partyId" />
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="map">
     delete from task_meta_data
@@ -12,23 +13,23 @@
   </delete>
 
   <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.TaskMetaData">
-    insert into task_meta_data (task_id, meta_data_id)
-    values (#{taskId,jdbcType=VARCHAR}, #{metaDataId,jdbcType=VARCHAR}
+    insert into task_meta_data (task_id, meta_data_id, party_id)
+    values (#{taskId,jdbcType=VARCHAR}, #{metaDataId,jdbcType=VARCHAR}, #{partyId,jdbcType=VARCHAR}
       )
   </insert>
 
   <insert id="insertBatch">
-    insert into task_meta_data (task_id, meta_data_id)
+    insert into task_meta_data (task_id, meta_data_id, party_id)
     values
     <foreach collection ="list" item="taskMetaData" separator =",">
-      (#{taskMetaData.taskId,jdbcType=VARCHAR}, #{taskMetaData.metaDataId,jdbcType=VARCHAR}
+      (#{taskMetaData.taskId,jdbcType=VARCHAR}, #{taskMetaData.metaDataId,jdbcType=VARCHAR}, #{taskMetaData.partyId,jdbcType=VARCHAR}
       )
     </foreach>
   </insert>
 
 
   <select id="listTaskMetaData" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select task_id, meta_data_id
+    select task_id, meta_data_id, party_id
     from task_meta_data
     where task_id = #{taskId,jdbcType=VARCHAR}
   </select>

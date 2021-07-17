@@ -15,7 +15,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -50,6 +51,9 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
 
     @Autowired
     private MetaDataService metaDataService;
+
+    @Autowired
+    private TaskAlgoProviderService taskAlgoProviderService;
     /**
      * <pre>
      * 存储任务
@@ -79,6 +83,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
 
         //任务所有人
         task.setOwnerIdentityId(request.getOwner().getIdentityId());
+        task.setOwnerPartyId(request.getOwner().getPartyId());
 
         //所需资源
         task.setRequiredBandwidth(request.getOperationCost().getCostBandwidth());
@@ -92,6 +97,8 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
 
         //创建时间
         task.setCreateAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getCreateAt()), ZoneId.systemDefault()));
+        //开始时间
+        task.setStartAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getStartAt()), ZoneId.systemDefault()));
         //结束时间
         task.setEndAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getEndAt()), ZoneId.systemDefault()));
 
@@ -100,12 +107,24 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
 
         taskService.insert(task);
 
+        //==算法提供者
+        TaskAlgoProvider taskAlgoProvider = new TaskAlgoProvider();
+        taskAlgoProvider.setTaskId(taskId);
+        taskAlgoProvider.setIdentityId(request.getAlgoSupplier().getIdentityId());
+        taskAlgoProvider.setPartyId(request.getAlgoSupplier().getPartyId());
+        taskAlgoProviderService.insert(taskAlgoProvider);
 
         //==任务的数据提供者
         List<TaskMetaDataColumn> taskMetaDataColumnList = new ArrayList<>();
-        Map<String, Boolean> metaDataIdMap = new HashMap<>();
+        List<TaskMetaData> taskMetaDataList = new ArrayList<>();
         for (TaskDataSupplier dataSupplier : request.getDataSupplierList()) {
-            metaDataIdMap.put(dataSupplier.getMetaId(), true);
+
+            TaskMetaData taskMetaData = new TaskMetaData();
+            taskMetaData.setTaskId(taskId);
+            taskMetaData.setMetaDataId(dataSupplier.getMetaId());
+            taskMetaData.setPartyId(dataSupplier.getMemberInfo().getPartyId());
+            taskMetaDataList.add(taskMetaData);
+
             for(MetaDataColumnDetail columnDetail : dataSupplier.getColumnMetaList()){
                 TaskMetaDataColumn dataProvider = new TaskMetaDataColumn();
                 dataProvider.setTaskId(taskId);
@@ -114,24 +133,20 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
                 int cindex = columnDetail.getCindex();
 
                 //元数据校验
-                List<MetaDataColumn> metaDataColumns = metaDataService.listMetaDataColumn(metaId);
+               /*
+               List<MetaDataColumn> metaDataColumns = metaDataService.listMetaDataColumn(metaId);
                 Optional<MetaDataColumn> first = metaDataColumns.stream().filter(metaDataColumn -> {
                     return cindex == metaDataColumn.getColumnIdx();
                 }).findFirst();
                 first.orElseThrow(() -> new RuntimeException("元数据校验失败,metaId=" + metaId + ",cindex=" + cindex));
+                */
+
 
                 dataProvider.setMetaDataId(metaId);
                 dataProvider.setColumnIdx(cindex);
                 taskMetaDataColumnList.add(dataProvider);
             }
         }
-        List<TaskMetaData> taskMetaDataList = metaDataIdMap.keySet().stream()
-                .map(metaDataId -> {
-                    TaskMetaData taskMetaData = new TaskMetaData();
-                    taskMetaData.setTaskId(taskId);
-                    taskMetaData.setMetaDataId(metaDataId);
-                    return taskMetaData;
-                }).collect(Collectors.toList());
 
         taskMetaDataService.insert(taskMetaDataList);
         taskMetaDataColumnService.insert(taskMetaDataColumnList);
@@ -142,7 +157,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
             TaskPowerProvider powerProvider = new TaskPowerProvider();
             powerProvider.setTaskId(task.getId());
             powerProvider.setIdentityId(powerSupplier.getMemberInfo().getIdentityId());
-
+            powerProvider.setPartyId(powerSupplier.getMemberInfo().getPartyId());
             powerProvider.setUsedCore(powerSupplier.getPowerInfo().getUsedProcessor());
             powerProvider.setUsedMemory(powerSupplier.getPowerInfo().getUsedMem());
             powerProvider.setUsedBandwidth(powerSupplier.getPowerInfo().getUsedBandwidth());
@@ -152,12 +167,14 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
 
         //==任务结果接收者
         List<TaskResultConsumer> taskResultConsumerList = new ArrayList<>();
-        for (com.platon.rosettanet.storage.grpc.lib.TaskResultReceiver taskResultReceiver : request.getReceiversList()) {
-            for(Organization organization : taskResultReceiver.getProviderList()){
+        for (com.platon.rosettanet.storage.grpc.lib.TaskResultReceiver taskConsumer : request.getReceiversList()) {
+            for(TaskOrganization taskProducer : taskConsumer.getProviderList()){
                 TaskResultConsumer taskResultConsumer = new TaskResultConsumer();
                 taskResultConsumer.setTaskId(task.getId());
-                taskResultConsumer.setConsumerIdentityId(taskResultReceiver.getMemberInfo().getIdentityId());
-                taskResultConsumer.setProducerIdentityId(organization.getIdentityId());
+                taskResultConsumer.setConsumerIdentityId(taskConsumer.getMemberInfo().getIdentityId());
+                taskResultConsumer.setConsumerPartyId(taskConsumer.getMemberInfo().getPartyId());
+                taskResultConsumer.setProducerIdentityId(taskProducer.getIdentityId());
+                taskResultConsumer.setProducerPartyId(taskProducer.getPartyId());
                 taskResultConsumerList.add(taskResultConsumer);
             }
         }
@@ -191,6 +208,8 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
 
         OrgInfo ownerOrgInfo = orgInfoService.findByPK(task.getOwnerIdentityId());
 
+        TaskAlgoProvider taskAlgoProvider = taskAlgoProviderService.findAlgoProviderByTaskId(taskId);
+
         List<TaskMetaData> taskMetaDataList = taskMetaDataService.listTaskMetaData(taskId);
         List<TaskPowerProvider> taskPowerProviderList = taskPowerProviderService.listTaskPowerProvider(taskId);
         List<TaskResultConsumer> taskResultConsumerList = taskResultConsumerService.listTaskResultConsumer(taskId);
@@ -200,9 +219,10 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
                 .setTaskId(task.getId())
                 .setTaskName(task.getTaskName())
                 .setCreateAt(task.getCreateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setStartAt(task.getStartAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .setEndAt(task.getEndAt().toInstant(ZoneOffset.UTC).toEpochMilli())
-                .setOwner(Organization.newBuilder().setIdentityId(ownerOrgInfo.getIdentityId()).setName(ownerOrgInfo.getOrgName()))
-                .setAlgoSupplier(Organization.newBuilder().setIdentityId(task.getOwnerIdentityId()).setName(ownerOrgInfo.getOrgName()))
+                .setOwner(TaskOrganization.newBuilder().setIdentityId(ownerOrgInfo.getIdentityId()).setPartyId(task.getOwnerPartyId()).setName(ownerOrgInfo.getOrgName()))
+                .setAlgoSupplier(TaskOrganization.newBuilder().setIdentityId(taskAlgoProvider.getIdentityId()).setPartyId(taskAlgoProvider.getPartyId()))
                 .setOperationCost(TaskOperationCostDeclare.newBuilder().setCostProcessor(task.getUsedCore()).setCostMem(task.getUsedMemory()).setCostBandwidth(task.getUsedBandwidth()).build())
                 .addAllDataSupplier(convertorService.toProtoDataSupplier(taskMetaDataList))
                 .addAllPowerSupplier(convertorService.toProtoPowerSupplier(taskPowerProviderList))
@@ -244,8 +264,9 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase{
                             .setTaskId(task.getId())
                             .setTaskName(task.getTaskName())
                             .setCreateAt(task.getCreateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+                            .setStartAt(task.getStartAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                             .setEndAt(task.getEndAt().toInstant(ZoneOffset.UTC).toEpochMilli())
-                            .setOwner(convertorService.toProtoOrganization(owner))
+                            .setOwner(convertorService.toProtoTaskOrganization(owner, task.getOwnerPartyId()))
                             .addAllDataSupplier(convertorService.toProtoDataSupplier(taskMetaDataList))
                             .addAllPowerSupplier(convertorService.toProtoPowerSupplier(taskPowerProviderList))
                             .addAllReceivers(convertorService.toProtoResultReceiver(taskResultConsumerList))

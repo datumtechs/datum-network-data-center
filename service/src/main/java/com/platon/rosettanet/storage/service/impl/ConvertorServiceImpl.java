@@ -1,7 +1,6 @@
 package com.platon.rosettanet.storage.service.impl;
 
 import com.platon.rosettanet.storage.dao.entity.*;
-import com.platon.rosettanet.storage.grpc.lib.TaskResultReceiver;
 import com.platon.rosettanet.storage.grpc.lib.*;
 import com.platon.rosettanet.storage.service.ConvertorService;
 import com.platon.rosettanet.storage.service.MetaDataService;
@@ -12,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -57,6 +57,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                     .setCindex(column.getColumnIdx())
                     .setCname(column.getColumnName())
                     .setCtype(column.getColumnType())
+                    .setCsize(column.getColumnSize())
                     .setCcomment(StringUtils.trimToEmpty(column.getRemarks()))
                     .build();
         }).collect(Collectors.toList());
@@ -65,7 +66,7 @@ public class ConvertorServiceImpl implements ConvertorService {
         OrgInfo orgInfo = orgInfoService.findByMetaDataId(taskMetaData.getMetaDataId());
         return TaskDataSupplier.newBuilder()
                 .setMetaId(taskMetaData.getMetaDataId())
-                .setMemberInfo(this.toProtoOrganization(orgInfo))
+                .setMemberInfo(this.toProtoTaskOrganization(orgInfo, taskMetaData.getPartyId()))
                 .addAllColumnMeta(metaDataColumnDetailList)
                 .build();
     }
@@ -76,7 +77,7 @@ public class ConvertorServiceImpl implements ConvertorService {
             OrgInfo orgInfo = orgInfoService.findByPK(taskPowerProvider.getIdentityId());
 
             return TaskPowerSupplier.newBuilder()
-                    .setMemberInfo(this.toProtoOrganization(orgInfo))
+                    .setMemberInfo(this.toProtoTaskOrganization(orgInfo, taskPowerProvider.getPartyId()))
                     .setPowerInfo(ResourceUsedDetail.newBuilder()
                             .setUsedProcessor(taskPowerProvider.getUsedCore())
                             .setUsedMem(taskPowerProvider.getUsedMemory())
@@ -91,17 +92,23 @@ public class ConvertorServiceImpl implements ConvertorService {
 
         List<TaskResultReceiver> taskResultReceiverList = new ArrayList<>();
         for (String consumerId: byConsumerIdMap.keySet()) {
+            if (CollectionUtils.isEmpty(byConsumerIdMap.get(consumerId))){
+                continue;
+            }
+            //默认同一组的consumer是一样的
+            String consumerPartyId  = byConsumerIdMap.get(consumerId).get(0).getConsumerPartyId();
+
             //结果消费者
-            OrgInfo consumer = orgInfoService.findByPK(consumerId);
+            OrgInfo consumerOrgInfo = orgInfoService.findByPK(consumerId);
 
             //结果产生者
-            List<Organization> resultProducerList = byConsumerIdMap.get(consumerId).stream().map(taskResultConsumer -> {
-                OrgInfo producer = orgInfoService.findByPK(taskResultConsumer.getProducerIdentityId());
-                return this.toProtoOrganization(producer);
+            List<TaskOrganization> resultProducerList = byConsumerIdMap.get(consumerId).stream().map(item -> {
+                OrgInfo producer = orgInfoService.findByPK(item.getProducerIdentityId());
+                return this.toProtoTaskOrganization(producer, item.getProducerPartyId());
             }).collect(Collectors.toList());
 
             taskResultReceiverList.add( TaskResultReceiver.newBuilder()
-                    .setMemberInfo(this.toProtoOrganization(consumer))
+                    .setMemberInfo(this.toProtoTaskOrganization(consumerOrgInfo, consumerPartyId))
                     .addAllProvider(resultProducerList)
                     .build());
         }
@@ -112,10 +119,19 @@ public class ConvertorServiceImpl implements ConvertorService {
     public com.platon.rosettanet.storage.grpc.lib.Organization toProtoOrganization(OrgInfo orgInfo){
         return Organization.newBuilder()
                 .setIdentityId(orgInfo.getIdentityId())
+                .setNodeId(orgInfo.getNodeId())
                 .setName(orgInfo.getOrgName())
                 .build();
     }
 
+    public com.platon.rosettanet.storage.grpc.lib.TaskOrganization toProtoTaskOrganization(OrgInfo orgInfo, String partyId){
+        return TaskOrganization.newBuilder()
+                .setIdentityId(orgInfo.getIdentityId())
+                .setNodeId(orgInfo.getNodeId())
+                .setPartyId(partyId)
+                .setName(orgInfo.getOrgName())
+                .build();
+    }
 
 
     public List<com.platon.rosettanet.storage.grpc.lib.TaskEvent> toProtoTaskEvent(List<com.platon.rosettanet.storage.dao.entity.TaskEvent> taskEventList){
@@ -140,6 +156,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setCindex(metaDataColumn.getColumnIdx())
                 .setCname(metaDataColumn.getColumnName())
                 .setCtype(metaDataColumn.getColumnType())
+                .setCsize(metaDataColumn.getColumnSize())
                 .setCcomment(StringUtils.trimToEmpty(metaDataColumn.getRemarks()))
                 .build();
     }
@@ -171,7 +188,7 @@ public class ConvertorServiceImpl implements ConvertorService {
 
     @Override
     public List<MetaDataSummaryOwner> toProtoMetaDataSummaryOwner(List<DataFile> dataFileList) {
-        return dataFileList.stream().map(dataFile->{
+        return dataFileList.parallelStream().map(dataFile->{
             return this.toProtoMetaDataSummaryOwner(dataFile);
         }).filter(item -> item!=null).collect(Collectors.toList());
     }

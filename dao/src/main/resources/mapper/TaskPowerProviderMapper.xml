@@ -4,12 +4,13 @@
   <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.TaskPowerProvider">
     <id column="task_id" jdbcType="VARCHAR" property="taskId" />
     <id column="identity_id" jdbcType="VARCHAR" property="identityId" />
+    <result column="party_id" jdbcType="VARCHAR" property="partyId" />
     <result column="used_memory" jdbcType="BIGINT" property="usedMemory" />
     <result column="used_core" jdbcType="INTEGER" property="usedCore" />
     <result column="used_bandwidth" jdbcType="BIGINT" property="usedBandwidth" />
   </resultMap>
   <sql id="Base_Column_List">
-    task_id, identity_id, used_memory, used_core, used_bandwidth
+    task_id, identity_id, party_id, used_memory, used_core, used_bandwidth
   </sql>
   <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
     select 
@@ -24,9 +25,9 @@
       and identity_id = #{identityId,jdbcType=VARCHAR}
   </delete>
   <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.TaskPowerProvider">
-    insert into task_power_provider (task_id, identity_id, used_memory, 
+    insert into task_power_provider (task_id, identity_id, party_id, used_memory,
       used_core, used_bandwidth)
-    values (#{taskId,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{usedMemory,jdbcType=BIGINT}, 
+    values (#{taskId,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{partyId,jdbcType=VARCHAR}, #{usedMemory,jdbcType=BIGINT},
       #{usedCore,jdbcType=INTEGER}, #{usedBandwidth,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.TaskPowerProvider">
@@ -37,6 +38,9 @@
       </if>
       <if test="identityId != null">
         identity_id,
+      </if>
+      <if test="partyId != null">
+        party_id,
       </if>
       <if test="usedMemory != null">
         used_memory,
@@ -55,6 +59,9 @@
       <if test="identityId != null">
         #{identityId,jdbcType=VARCHAR},
       </if>
+      <if test="partyId != null">
+        #{partyId,jdbcType=VARCHAR},
+      </if>
       <if test="usedMemory != null">
         #{usedMemory,jdbcType=BIGINT},
       </if>
@@ -69,6 +76,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.platon.rosettanet.storage.dao.entity.TaskPowerProvider">
     update task_power_provider
     <set>
+      <if test="partyId != null">
+        #{partyId,jdbcType=VARCHAR},
+      </if>
       <if test="usedMemory != null">
         used_memory = #{usedMemory,jdbcType=BIGINT},
       </if>
@@ -84,7 +94,8 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.platon.rosettanet.storage.dao.entity.TaskPowerProvider">
     update task_power_provider
-    set used_memory = #{usedMemory,jdbcType=BIGINT},
+    set party_id = #{partyId,jdbcType=VARCHAR},
+      used_memory = #{usedMemory,jdbcType=BIGINT},
       used_core = #{usedCore,jdbcType=INTEGER},
       used_bandwidth = #{usedBandwidth,jdbcType=BIGINT}
     where task_id = #{taskId,jdbcType=VARCHAR}
@@ -92,11 +103,12 @@
   </update>
 
   <insert id="insertBatch">
-    insert into task_power_provider (task_id, identity_id, used_memory,
+    insert into task_power_provider (task_id, identity_id, party_id, used_memory,
     used_core, used_bandwidth)
     values
     <foreach collection ="list" item="taskPowerProvider" separator =",">
-      (#{taskPowerProvider.taskId,jdbcType=VARCHAR}, #{taskPowerProvider.identityId,jdbcType=VARCHAR}, #{taskPowerProvider.usedMemory,jdbcType=BIGINT},
+      (#{taskPowerProvider.taskId,jdbcType=VARCHAR}, #{taskPowerProvider.identityId,jdbcType=VARCHAR}, #{taskPowerProvider.partyId,jdbcType=VARCHAR},
+      #{taskPowerProvider.usedMemory,jdbcType=BIGINT},
       #{taskPowerProvider.usedCore,jdbcType=INTEGER}, #{taskPowerProvider.usedBandwidth,jdbcType=BIGINT})
     </foreach>
   </insert>

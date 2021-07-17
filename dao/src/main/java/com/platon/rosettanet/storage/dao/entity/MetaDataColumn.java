@@ -8,7 +8,7 @@ public class MetaDataColumn {
     private String columnName;
 
     private String columnType;
-
+    private int columnSize;
     private String remarks;
 
     private Boolean published;
@@ -43,6 +43,14 @@ public class MetaDataColumn {
 
     public void setColumnType(String columnType) {
         this.columnType = columnType;
+    }
+
+    public int getColumnSize() {
+        return columnSize;
+    }
+
+    public void setColumnSize(int columnSize) {
+        this.columnSize = columnSize;
     }
 
     public String getRemarks() {

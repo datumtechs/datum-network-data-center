@@ -6,11 +6,12 @@
     <id column="column_idx" jdbcType="INTEGER" property="columnIdx" />
     <result column="column_name" jdbcType="VARCHAR" property="columnName" />
     <result column="column_type" jdbcType="VARCHAR" property="columnType" />
+    <result column="column_size" jdbcType="INTEGER" property="columnSize" />
     <result column="remarks" jdbcType="VARCHAR" property="remarks" />
     <result column="published" jdbcType="BIT" property="published" />
   </resultMap>
   <sql id="Base_Column_List">
-    meta_data_id, column_idx, column_name, column_type, remarks, published
+    meta_data_id, column_idx, column_name, column_type, column_size, remarks, published
   </sql>
   <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
     select 
@@ -25,11 +26,11 @@
       and column_idx = #{columnIdx,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.MetaDataColumn">
-    insert into meta_data_column (meta_data_id, column_idx, column_name, 
-      column_type, remarks, published
+    insert into meta_data_column (meta_data_id, column_idx, `column_name`,
+      column_type, `column_size`, remarks, published
       )
     values (#{metaDataId,jdbcType=VARCHAR}, #{columnIdx,jdbcType=INTEGER}, #{columnName,jdbcType=VARCHAR}, 
-      #{columnType,jdbcType=VARCHAR}, #{remarks,jdbcType=VARCHAR}, #{published,jdbcType=BIT}
+      #{columnType,jdbcType=VARCHAR}, #{columnSize,jdbcType=INTEGER}, #{remarks,jdbcType=VARCHAR}, #{published,jdbcType=BIT}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.MetaDataColumn">
@@ -46,6 +47,9 @@
       </if>
       <if test="columnType != null">
         column_type,
+      </if>
+      <if test="columnSize != null">
+        column_size,
       </if>
       <if test="remarks != null">
         remarks,
@@ -67,6 +71,9 @@
       <if test="columnType != null">
         #{columnType,jdbcType=VARCHAR},
       </if>
+      <if test="columnSize != null">
+        #{columnSize,jdbcType=INTEGER},
+      </if>
       <if test="remarks != null">
         #{remarks,jdbcType=VARCHAR},
       </if>
@@ -84,6 +91,9 @@
       <if test="columnType != null">
         column_type = #{columnType,jdbcType=VARCHAR},
       </if>
+      <if test="columnSize != null">
+        column_size = #{columnSize,jdbcType=INTEGER},
+      </if>
       <if test="remarks != null">
         remarks = #{remarks,jdbcType=VARCHAR},
       </if>
@@ -98,6 +108,7 @@
     update meta_data_column
     set column_name = #{columnName,jdbcType=VARCHAR},
       column_type = #{columnType,jdbcType=VARCHAR},
+      column_size = #{columnSize,jdbcType=INTEGER},
       remarks = #{remarks,jdbcType=VARCHAR},
       published = #{published,jdbcType=BIT}
     where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
@@ -116,12 +127,12 @@
 
   <insert id="insertBatch">
     insert into meta_data_column (meta_data_id, column_idx, column_name,
-    column_type, remarks, published
+    column_type, column_size, remarks, published
     )
     values
     <foreach collection ="list" item="metaDataColumn" separator =",">
            (#{metaDataColumn.metaDataId,jdbcType=VARCHAR}, #{metaDataColumn.columnIdx,jdbcType=INTEGER}, #{metaDataColumn.columnName,jdbcType=VARCHAR},
-    #{metaDataColumn.columnType,jdbcType=VARCHAR}, #{metaDataColumn.remarks,jdbcType=VARCHAR}, #{metaDataColumn.published,jdbcType=BIT}
+    #{metaDataColumn.columnType,jdbcType=VARCHAR}, #{metaDataColumn.columnSize,jdbcType=INTEGER}, #{metaDataColumn.remarks,jdbcType=VARCHAR}, #{metaDataColumn.published,jdbcType=BIT}
     )
     </foreach>
   </insert>

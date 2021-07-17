@@ -9,6 +9,7 @@
     <result column="required_bandwidth" jdbcType="BIGINT" property="requiredBandwidth" />
     <result column="required_duration" jdbcType="BIGINT" property="requiredDuration" />
     <result column="owner_identity_id" jdbcType="VARCHAR" property="ownerIdentityId" />
+    <result column="owner_party_id" jdbcType="VARCHAR" property="ownerPartyId" />
     <result column="create_at" jdbcType="TIMESTAMP" property="createAt" />
     <result column="start_at" jdbcType="TIMESTAMP" property="startAt" />
     <result column="end_at" jdbcType="TIMESTAMP" property="endAt" />
@@ -20,7 +21,7 @@
   </resultMap>
   <sql id="Base_Column_List">
     id, task_name, required_memory, required_core, required_bandwidth, required_duration, 
-    owner_identity_id, create_at, start_at, end_at, used_memory, used_core, used_bandwidth, used_file_size,
+    owner_identity_id, owner_party_id, create_at, start_at, end_at, used_memory, used_core, used_bandwidth, used_file_size,
     status
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
@@ -36,12 +37,12 @@
   <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.Task">
     insert into task (id, task_name, required_memory, 
       required_core, required_bandwidth, required_duration, 
-      owner_identity_id, create_at, start_at, 
+      owner_identity_id, owner_party_id, create_at, start_at,
       end_at, used_memory, used_core, 
       used_bandwidth, used_file_size, status)
     values (#{id,jdbcType=VARCHAR}, #{taskName,jdbcType=VARCHAR}, #{requiredMemory,jdbcType=BIGINT}, 
       #{requiredCore,jdbcType=INTEGER}, #{requiredBandwidth,jdbcType=BIGINT}, #{requiredDuration,jdbcType=BIGINT}, 
-      #{ownerIdentityId,jdbcType=VARCHAR}, #{createAt,jdbcType=TIMESTAMP}, #{startAt,jdbcType=TIMESTAMP}, 
+      #{ownerIdentityId,jdbcType=VARCHAR}, #{ownerPartyId,jdbcType=VARCHAR}, #{createAt,jdbcType=TIMESTAMP}, #{startAt,jdbcType=TIMESTAMP},
       #{endAt,jdbcType=TIMESTAMP}, #{usedMemory,jdbcType=BIGINT}, #{usedCore,jdbcType=INTEGER}, 
       #{usedBandwidth,jdbcType=BIGINT}, #{usedFileSize,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR})
   </insert>
@@ -49,14 +50,14 @@
   <insert id="insertBatch">
     insert into task (id, task_name, required_memory,
       required_core, required_bandwidth, required_duration,
-      owner_identity_id, create_at, start_at,
+      owner_identity_id, owner_party_id, create_at, start_at,
       end_at, used_memory, used_core,
       used_bandwidth, used_file_size, status)
     values
     <foreach collection ="list" item="item" separator =",">
     (#{item.id,jdbcType=VARCHAR}, #{item.taskName,jdbcType=VARCHAR}, #{item.requiredMemory,jdbcType=BIGINT},
       #{item.requiredCore,jdbcType=INTEGER}, #{item.requiredBandwidth,jdbcType=BIGINT}, #{item.requiredDuration,jdbcType=BIGINT},
-      #{item.ownerIdentityId,jdbcType=VARCHAR}, #{item.createAt,jdbcType=TIMESTAMP}, #{item.startAt,jdbcType=TIMESTAMP},
+      #{item.ownerIdentityId,jdbcType=VARCHAR}, #{item.ownerPartyId,jdbcType=VARCHAR}, #{item.createAt,jdbcType=TIMESTAMP}, #{item.startAt,jdbcType=TIMESTAMP},
       #{item.endAt,jdbcType=TIMESTAMP}, #{item.usedMemory,jdbcType=BIGINT}, #{item.usedCore,jdbcType=INTEGER},
       #{item.usedBandwidth,jdbcType=BIGINT}, #{item.usedFileSize,jdbcType=BIGINT}, #{item.status,jdbcType=VARCHAR})
     </foreach>
@@ -86,6 +87,9 @@
       </if>
       <if test="ownerIdentityId != null">
         owner_identity_id,
+      </if>
+      <if test="ownerPartyId != null">
+        owner_party_id,
       </if>
       <if test="createAt != null">
         create_at,
@@ -134,6 +138,9 @@
       <if test="ownerIdentityId != null">
         #{ownerIdentityId,jdbcType=VARCHAR},
       </if>
+      <if test="ownerPartyId != null">
+        #{ownerPartyId,jdbcType=VARCHAR},
+      </if>
       <if test="createAt != null">
         #{createAt,jdbcType=TIMESTAMP},
       </if>
@@ -181,6 +188,9 @@
       <if test="ownerIdentityId != null">
         owner_identity_id = #{ownerIdentityId,jdbcType=VARCHAR},
       </if>
+      <if test="ownerPartyId != null">
+        owner_party_id = #{ownerPartyId,jdbcType=VARCHAR},
+      </if>
       <if test="createAt != null">
         create_at = #{createAt,jdbcType=TIMESTAMP},
       </if>
@@ -216,6 +226,7 @@
       required_bandwidth = #{requiredBandwidth,jdbcType=BIGINT},
       required_duration = #{requiredDuration,jdbcType=BIGINT},
       owner_identity_id = #{ownerIdentityId,jdbcType=VARCHAR},
+      owner_party_id = #{ownerPartyId,jdbcType=VARCHAR},
       create_at = #{createAt,jdbcType=TIMESTAMP},
       start_at = #{startAt,jdbcType=TIMESTAMP},
       end_at = #{endAt,jdbcType=TIMESTAMP},

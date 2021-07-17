@@ -1,6 +1,5 @@
 package com.platon.rosettanet.storage.service;
 
-import com.platon.rosettanet.storage.dao.DataServerMapper;
 import com.platon.rosettanet.storage.dao.entity.*;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,8 +29,7 @@ public class MockData {
     private TaskMetaDataColumnService taskMetaDataColumnService;
     @Autowired
     private OrgInfoService orgInfoService;
-    @Autowired
-    private DataServerMapper dataServerMapper;
+
     @Autowired
     private PowerServerService powerServerService;
     @Autowired
@@ -46,23 +44,39 @@ public class MockData {
     @Autowired
     private TaskResultConsumerService taskResultConsumerService;
 
+
+    static int orgCount = 100;
+    static int eachOrgDataFileCount = 100;
+    static int eachDataFileColumns = 10;
+    static int eachOrgPowerServerCount = 10;
+    static int taskCount = 100;
+    static int eachTaskDataProviderCount = 10;
+    static int eachTaskDataProviderColumnCount = 10; //<=eachDataFileColumns
+    static int eachTaskPowerProviderCount = 10;
+    static int eachTaskResultConsumerCount = 5;
+    static int eachTaskResultConsumerSenderCount = 2;
+
+
     @Test
     public void initMockData() {
 
+
+
         List<OrgInfo> orgInfoList = new ArrayList<>();
-        for(int i=1; i<=100; i++){
+        for(int i=1; i<=orgCount; i++){
             OrgInfo orgInfo = new OrgInfo();
             orgInfo.setIdentityId("identityId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" ));
             orgInfo.setIdentityType("DID");
             orgInfo.setOrgName("orgName_" + StringUtils.leftPad(String.valueOf(i), 6, "0" ) );
             orgInfo.setStatus("enabled");
+            orgInfo.setNodeId("nodeId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" ));
             orgInfoList.add(orgInfo);
 
         }
         orgInfoService.insert(orgInfoList);
 
 
-        List<DataServer> dataServerList = new ArrayList<>();
+        /*List<DataServer> dataServerList = new ArrayList<>();
         for(int i=1; i<=100; i++){
             String identityId = "identityId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" );
             for(int j=1; j<20; j++){
@@ -76,23 +90,21 @@ public class MockData {
                 dataServerList.add(dataServer);
             }
         }
-        dataServerMapper.insertBatch(dataServerList);
+        dataServerMapper.insertBatch(dataServerList);*/
 
         List<PowerServer> powerServerList = new ArrayList<>();
-        for(int i=1; i<=100; i++){
+        for(int i=1; i<=orgCount; i++){
             String identityId = "identityId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" );
-            for(int j=1; j<20; j++){
+            for(int j=1; j<eachOrgPowerServerCount; j++){
                 String extID = StringUtils.leftPad(String.valueOf(i) , 6, "0" ) + "_" + StringUtils.leftPad(String.valueOf(j), 6, "0" );
 
                 PowerServer powerServer = new PowerServer();
                 powerServer.setIdentityId(identityId);
-                powerServer.setId("dataServerId_" + extID);
-                powerServer.setServerName("dataServerName_" + extID);
+                powerServer.setId("powerId_" + extID);
                 powerServer.setCore(j);
                 powerServer.setMemory((long) j);
                 powerServer.setBandwidth((long) j);
                 powerServer.setPublished(true);
-                powerServer.setStatus("enabled");
                 powerServer.setPublishedAt(randomDay());
                 powerServerList.add(powerServer);
             }
@@ -102,9 +114,9 @@ public class MockData {
 
         List<DataFile> dataFileList = new ArrayList<>();
         List<MetaDataColumn> metaDataColumnList = new ArrayList<>();
-        for(int i=1; i<=100; i++){
+        for(int i=1; i<=orgCount; i++){
             String identityId = "identityId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" );
-            for(int j=1; j<20; j++){
+            for(int j=1; j<eachOrgDataFileCount; j++){
                 String extID = StringUtils.leftPad(String.valueOf(i) , 6, "0" ) + "_" + StringUtils.leftPad(String.valueOf(j), 6, "0" );
 
                 String metaDataId = "metaDataId_" + extID;
@@ -122,16 +134,19 @@ public class MockData {
                 dataFile.setHasTitle(true);
                 dataFile.setPublished(true);
                 dataFile.setPublishedAt(randomDay());
-                dataFile.setStatus("enabled");
+                dataFile.setStatus("release");
+                dataFile.setRemarks("dataFileRemarks_" + extID);
                 dataFileList.add(dataFile);
 
                 //List<MetaDataColumn> metaDataColumnList = new ArrayList<>();
-                for(int k=1; k<=10; k++){
+                for(int k=1; k<=eachDataFileColumns; k++){
                     MetaDataColumn column = new MetaDataColumn();
                     column.setMetaDataId(metaDataId);
                     column.setColumnIdx(k);
                     column.setColumnType("String");
                     column.setColumnName("columnName_" + extID + "_" + k);
+                    column.setColumnSize(RandomUtils.nextInt(1, 10000));
+                    column.setRemarks("columnRemarks_" + extID + "_" + k);
                     column.setPublished(true);
                     metaDataColumnList.add(column);
                 }
@@ -143,20 +158,23 @@ public class MockData {
 
 
         List<Task> taskList = new ArrayList<>();
+        List<TaskAlgoProvider> taskAlgoProviderList = new ArrayList<>();
         List<TaskMetaData> taskMetaDataList = new ArrayList<>();
         List<TaskMetaDataColumn> taskMetaDataColumnList = new ArrayList<>();
         List<TaskPowerProvider> taskPowerProviderList = new ArrayList<>();
         List<TaskResultConsumer> taskResultConsumerList = new ArrayList<>();
-        //任务数
-        int taskCount = 200;
+
         for(int i=1; i<=taskCount; i++) {
             String taskId = StringUtils.leftPad(String.valueOf(i) , 6, "0" );
             String ownerIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, 101)) , 6, "0" );
+            String ownerPartyId = "partyId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, 101)) , 6, "0" );
 
             Task task = new Task();
             task.setId("taskId_" + taskId);
             task.setTaskName("taskName_" + taskId);
             task.setOwnerIdentityId(ownerIdentityId);
+            task.setOwnerPartyId(ownerPartyId);
+
             LocalDateTime createAt = randomDay();
 
             task.setCreateAt(createAt);
@@ -174,28 +192,43 @@ public class MockData {
             taskList.add(task);
             //taskService.insert(task);
 
+            //算法提供者（和owner一样）
+            TaskAlgoProvider taskAlgoProvider = new TaskAlgoProvider();
+            taskAlgoProvider.setTaskId(taskId);
+            taskAlgoProvider.setIdentityId(ownerIdentityId);
+            taskAlgoProvider.setPartyId(ownerPartyId);
+            taskAlgoProviderList.add(taskAlgoProvider);
+
+
             Map<String, Boolean> partnerIdMap = new HashMap<>();
 
-            for (int j=1; j<=10; j++) {//每个任务10个不同的metaDataProvider
+            for (int j=1; j<=eachTaskDataProviderCount; j++) {
 
-                String dataIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, 101)) , 6, "0" );
+                //随机挑选1个不同的org来提供data file
+                String dataIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
+                String dataPartyId = StringUtils.replace(dataIdentityId,"identityId", "partyId");
+
+                String metaDataId = StringUtils.replace(dataIdentityId,"identityId", "metaDataId") + "_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, eachOrgDataFileCount+1)), 6, "0");
+
                 while (partnerIdMap.containsKey(dataIdentityId)) {
-                    dataIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, 101)) , 6, "0" );
+                    dataIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
+                    dataPartyId = StringUtils.replace(dataIdentityId,"identityId", "partyId");
+                    metaDataId = StringUtils.replace(dataIdentityId,"identityId", "metaDataId") + "_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, eachOrgDataFileCount+1)), 6, "0");
                 }
                 partnerIdMap.put(dataIdentityId, Boolean.TRUE);
 
-                //随机此identity_id下的一个dataFile
-                String metaDataId = "metaDataId_" + dataIdentityId + "_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, 21)), 6, "0");
+                //随机此org的一个dataFile
 
                 TaskMetaData taskMetaData = new TaskMetaData();
                 taskMetaData.setTaskId(task.getId());
+                taskMetaData.setPartyId(dataPartyId);
                 taskMetaData.setMetaDataId(metaDataId);
 
                 taskMetaDataList.add(taskMetaData);
                 //taskMetaDataService.insert(taskMetaData);
 
                 //List<TaskMetaDataColumn> taskMetaDataColumnList = new ArrayList<>();
-                for (int k = 1; k <= 10; k++) {
+                for (int k = 1; k <= eachTaskDataProviderColumnCount; k++) {
                     TaskMetaDataColumn taskMetaDataColumn = new TaskMetaDataColumn();
                     taskMetaDataColumn.setTaskId(task.getId());
                     taskMetaDataColumn.setMetaDataId(metaDataId);
@@ -206,16 +239,20 @@ public class MockData {
             }
 
             //List<TaskPowerProvider> taskPowerProviderList = new ArrayList<>();
-            for (int jj=1; jj<=10; jj++) {//每个任务10个不同的powerProvider
-                String powerIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, 101)) , 6, "0" );
+            for (int jj=1; jj<=eachTaskPowerProviderCount; jj++) {//每个任务10个不同的powerProvider
+                //随机挑选1个不同的org来提供power
+                String powerIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
+                String powerPartyId = StringUtils.replace(powerIdentityId,"identityId", "partyId");
                 while (partnerIdMap.containsKey(powerIdentityId)) {
-                    powerIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, 101)) , 6, "0" );
+                    powerIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
+                    powerPartyId = StringUtils.replace(powerIdentityId,"identityId", "partyId");
                 }
                 partnerIdMap.put(powerIdentityId, Boolean.TRUE);
 
                 TaskPowerProvider taskPowerProvider = new TaskPowerProvider();
                 taskPowerProvider.setTaskId(task.getId());
                 taskPowerProvider.setIdentityId(powerIdentityId);
+                taskPowerProvider.setPartyId(powerPartyId);
 
                 taskPowerProviderList.add(taskPowerProvider);
             }
@@ -228,14 +265,16 @@ public class MockData {
             List<String> partnerIdList = new ArrayList<String>(partnerIdMap.keySet());
             int partnerIdCount = partnerIdList.size();
             Map<String, Boolean> usedIdMap = new HashMap<>();
-            for (int m=0; m<2; m++) {
+            for (int m=0; m<eachTaskResultConsumerCount; m++) {
+                //从任务参与方中选择一个不同的结果接受者
                 String receiverId = partnerIdList.get(RandomUtils.nextInt(0, partnerIdCount));
                 while (usedIdMap.containsKey(receiverId)) {
                     receiverId = partnerIdList.get(RandomUtils.nextInt(0, partnerIdCount));
                 }
                 usedIdMap.put(receiverId, Boolean.TRUE);
 
-                for (int n=0; n<2; n++) {
+                for (int n=0; n<eachTaskResultConsumerSenderCount; n++) {
+                    //从任务参与方中选择一个不同的结果接受者
                     String senderId = partnerIdList.get(RandomUtils.nextInt(0, partnerIdCount));
                     while (usedIdMap.containsKey(senderId)) {
                         senderId = partnerIdList.get(RandomUtils.nextInt(0, partnerIdCount));
@@ -245,7 +284,9 @@ public class MockData {
                     TaskResultConsumer resultConsumer = new TaskResultConsumer();
                     resultConsumer.setTaskId(task.getId());
                     resultConsumer.setConsumerIdentityId(receiverId);
+                    resultConsumer.setConsumerPartyId(StringUtils.replace(receiverId,"identityId", "partyId"));
                     resultConsumer.setProducerIdentityId(senderId);
+                    resultConsumer.setProducerPartyId(StringUtils.replace(senderId,"identityId", "partyId"));
                     taskResultConsumerList.add(resultConsumer);
                 }
             }

@@ -6,7 +6,6 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDateTime;
@@ -15,7 +14,6 @@ import java.time.ZoneOffset;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
-@Rollback
 public class ResourceGrpcStubTest {
     @GrpcClient("inProcess")
     private ResourceServiceGrpc.ResourceServiceBlockingStub resourceServiceBlockingStub;
@@ -75,14 +73,14 @@ public class ResourceGrpcStubTest {
     }
 
     @Test
-    public void getPowerSummaryByNodeId() {
-        log.info("start to test getPowerSummaryByNodeId()...");
-        PowerSummaryByNodeIdRequest request = PowerSummaryByNodeIdRequest.newBuilder()
-                .setNodeId("org_id_4")
+    public void getPowerSummaryByIdentityId() {
+        log.info("start to test getPowerSummaryByIdentityId()...");
+        PowerSummaryByIdentityRequest request = PowerSummaryByIdentityRequest.newBuilder()
+                .setIdentityId("org_id_4")
                 .build();
-        PowerTotalSummaryResponse response = resourceServiceBlockingStub.getPowerSummaryByNodeId(request);
+        PowerTotalSummaryResponse response = resourceServiceBlockingStub.getPowerSummaryByIdentityId(request);
 
-        log.info("getPowerSummaryByNodeId(), response:{}", response);
+        log.info("getPowerSummaryByIdentityId(), response:{}", response);
     }
 
     @Test

@@ -1,9 +1,9 @@
 package com.platon.rosettanet.storage.dao.entity;
 
-public class TaskMetaData {
+public class TaskAlgoProvider {
     private String taskId;
 
-    private String metaDataId;
+    private String identityId;
 
     private String partyId;
 
@@ -15,12 +15,12 @@ public class TaskMetaData {
         this.taskId = taskId;
     }
 
-    public String getMetaDataId() {
-        return metaDataId;
+    public String getIdentityId() {
+        return identityId;
     }
 
-    public void setMetaDataId(String metaDataId) {
-        this.metaDataId = metaDataId;
+    public void setIdentityId(String identityId) {
+        this.identityId = identityId;
     }
 
     public String getPartyId() {

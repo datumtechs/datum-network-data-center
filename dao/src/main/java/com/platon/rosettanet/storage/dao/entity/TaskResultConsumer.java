@@ -4,8 +4,10 @@ public class TaskResultConsumer {
     private String taskId;
 
     private String consumerIdentityId;
+    private String consumerPartyId;
 
     private String producerIdentityId;
+    private String producerPartyId;
 
     public String getTaskId() {
         return taskId;
@@ -23,11 +25,27 @@ public class TaskResultConsumer {
         this.consumerIdentityId = consumerIdentityId;
     }
 
+    public String getConsumerPartyId() {
+        return consumerPartyId;
+    }
+
+    public void setConsumerPartyId(String consumerPartyId) {
+        this.consumerPartyId = consumerPartyId;
+    }
+
     public String getProducerIdentityId() {
         return producerIdentityId;
     }
 
     public void setProducerIdentityId(String producerIdentityId) {
         this.producerIdentityId = producerIdentityId;
+    }
+
+    public String getProducerPartyId() {
+        return producerPartyId;
+    }
+
+    public void setProducerPartyId(String producerPartyId) {
+        this.producerPartyId = producerPartyId;
     }
 }

@@ -62,6 +62,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
 
         OrgInfo orgInfo = new OrgInfo();
         orgInfo.setIdentityId(request.getMember().getIdentityId());
+        orgInfo.setNodeId(request.getMember().getNodeId());
         orgInfo.setOrgName(request.getMember().getName());
         orgInfo.setIdentityType(request.getCredential());
         orgInfo.setStatus("enabled");

@@ -5,15 +5,12 @@ public class OrgInfo {
 
     private String identityType;
 
+    private String nodeId;
+
     private String orgName;
 
     private String status;
 
-    private Long accumulativeMemory;
-
-    private Integer accumulativeCore;
-
-    private Long accumulativeBandwidth;
 
     private Integer accumulativePowerTaskCount;
     private Integer accumulativeDataTaskCount;
@@ -29,6 +26,14 @@ public class OrgInfo {
 
     public String getIdentityType() {
         return identityType;
+    }
+
+    public String getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
     }
 
     public void setIdentityType(String identityType) {
@@ -49,30 +54,6 @@ public class OrgInfo {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public Long getAccumulativeMemory() {
-        return accumulativeMemory;
-    }
-
-    public void setAccumulativeMemory(Long accumulativeMemory) {
-        this.accumulativeMemory = accumulativeMemory;
-    }
-
-    public Integer getAccumulativeCore() {
-        return accumulativeCore;
-    }
-
-    public void setAccumulativeCore(Integer accumulativeCore) {
-        this.accumulativeCore = accumulativeCore;
-    }
-
-    public Long getAccumulativeBandwidth() {
-        return accumulativeBandwidth;
-    }
-
-    public void setAccumulativeBandwidth(Long accumulativeBandwidth) {
-        this.accumulativeBandwidth = accumulativeBandwidth;
     }
 
     public Integer getAccumulativePowerTaskCount() {

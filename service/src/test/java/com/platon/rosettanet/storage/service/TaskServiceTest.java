@@ -63,9 +63,6 @@ public class TaskServiceTest {
         orgInfo.setIdentityType("DID");
         orgInfo.setOrgName("orgName");
         orgInfo.setStatus("enabled");
-        orgInfo.setAccumulativeBandwidth(100L);
-        orgInfo.setAccumulativeCore(10);
-        orgInfo.setAccumulativeMemory(100L);
 
         orgInfoService.insert(orgInfo);
     }
