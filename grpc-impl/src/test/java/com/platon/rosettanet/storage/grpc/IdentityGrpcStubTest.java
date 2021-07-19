@@ -1,7 +1,6 @@
 package com.platon.rosettanet.storage.grpc;
 
 import com.platon.rosettanet.storage.grpc.lib.*;
-import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
@@ -13,7 +12,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-import static com.platon.rosettanet.storage.grpc.interceptor.ExceptionInterceptor.ERROR_MESSAGE_TRAILER_KEY;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -37,14 +35,19 @@ public class IdentityGrpcStubTest {
             log.info("saveIdentity(), response.status:{}", response.getStatus());
 
         }catch(StatusRuntimeException e){
-            io.grpc.Metadata  trailers = Status.trailersFromThrowable(e);
+            com.google.rpc.Status status = io.grpc.protobuf.StatusProto.fromThrowable(e);
+            System.out.println("status.code:" + status.getCode());
+            System.out.println("status.message:" + status.getMessage());
+            //Other action
+
+            /*io.grpc.Metadata  trailers = Status.trailersFromThrowable(e);
             if (trailers.containsKey(ERROR_MESSAGE_TRAILER_KEY)) {
                 ErrorMessage errorMessage = trailers.get(ERROR_MESSAGE_TRAILER_KEY);
                 System.out.println("errorMessage.errorCode:" + errorMessage.getCode());
                 System.out.println("errorMessage.errorMessage:" + errorMessage.getMessage());
             }else{
                 throw e;
-            }
+            }*/
         }
     }
 
