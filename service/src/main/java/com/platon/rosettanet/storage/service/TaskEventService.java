@@ -6,5 +6,7 @@ import java.util.List;
 
 public interface TaskEventService {
     List<TaskEvent> listTaskEventByTaskId(String taskId);
+
+    void insert(List<TaskEvent> taskEventList);
 }
 

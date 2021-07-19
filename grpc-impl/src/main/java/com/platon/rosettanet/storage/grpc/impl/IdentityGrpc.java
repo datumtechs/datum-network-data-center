@@ -7,6 +7,7 @@ import com.platon.rosettanet.storage.grpc.lib.Organization;
 import com.platon.rosettanet.storage.grpc.lib.SimpleResponse;
 import com.platon.rosettanet.storage.service.ConvertorService;
 import com.platon.rosettanet.storage.service.OrgInfoService;
+import io.grpc.Status;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,12 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
                              io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.SimpleResponse> responseObserver) {
 
         log.debug("saveIdentity, request:{}", request);
+        //StreamObserverDelegate streamObserverDelegate = new StreamObserverDelegate(responseObserver);
+
+        /*streamObserverDelegate.executeWithException(() -> {
+            //
+        });*/
+
 
         OrgInfo orgInfo = new OrgInfo();
         orgInfo.setIdentityId(request.getMember().getIdentityId());
@@ -70,11 +77,12 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
 
         SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
 
-        log.debug("saveIdentity response:{}", response);
+        log.debug("saveIdentity response:{}, Status.code:{}", response, Status.OK.getCode().value());
 
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
+
     }
 
     /**

@@ -23,4 +23,9 @@ public class TaskEventServiceImpl implements TaskEventService {
     public List<TaskEvent> listTaskEventByTaskId(String taskId) {
         return taskEventMapper.listTaskEventByTaskId(taskId);
     }
+
+    @Override
+    public void insert(List<TaskEvent> taskEventList) {
+        taskEventMapper.insertBatch(taskEventList);
+    }
 }

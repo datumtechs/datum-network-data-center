@@ -44,6 +44,8 @@ public class MockData {
     @Autowired
     private TaskResultConsumerService taskResultConsumerService;
 
+    @Autowired
+    private TaskEventService taskEventService;
 
     static int orgCount = 100;
     static int eachOrgDataFileCount = 100;
@@ -163,6 +165,7 @@ public class MockData {
         List<TaskMetaDataColumn> taskMetaDataColumnList = new ArrayList<>();
         List<TaskPowerProvider> taskPowerProviderList = new ArrayList<>();
         List<TaskResultConsumer> taskResultConsumerList = new ArrayList<>();
+        List<TaskEvent> taskEventList = new ArrayList<>();
 
         for(int i=1; i<=taskCount; i++) {
             String taskId = StringUtils.leftPad(String.valueOf(i) , 6, "0" );
@@ -291,12 +294,30 @@ public class MockData {
                 }
             }
             //taskResultConsumerService.insert(taskResultConsumerList);
+
+            //task event
+            //每个任务20个事件
+            for (int j=0; j<20; j++){
+                String identityId = partnerIdList.get(RandomUtils.nextInt(0, partnerIdCount));
+
+                TaskEvent event = new TaskEvent();
+                event.setTaskId(taskId);
+                event.setIdentityId(identityId);
+                event.setEventAt(LocalDateTime.now());
+                event.setEventType("eventType");
+                event.setEventContent("eventContent_" + taskId + "_" + identityId);
+                taskEventList.add(event);
+            }
         }
+
+
+
         taskService.insert(taskList);
         taskMetaDataService.insert(taskMetaDataList);
         taskMetaDataColumnService.insert(taskMetaDataColumnList);
         taskPowerProviderService.insert(taskPowerProviderList);
         taskResultConsumerService.insert(taskResultConsumerList);
+        taskEventService.insert(taskEventList);
     }
 
     private LocalDateTime randomDay(){

@@ -1,44 +1,41 @@
 package com.platon.rosettanet.storage.common.exception;
 
-public class BizException extends Exception {
-    private int errorCode = -1;
-    private String message;
+public class BizException extends RuntimeException{
+    private int errorCode;
 
     public int getErrorCode() {
         return errorCode;
     }
 
-
     public void setErrorCode(int errorCode) {
         this.errorCode = errorCode;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-
-    public BizException(String msg) {
-        super(msg);
-        this.message = msg;
-    }
-
-    public BizException(Integer errorCode, String msg) {
-        super(msg);
+    public BizException(int errorCode, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
         this.errorCode = errorCode;
-        this.message = msg;
     }
 
-    public BizException(Integer errorCode, String msg, Throwable t) {
-        super(msg, t);
-        this.setStackTrace(t.getStackTrace());
-
+    public BizException(int errorCode) {
         this.errorCode = errorCode;
-        this.message = msg;
+    }
+
+    public BizException(int errorCode, String message) {
+        super(message);
+        this.errorCode = errorCode;
+    }
+
+    public BizException(int errorCode, String message, Throwable cause) {
+        super(message, cause);
+        this.errorCode = errorCode;
+    }
+
+    public BizException(int errorCode, Throwable cause) {
+        super(cause);
+        this.errorCode = errorCode;
+    }
+
+    public BizException() {
     }
 
 }

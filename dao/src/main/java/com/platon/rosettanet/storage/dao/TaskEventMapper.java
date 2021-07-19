@@ -18,4 +18,6 @@ public interface TaskEventMapper {
     int updateByPrimaryKey(TaskEvent record);
 
     List<TaskEvent> listTaskEventByTaskId(String taskId);
+
+    void insertBatch(List<TaskEvent> taskEventList);
 }

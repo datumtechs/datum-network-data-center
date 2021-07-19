@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/RosettaFlow/Carrier-Go/lib/center/api";
+option java_multiple_files = true;
+option java_package = "com.platon.rosettanet.storage.grpc.lib";
+
+// 通用异常处理信息
+message ErrorMessage {
+
+    // 错误的业务编码
+    int32 code  = 1;
+
+    // 默认提示信息
+    string message = 2;
+}

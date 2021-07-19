@@ -9,4 +9,9 @@ public class GlobalInterceptorConfiguration {
     LogGrpcInterceptor logServerInterceptor() {
         return new LogGrpcInterceptor();
     }
+
+    @GrpcGlobalServerInterceptor
+    ExceptionInterceptor exceptionInterceptor() {
+        return new ExceptionInterceptor();
+    }
 }

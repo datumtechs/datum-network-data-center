@@ -112,4 +112,16 @@
     where task_id = #{taskId,jdbcType=VARCHAR}
     order by event_at
   </select>
+
+  <insert id="insertBatch">
+    insert into task_event (ID, task_id, event_type,
+      identity_id, event_at, event_content
+      )
+    values
+    <foreach collection ="list" item="item" separator =",">
+    (#{item.id,jdbcType=BIGINT}, #{item.taskId,jdbcType=VARCHAR}, #{item.eventType,jdbcType=VARCHAR},
+      #{item.identityId,jdbcType=VARCHAR}, #{item.eventAt,jdbcType=TIMESTAMP}, #{item.eventContent,jdbcType=VARCHAR}
+      )
+    </foreach>
+  </insert>
 </mapper>
