@@ -21,4 +21,6 @@ public interface TaskPowerProviderMapper {
     void insertBatch(List<TaskPowerProvider> taskPowerProviderList);
 
     List<TaskPowerProvider> listTaskPowerProvider(String taskId);
+
+    int countTaskAsPowerProvider(String identityId);
 }

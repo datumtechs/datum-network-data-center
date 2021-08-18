@@ -47,4 +47,9 @@ public class OrgInfoServiceImpl implements OrgInfoService {
     public int deleteByPK(String identityId) {
         return orgInfoMapper.deleteByPrimaryKey(identityId);
     }
+
+    @Override
+    public int update(OrgInfo orgInfo) {
+        return orgInfoMapper.updateByPrimaryKey(orgInfo);
+    }
 }

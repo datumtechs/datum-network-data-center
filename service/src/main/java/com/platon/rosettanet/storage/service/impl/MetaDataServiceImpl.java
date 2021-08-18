@@ -46,13 +46,13 @@ public class MetaDataServiceImpl implements MetaDataService {
 
     @Override
     public void deleteByMetaDataId(String metaDataId) {
-        dataFileMapper.deleteByMetaDataId(metaDataId);
+        dataFileMapper.deleteByPrimaryKey(metaDataId);
         //metaDataColumnMapper.deleteByMetaDataId(metaDataId);
     }
 
     @Override
     public DataFile findByMetaDataId(String metaDataId) {
-        return dataFileMapper.findByMetaDataId(metaDataId);
+        return dataFileMapper.selectByPrimaryKey(metaDataId);
     }
 
     @Override

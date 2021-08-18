@@ -120,4 +120,13 @@
     from task_power_provider
     where task_id = #{taskId,jdbcType=VARCHAR}
   </select>
+
+
+  <select id="countTaskAsPowerProvider" parameterType="java.lang.String" resultType="java.lang.Integer">
+    select count(tpp.task_id) as taskCcunt
+    from task_power_provider tpp
+    WHERE tpp.identity_id= #{identityId,jdbcType=VARCHAR}
+    GROUP BY tpp.identity_id
+  </select>
+
 </mapper>

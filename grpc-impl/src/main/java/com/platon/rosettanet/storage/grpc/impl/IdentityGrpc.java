@@ -38,7 +38,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
         log.debug("getIdentityList, request:{}", request);
 
         List<OrgInfo> orgInfoList = orgInfoService.listOrgInfo();
-        List<Organization> organizationList = orgInfoList.stream().map(orgInfo -> {
+        List<Organization> organizationList = orgInfoList.parallelStream().map(orgInfo -> {
             return this.convertorService.toProtoOrganization(orgInfo);
         }).collect(Collectors.toList());
 
@@ -60,20 +60,26 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
                              io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.SimpleResponse> responseObserver) {
 
         log.debug("saveIdentity, request:{}", request);
-        //StreamObserverDelegate streamObserverDelegate = new StreamObserverDelegate(responseObserver);
 
-        /*streamObserverDelegate.executeWithException(() -> {
-            //
-        });*/
+        OrgInfo orgInfo = orgInfoService.findByPK(request.getMember().getIdentityId());
 
+        if (orgInfo==null){
+            orgInfo = new OrgInfo();
+            orgInfo.setIdentityId(request.getMember().getIdentityId());
+            orgInfo.setNodeId(request.getMember().getNodeId());
+            orgInfo.setOrgName(request.getMember().getName());
+            orgInfo.setIdentityType(request.getCredential());
+            orgInfo.setStatus("enabled");
+            orgInfoService.insert(orgInfo);
+        }else{
 
-        OrgInfo orgInfo = new OrgInfo();
-        orgInfo.setIdentityId(request.getMember().getIdentityId());
-        orgInfo.setNodeId(request.getMember().getNodeId());
-        orgInfo.setOrgName(request.getMember().getName());
-        orgInfo.setIdentityType(request.getCredential());
-        orgInfo.setStatus("enabled");
-        orgInfoService.insert(orgInfo);
+            orgInfo.setIdentityId(request.getMember().getIdentityId());
+            orgInfo.setNodeId(request.getMember().getNodeId());
+            orgInfo.setOrgName(request.getMember().getName());
+            orgInfo.setIdentityType(request.getCredential());
+            orgInfo.setStatus("enabled");
+            orgInfoService.update(orgInfo);
+        }
 
         SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
 

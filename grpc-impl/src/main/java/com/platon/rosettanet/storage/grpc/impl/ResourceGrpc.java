@@ -1,5 +1,6 @@
 package com.platon.rosettanet.storage.grpc.impl;
 
+import com.platon.rosettanet.storage.common.exception.OrgNotFound;
 import com.platon.rosettanet.storage.common.util.ValueUtils;
 import com.platon.rosettanet.storage.dao.entity.OrgInfo;
 import com.platon.rosettanet.storage.dao.entity.OrgPowerTaskSummary;
@@ -8,7 +9,7 @@ import com.platon.rosettanet.storage.grpc.lib.*;
 import com.platon.rosettanet.storage.service.ConvertorService;
 import com.platon.rosettanet.storage.service.OrgInfoService;
 import com.platon.rosettanet.storage.service.PowerServerService;
-import com.platon.rosettanet.storage.service.TaskService;
+import com.platon.rosettanet.storage.service.TaskPowerProviderService;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,8 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
     private ConvertorService convertorService;
 
     @Autowired
-    private TaskService taskService;
+    private TaskPowerProviderService taskPowerProviderService;
+
     /**
      * <pre>
      * 存储资源
@@ -128,7 +130,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
 
         List<PowerServer> powerServerList = powerServerService.listPowerServer();
 
-        List<Power> powerList = powerServerList.stream().map(powerServer -> {
+        List<Power> powerList = powerServerList.parallelStream().map(powerServer -> {
             return Power.newBuilder()
                     .setPowerId(powerServer.getId())
 
@@ -166,7 +168,12 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         String identityId = request.getIdentityId();
         OrgInfo owner = orgInfoService.findByPK(identityId);
 
-        int taskCounts = taskService.countTask(identityId);
+        if(owner==null){
+            log.error("identity not found. identityId:={}", identityId);
+            throw new OrgNotFound();
+        }
+
+        int taskCounts = taskPowerProviderService.countTaskAsPowerProvider(identityId);
 
         PowerServer powerServer = powerServerService.countPowerByOrgId(identityId);
 
@@ -180,7 +187,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
                         .setInformation(ResourceUsed.newBuilder()
                                 .setTotalProcessor(ValueUtils.intValue(powerServer.getCore()))
                                 .setTotalMem(ValueUtils.longValue(powerServer.getMemory()))
-                                .setTotalBandwidth(ValueUtils.longValue(powerServer.getUsedBandwidth()))
+                                .setTotalBandwidth(ValueUtils.longValue(powerServer.getBandwidth()))
                                 .setUsedProcessor(ValueUtils.intValue(powerServer.getUsedCore()))
                                 .setUsedMem(ValueUtils.longValue(powerServer.getUsedMemory()))
                                 .setUsedBandwidth(ValueUtils.longValue(powerServer.getUsedBandwidth()))
@@ -207,9 +214,14 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
 
         List<OrgPowerTaskSummary> orgPowerTaskSummaryList = powerServerService.countPowerGroupByOrgId();
 
-        List<PowerTotalSummaryResponse> powerTotalSummaryResponseList = orgPowerTaskSummaryList.stream().map(orgPowerTaskSummary -> {
+        List<PowerTotalSummaryResponse> powerTotalSummaryResponseList = orgPowerTaskSummaryList.parallelStream().map(orgPowerTaskSummary -> {
+            OrgInfo orgInfo = orgInfoService.findByPK(orgPowerTaskSummary.getIdentityId());
+            if(orgInfo==null){
+                log.error("power provider identity not found. identityId:={}", orgPowerTaskSummary.getIdentityId());
+                throw new OrgNotFound();
+            }
             return PowerTotalSummaryResponse.newBuilder()
-                    .setOwner(Organization.newBuilder().setIdentityId((String)orgPowerTaskSummary.getIdentityId()).build())
+                    .setOwner(convertorService.toProtoOrganization(orgInfo))
                     .setPower(PowerTotalSummary.newBuilder()
                             .setInformation(ResourceUsed.newBuilder()
                                     .setTotalProcessor(ValueUtils.intValue(orgPowerTaskSummary.getCore()))

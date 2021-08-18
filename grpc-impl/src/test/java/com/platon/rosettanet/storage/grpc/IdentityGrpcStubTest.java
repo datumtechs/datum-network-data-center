@@ -4,6 +4,7 @@ import com.platon.rosettanet.storage.grpc.lib.*;
 import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,6 +12,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
 
 
 @RunWith(SpringRunner.class)
@@ -38,16 +44,6 @@ public class IdentityGrpcStubTest {
             com.google.rpc.Status status = io.grpc.protobuf.StatusProto.fromThrowable(e);
             System.out.println("status.code:" + status.getCode());
             System.out.println("status.message:" + status.getMessage());
-            //Other action
-
-            /*io.grpc.Metadata  trailers = Status.trailersFromThrowable(e);
-            if (trailers.containsKey(ERROR_MESSAGE_TRAILER_KEY)) {
-                ErrorMessage errorMessage = trailers.get(ERROR_MESSAGE_TRAILER_KEY);
-                System.out.println("errorMessage.errorCode:" + errorMessage.getCode());
-                System.out.println("errorMessage.errorMessage:" + errorMessage.getMessage());
-            }else{
-                throw e;
-            }*/
         }
     }
 
@@ -63,6 +59,25 @@ public class IdentityGrpcStubTest {
         IdentityListResponse response = identityServiceBlockingStub.getIdentityList(request);
 
         log.info("getIdentityList(), response:{}", response.getIdentityListList());
+    }
+
+
+
+    @Test
+    public void getIdentityList2() {
+        List<String> test = Arrays.asList("a","b","c","d","e","f","g","h","i","j","k","m","n");
+        List<String> expected = Arrays.asList("A","B","C","D","E","F","G","H","I","J","K","M","N");
+        for(int i=0; i<100; i++){
+            List<String> upperList = test.parallelStream().map(s->{
+                try {
+                    Thread.sleep(RandomUtils.nextInt(0,100));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return s.toUpperCase();}).collect(Collectors.toList());
+            //assertTrue(Iterables.elementsEqual(expected, upperList));
+            assertEquals(expected, upperList);
+         }
     }
 
     @Test

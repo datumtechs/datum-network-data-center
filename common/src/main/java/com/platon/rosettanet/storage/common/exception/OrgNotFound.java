@@ -2,7 +2,7 @@ package com.platon.rosettanet.storage.common.exception;
 
 public class OrgNotFound extends BizException {
     private final static int CODE = 1003;
-    private final static String MESSAGE = "Organization not found.";
+    private final static String MESSAGE = "organization not found.";
 
     public OrgNotFound() {
         super(CODE, MESSAGE);

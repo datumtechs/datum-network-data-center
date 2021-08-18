@@ -36,6 +36,9 @@ public class MockData {
     private MetaDataService metaDataService;
 
     @Autowired
+    private TaskAlgoProviderService taskAlgoProviderService;
+
+    @Autowired
     private TaskMetaDataService taskMetaDataService;
 
     @Autowired
@@ -48,15 +51,17 @@ public class MockData {
     private TaskEventService taskEventService;
 
     static int orgCount = 100;
-    static int eachOrgDataFileCount = 100;
+    static int eachOrgDataFileCount = 10;
     static int eachDataFileColumns = 10;
     static int eachOrgPowerServerCount = 10;
     static int taskCount = 100;
+
+    // eachTaskDataProviderCount + eachTaskPowerProviderCount >= eachTaskResultConsumerCount + eachTaskResultConsumerCount * eachTaskResultConsumerSenderCount
     static int eachTaskDataProviderCount = 10;
     static int eachTaskDataProviderColumnCount = 10; //<=eachDataFileColumns
     static int eachTaskPowerProviderCount = 10;
-    static int eachTaskResultConsumerCount = 5;
-    static int eachTaskResultConsumerSenderCount = 2;
+    static int eachTaskResultConsumerCount = 3;
+    static int eachTaskResultConsumerSenderCount = 4;   //eachTaskDataProviderCount + eachTaskPowerProviderCount >= eachTaskResultConsumerCount*（ eachTaskResultConsumerCount + eachTaskResultConsumerSenderCount）
 
 
     @Test
@@ -104,8 +109,8 @@ public class MockData {
                 powerServer.setIdentityId(identityId);
                 powerServer.setId("powerId_" + extID);
                 powerServer.setCore(j);
-                powerServer.setMemory((long) j);
-                powerServer.setBandwidth((long) j);
+                powerServer.setMemory((long) j * 1000000000);
+                powerServer.setBandwidth((long) j * 1000000);
                 powerServer.setPublished(true);
                 powerServer.setPublishedAt(randomDay());
                 powerServerList.add(powerServer);
@@ -118,12 +123,12 @@ public class MockData {
         List<MetaDataColumn> metaDataColumnList = new ArrayList<>();
         for(int i=1; i<=orgCount; i++){
             String identityId = "identityId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" );
-            for(int j=1; j<eachOrgDataFileCount; j++){
+            for(int j=1; j<=eachOrgDataFileCount; j++){
                 String extID = StringUtils.leftPad(String.valueOf(i) , 6, "0" ) + "_" + StringUtils.leftPad(String.valueOf(j), 6, "0" );
 
                 String metaDataId = "metaDataId_" + extID;
                 DataFile dataFile = new DataFile();
-                dataFile.setId("dataFileId_" + extID);
+                dataFile.setOriginId("dataFileId_" + extID);
                 dataFile.setIdentityId(identityId);
                 dataFile.setMetaDataId(metaDataId);
                 dataFile.setFileName("fileName_" + extID);
@@ -132,7 +137,7 @@ public class MockData {
                 dataFile.setResourceName("resourceName_" + extID);
                 dataFile.setSize(100000000000000L);
                 dataFile.setRows(100000000L);
-                dataFile.setColumns(100);
+                dataFile.setColumns(eachDataFileColumns);
                 dataFile.setHasTitle(true);
                 dataFile.setPublished(true);
                 dataFile.setPublishedAt(randomDay());
@@ -169,8 +174,8 @@ public class MockData {
 
         for(int i=1; i<=taskCount; i++) {
             String taskId = StringUtils.leftPad(String.valueOf(i) , 6, "0" );
-            String ownerIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, 101)) , 6, "0" );
-            String ownerPartyId = "partyId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, 101)) , 6, "0" );
+            String ownerIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount)) , 6, "0" );
+            String ownerPartyId = "partyId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount)) , 6, "0" );
 
             Task task = new Task();
             task.setId("taskId_" + taskId);
@@ -184,12 +189,12 @@ public class MockData {
             task.setStartAt(createAt.plusDays(1));
             task.setEndAt(createAt.plusDays(2));
             task.setRequiredCore(10);
-            task.setRequiredMemory(10000L);
-            task.setRequiredBandwidth(1000L);
-            task.setRequiredDuration(100000L);
+            task.setRequiredMemory(1000000000L);
+            task.setRequiredBandwidth(1000000L);
+            task.setRequiredDuration(1000000L);
             task.setUsedCore(10);
-            task.setUsedMemory(10000L);
-            task.setUsedBandwidth(1000L);
+            task.setUsedMemory(1000000L);
+            task.setUsedBandwidth(1000000L);
             task.setStatus("success");
 
             taskList.add(task);
@@ -197,7 +202,7 @@ public class MockData {
 
             //算法提供者（和owner一样）
             TaskAlgoProvider taskAlgoProvider = new TaskAlgoProvider();
-            taskAlgoProvider.setTaskId(taskId);
+            taskAlgoProvider.setTaskId("taskId_" + taskId);
             taskAlgoProvider.setIdentityId(ownerIdentityId);
             taskAlgoProvider.setPartyId(ownerPartyId);
             taskAlgoProviderList.add(taskAlgoProvider);
@@ -210,10 +215,10 @@ public class MockData {
                 //随机挑选1个不同的org来提供data file
                 String dataIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
                 String dataPartyId = StringUtils.replace(dataIdentityId,"identityId", "partyId");
-
                 String metaDataId = StringUtils.replace(dataIdentityId,"identityId", "metaDataId") + "_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, eachOrgDataFileCount+1)), 6, "0");
 
                 while (partnerIdMap.containsKey(dataIdentityId)) {
+                    //重新生成
                     dataIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
                     dataPartyId = StringUtils.replace(dataIdentityId,"identityId", "partyId");
                     metaDataId = StringUtils.replace(dataIdentityId,"identityId", "metaDataId") + "_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, eachOrgDataFileCount+1)), 6, "0");
@@ -221,9 +226,10 @@ public class MockData {
                 partnerIdMap.put(dataIdentityId, Boolean.TRUE);
 
                 //随机此org的一个dataFile
-
                 TaskMetaData taskMetaData = new TaskMetaData();
                 taskMetaData.setTaskId(task.getId());
+                //冗余
+                taskMetaData.setIdentityId(dataIdentityId);
                 taskMetaData.setPartyId(dataPartyId);
                 taskMetaData.setMetaDataId(metaDataId);
 
@@ -247,6 +253,7 @@ public class MockData {
                 String powerIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
                 String powerPartyId = StringUtils.replace(powerIdentityId,"identityId", "partyId");
                 while (partnerIdMap.containsKey(powerIdentityId)) {
+                    //重新生成
                     powerIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
                     powerPartyId = StringUtils.replace(powerIdentityId,"identityId", "partyId");
                 }
@@ -266,23 +273,19 @@ public class MockData {
             //List<TaskResultConsumer> taskResultConsumerList = new ArrayList<>();
 
             List<String> partnerIdList = new ArrayList<String>(partnerIdMap.keySet());
+            List<String> partnerIdListCopy = new ArrayList<String>();
+            partnerIdListCopy.addAll(partnerIdList);
+
             int partnerIdCount = partnerIdList.size();
-            Map<String, Boolean> usedIdMap = new HashMap<>();
+            System.out.println("hahahha：partnerIdCount:" + partnerIdCount + "    xxx:" + eachTaskResultConsumerCount*eachTaskResultConsumerSenderCount );
             for (int m=0; m<eachTaskResultConsumerCount; m++) {
                 //从任务参与方中选择一个不同的结果接受者
-                String receiverId = partnerIdList.get(RandomUtils.nextInt(0, partnerIdCount));
-                while (usedIdMap.containsKey(receiverId)) {
-                    receiverId = partnerIdList.get(RandomUtils.nextInt(0, partnerIdCount));
-                }
-                usedIdMap.put(receiverId, Boolean.TRUE);
-
+                String receiverId = partnerIdList.get(RandomUtils.nextInt(0, partnerIdList.size()));
+                partnerIdList.remove(receiverId);
                 for (int n=0; n<eachTaskResultConsumerSenderCount; n++) {
                     //从任务参与方中选择一个不同的结果接受者
-                    String senderId = partnerIdList.get(RandomUtils.nextInt(0, partnerIdCount));
-                    while (usedIdMap.containsKey(senderId)) {
-                        senderId = partnerIdList.get(RandomUtils.nextInt(0, partnerIdCount));
-                    }
-                    usedIdMap.put(senderId, Boolean.TRUE);
+                    String senderId = partnerIdList.get(RandomUtils.nextInt(0, partnerIdList.size()));
+                    partnerIdList.remove(senderId);
 
                     TaskResultConsumer resultConsumer = new TaskResultConsumer();
                     resultConsumer.setTaskId(task.getId());
@@ -297,8 +300,8 @@ public class MockData {
 
             //task event
             //每个任务20个事件
-            for (int j=0; j<20; j++){
-                String identityId = partnerIdList.get(RandomUtils.nextInt(0, partnerIdCount));
+            for (int j=0; j<2; j++){
+                String identityId = partnerIdListCopy.get(RandomUtils.nextInt(0, partnerIdCount));
 
                 TaskEvent event = new TaskEvent();
                 event.setTaskId(taskId);
@@ -313,6 +316,7 @@ public class MockData {
 
 
         taskService.insert(taskList);
+        taskAlgoProviderService.insertBatch(taskAlgoProviderList);
         taskMetaDataService.insert(taskMetaDataList);
         taskMetaDataColumnService.insert(taskMetaDataColumnList);
         taskPowerProviderService.insert(taskPowerProviderList);

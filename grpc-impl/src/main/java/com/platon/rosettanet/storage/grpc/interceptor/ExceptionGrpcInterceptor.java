@@ -8,21 +8,33 @@ import io.grpc.protobuf.StatusProto;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.advice.GrpcAdvice;
 import net.devh.boot.grpc.server.advice.GrpcExceptionHandler;
+import org.apache.commons.lang3.StringUtils;
 
 
 @Slf4j
 @GrpcAdvice
 public class ExceptionGrpcInterceptor {
+    /*@GrpcExceptionHandler(BizException.class)
+    public StatusException handleBizException(BizException e){
+        Status status = Status.INTERNAL.withDescription(e.getMessage()).withCause(e);
+        return status.asException();
+    }
+
+    @GrpcExceptionHandler(Exception.class)
+    public Status handleException(Exception e){
+        return Status.INTERNAL.withDescription(e.getMessage()).withCause(e);
+    }*/
+
     @GrpcExceptionHandler(Exception.class)
     public StatusRuntimeException handleException(Exception ex) {
-
-        log.error("Error, message {}", ex.getMessage());
+        log.error("error:", ex);
 
         int code =  0;
         String message = "";
         if (ex instanceof BizException) {
             BizException bizEx = (BizException)ex;
-            code = bizEx.getErrorCode();
+            //code = bizEx.getErrorCode();
+            code = Status.INTERNAL.getCode().value();
             message = bizEx.getMessage();
         }else{
             code = Status.INTERNAL.getCode().value();
@@ -32,7 +44,7 @@ public class ExceptionGrpcInterceptor {
         com.google.rpc.Status status =
                 com.google.rpc.Status.newBuilder()
                         .setCode(code)
-                        .setMessage(message)
+                        .setMessage(StringUtils.trimToEmpty(message))
                          .build();
 
         return StatusProto.toStatusRuntimeException(status);

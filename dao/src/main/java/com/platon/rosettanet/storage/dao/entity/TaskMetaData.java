@@ -5,6 +5,8 @@ public class TaskMetaData {
 
     private String metaDataId;
 
+    private String identityId;
+
     private String partyId;
 
     public String getTaskId() {
@@ -21,6 +23,14 @@ public class TaskMetaData {
 
     public void setMetaDataId(String metaDataId) {
         this.metaDataId = metaDataId;
+    }
+
+    public String getIdentityId() {
+        return identityId;
+    }
+
+    public void setIdentityId(String identityId) {
+        this.identityId = identityId;
     }
 
     public String getPartyId() {

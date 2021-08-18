@@ -1,5 +1,7 @@
 package com.platon.rosettanet.storage.service.impl;
 
+import com.platon.rosettanet.storage.common.exception.OrgNotFound;
+import com.platon.rosettanet.storage.common.util.ValueUtils;
 import com.platon.rosettanet.storage.dao.entity.*;
 import com.platon.rosettanet.storage.grpc.lib.*;
 import com.platon.rosettanet.storage.service.ConvertorService;
@@ -39,7 +41,13 @@ public class ConvertorServiceImpl implements ConvertorService {
      * @return
      */
     public List<com.platon.rosettanet.storage.grpc.lib.TaskDataSupplier> toProtoDataSupplier(List<TaskMetaData> taskMetaDataList){
-        return taskMetaDataList.stream().map(taskMetaData -> {
+        /*List<TaskDataSupplier> taskDataSupplierList = new ArrayList<>();
+        for (TaskMetaData taskMetaData: taskMetaDataList) {
+            TaskDataSupplier taskDataSupplier = toProtoDataSupplier(taskMetaData);
+            taskDataSupplierList.add(taskDataSupplier);
+        }
+        return taskDataSupplierList;*/
+        return taskMetaDataList.parallelStream().map(taskMetaData -> {
             return toProtoDataSupplier(taskMetaData);
         }).collect(Collectors.toList());
     }
@@ -51,7 +59,9 @@ public class ConvertorServiceImpl implements ConvertorService {
         Map<Integer, MetaDataColumn> columnMap = metaDataColumnList.stream().collect(Collectors.toMap(MetaDataColumn::getColumnIdx, obj -> obj));
 
         //把任务所用meta data column子集的参数补齐
-        List<MetaDataColumnDetail> metaDataColumnDetailList = taskMetaDataColumnService.listTaskMetaDataColumn(taskMetaData.getTaskId(), taskMetaData.getMetaDataId()).stream().map(taskMetaDataColumn -> {
+        List<MetaDataColumnDetail> metaDataColumnDetailList = taskMetaDataColumnService.listTaskMetaDataColumn(taskMetaData.getTaskId(), taskMetaData.getMetaDataId()).stream()
+                .filter(taskMetaDataColumn -> columnMap.get(taskMetaDataColumn.getColumnIdx())!=null)
+                .map(taskMetaDataColumn -> {
             MetaDataColumn column = columnMap.get(taskMetaDataColumn.getColumnIdx());
             return MetaDataColumnDetail.newBuilder()
                     .setCindex(column.getColumnIdx())
@@ -63,7 +73,11 @@ public class ConvertorServiceImpl implements ConvertorService {
         }).collect(Collectors.toList());
 
         //一个meta data id 属于一个data_file，也属于确定的组织
-        OrgInfo orgInfo = orgInfoService.findByMetaDataId(taskMetaData.getMetaDataId());
+        OrgInfo orgInfo = orgInfoService.findByPK(taskMetaData.getIdentityId());
+        if(orgInfo==null){
+            log.error("task (taskId: {}) data (metadataId: {}) provider identity id: {} not found.", taskMetaData.getTaskId(), taskMetaData.getMetaDataId(), taskMetaData.getIdentityId());
+            throw new OrgNotFound();
+        }
         return TaskDataSupplier.newBuilder()
                 .setMetaId(taskMetaData.getMetaDataId())
                 .setMemberInfo(this.toProtoTaskOrganization(orgInfo, taskMetaData.getPartyId()))
@@ -72,16 +86,23 @@ public class ConvertorServiceImpl implements ConvertorService {
     }
 
     public List<com.platon.rosettanet.storage.grpc.lib.TaskPowerSupplier> toProtoPowerSupplier(List<TaskPowerProvider> taskPowerProviderList) {
-        return taskPowerProviderList.stream().map(taskPowerProvider -> {
+        //task的power可以为空，当task执行失败时，可能没有power
+        if (CollectionUtils.isEmpty(taskPowerProviderList)){
+            return new ArrayList<>();
+        }
+        return taskPowerProviderList.parallelStream().map(taskPowerProvider -> {
 
             OrgInfo orgInfo = orgInfoService.findByPK(taskPowerProvider.getIdentityId());
-
+            if(orgInfo==null){
+                log.error("task (taskId: {}) power provider identity id: {} not found.", taskPowerProvider.getTaskId(), taskPowerProvider.getIdentityId());
+                throw new OrgNotFound();
+            }
             return TaskPowerSupplier.newBuilder()
                     .setMemberInfo(this.toProtoTaskOrganization(orgInfo, taskPowerProvider.getPartyId()))
                     .setPowerInfo(ResourceUsedDetail.newBuilder()
-                            .setUsedProcessor(taskPowerProvider.getUsedCore())
-                            .setUsedMem(taskPowerProvider.getUsedMemory())
-                            .setUsedBandwidth(taskPowerProvider.getUsedBandwidth()))
+                            .setUsedProcessor(ValueUtils.intValue(taskPowerProvider.getUsedCore()))
+                            .setUsedMem(ValueUtils.longValue(taskPowerProvider.getUsedMemory()))
+                            .setUsedBandwidth(ValueUtils.longValue(taskPowerProvider.getUsedBandwidth())))
                     .build();
         }).collect(Collectors.toList());
     }
@@ -102,7 +123,7 @@ public class ConvertorServiceImpl implements ConvertorService {
             OrgInfo consumerOrgInfo = orgInfoService.findByPK(consumerId);
 
             //结果产生者
-            List<TaskOrganization> resultProducerList = byConsumerIdMap.get(consumerId).stream().map(item -> {
+            List<TaskOrganization> resultProducerList = byConsumerIdMap.get(consumerId).parallelStream().map(item -> {
                 OrgInfo producer = orgInfoService.findByPK(item.getProducerIdentityId());
                 return this.toProtoTaskOrganization(producer, item.getProducerPartyId());
             }).collect(Collectors.toList());
@@ -135,7 +156,7 @@ public class ConvertorServiceImpl implements ConvertorService {
 
 
     public List<com.platon.rosettanet.storage.grpc.lib.TaskEvent> toProtoTaskEvent(List<com.platon.rosettanet.storage.dao.entity.TaskEvent> taskEventList){
-        return taskEventList.stream().map(taskEvent -> {
+        return taskEventList.parallelStream().map(taskEvent -> {
             return toProtoTaskEvent(taskEvent);
         }).collect(Collectors.toList());
     }
@@ -165,13 +186,14 @@ public class ConvertorServiceImpl implements ConvertorService {
     public MetaDataSummaryOwner toProtoMetaDataSummaryOwner(DataFile dataFile) {
         OrgInfo orgInfo = orgInfoService.findByPK(dataFile.getIdentityId());
         if(orgInfo==null){
-            return null;
+            log.error("identity not found. identityId:={}", dataFile.getIdentityId());
+            throw new OrgNotFound();
         }
 
         return MetaDataSummaryOwner.newBuilder()
                 .setOwner(this.toProtoOrganization(orgInfo))
                 .setInformation(MetaDataSummary.newBuilder()
-                        .setOriginId(dataFile.getId())
+                        .setOriginId(dataFile.getOriginId())
                         .setMetaDataId(dataFile.getMetaDataId())
                         .setTableName(dataFile.getFileName())
                         .setFilePath(dataFile.getFilePath())

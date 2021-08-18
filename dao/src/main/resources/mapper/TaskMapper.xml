@@ -246,9 +246,28 @@
   </select>
 
 
-  <select id="countTask" parameterType="java.lang.String" resultType="java.lang.Integer">
-    select count(id)
-    from task
-    where owner_identity_id = #{ownerIdentityId,jdbcType=VARCHAR}
+  <select id="listTaskByIdentityId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select DISTINCT t.*
+    from task t
+    where t.owner_identity_id = #{identityId,jdbcType=VARCHAR}
+       or (select 1
+           from (
+                  select tmd.task_id
+                  from task_meta_data tmd
+                  where tmd.identity_id = #{identityId,jdbcType=VARCHAR}
+                  union
+                  select tpp.task_id
+                  from task_power_provider tpp
+                  where tpp.identity_id = #{identityId,jdbcType=VARCHAR}
+                  union
+                  select DISTINCT tsc.task_id
+                  from task_result_consumer tsc
+                  where tsc.consumer_identity_id = #{identityId,jdbcType=VARCHAR}
+                     or tsc.producer_identity_id = #{identityId,jdbcType=VARCHAR}
+                ) otherTask
+           where t.id = otherTask.task_id
+    )
+    order by t.create_at
   </select>
+
 </mapper>

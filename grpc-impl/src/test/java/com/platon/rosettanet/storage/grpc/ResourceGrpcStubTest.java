@@ -76,7 +76,7 @@ public class ResourceGrpcStubTest {
     public void getPowerSummaryByIdentityId() {
         log.info("start to test getPowerSummaryByIdentityId()...");
         PowerSummaryByIdentityRequest request = PowerSummaryByIdentityRequest.newBuilder()
-                .setIdentityId("org_id_4")
+                .setIdentityId("identity_d7b7acd0d7a444f6b1496722eeff792b")
                 .build();
         PowerTotalSummaryResponse response = resourceServiceBlockingStub.getPowerSummaryByIdentityId(request);
 

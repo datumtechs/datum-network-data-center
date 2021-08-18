@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.platon.rosettanet.storage.dao.DataFileMapper">
   <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.DataFile">
-    <id column="id" jdbcType="VARCHAR" property="id" />
+    <id column="meta_data_id" jdbcType="VARCHAR" property="metaDataId" />
+    <result column="origin_id" jdbcType="VARCHAR" property="originId" />
     <result column="identity_id" jdbcType="VARCHAR" property="identityId" />
     <result column="file_name" jdbcType="VARCHAR" property="fileName" />
     <result column="file_path" jdbcType="VARCHAR" property="filePath" />
@@ -16,51 +17,52 @@
     <result column="has_title" jdbcType="BIT" property="hasTitle" />
     <result column="remarks" jdbcType="VARCHAR" property="remarks" />
     <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="meta_data_id" jdbcType="VARCHAR" property="metaDataId" />
+
   </resultMap>
   <sql id="Base_Column_List">
-    id, identity_id, file_name, file_path, file_type, resource_name, `size`, `rows`, columns,
-    published, published_at, has_title, remarks, status, meta_data_id
+    meta_data_id, origin_id, identity_id, file_name, file_path, file_type, resource_name, `size`, `rows`, columns,
+    published, published_at, has_title, remarks, status
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from data_file
-    where id = #{id,jdbcType=VARCHAR}
+    where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from data_file
-    where id = #{id,jdbcType=VARCHAR}
+    update data_file
+    set status = 'disabled', published = false
+    where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </delete>
   <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
-    insert into data_file (id, identity_id, file_name, 
+    insert into data_file (meta_data_id, origin_id, identity_id, file_name,
       file_path, file_type, resource_name, 
       `size`, `rows`, columns,
       published, published_at, has_title, 
-      remarks, status, meta_data_id
+      remarks, status
       )
-    values (#{id,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR}, 
+    values ( #{metaDataId,jdbcType=VARCHAR}, #{originId,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR},
       #{filePath,jdbcType=VARCHAR}, #{fileType,jdbcType=VARCHAR}, #{resourceName,jdbcType=VARCHAR}, 
       #{size,jdbcType=BIGINT}, #{rows,jdbcType=BIGINT}, #{columns,jdbcType=INTEGER}, 
       #{published,jdbcType=BIT}, #{publishedAt,jdbcType=TIMESTAMP}, #{hasTitle,jdbcType=BIT}, 
-      #{remarks,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{metaDataId,jdbcType=VARCHAR}
+      #{remarks,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}
       )
   </insert>
 
   <insert id="insertBatch">
-    insert into data_file (id, identity_id, file_name,
+    insert into data_file (meta_data_id, origin_id, identity_id, file_name,
       file_path, file_type, resource_name,
       `size`, `rows`, columns,
       published, published_at, has_title,
-      remarks, status, meta_data_id
+      remarks, status
       )
     values
     <foreach collection ="list" item="item" separator =",">
-    (#{item.id,jdbcType=VARCHAR}, #{item.identityId,jdbcType=VARCHAR}, #{item.fileName,jdbcType=VARCHAR},
+    (#{item.metaDataId,jdbcType=VARCHAR}, #{item.originId,jdbcType=VARCHAR}, #{item.identityId,jdbcType=VARCHAR}, #{item.fileName,jdbcType=VARCHAR},
       #{item.filePath,jdbcType=VARCHAR}, #{item.fileType,jdbcType=VARCHAR}, #{item.resourceName,jdbcType=VARCHAR},
       #{item.size,jdbcType=BIGINT}, #{item.rows,jdbcType=BIGINT}, #{item.columns,jdbcType=INTEGER},
       #{item.published,jdbcType=BIT}, #{item.publishedAt,jdbcType=TIMESTAMP}, #{item.hasTitle,jdbcType=BIT},
-      #{item.remarks,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.metaDataId,jdbcType=VARCHAR}
+      #{item.remarks,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}
       )
     </foreach>
   </insert>
@@ -69,8 +71,11 @@
   <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
     insert into data_file
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
+      <if test="metaDataId != null">
+        meta_data_id,
+      </if>
+      <if test="originId != null">
+        origin_id,
       </if>
       <if test="identityId != null">
         identity_id,
@@ -111,13 +116,13 @@
       <if test="status != null">
         status,
       </if>
-      <if test="metaDataId != null">
-        meta_data_id,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=VARCHAR},
+      <if test="metaDataId != null">
+        #{metaDataId,jdbcType=VARCHAR},
+      </if>
+      <if test="originId != null">
+        #{originId,jdbcType=VARCHAR},
       </if>
       <if test="identityId != null">
         #{identityId,jdbcType=VARCHAR},
@@ -158,14 +163,14 @@
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
       </if>
-      <if test="metaDataId != null">
-        #{metaDataId,jdbcType=VARCHAR},
-      </if>
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
     update data_file
     <set>
+      <if test="originId != null">
+        origin_id = #{originId,jdbcType=VARCHAR},
+      </if>
       <if test="identityId != null">
         identity_id = #{identityId,jdbcType=VARCHAR},
       </if>
@@ -205,15 +210,13 @@
       <if test="status != null">
         status = #{status,jdbcType=VARCHAR},
       </if>
-      <if test="metaDataId != null">
-        meta_data_id = #{metaDataId,jdbcType=VARCHAR},
-      </if>
     </set>
-    where id = #{id,jdbcType=VARCHAR}
+    where meta_data_id = #{meta_data_id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
     update data_file
-    set identity_id = #{identityId,jdbcType=VARCHAR},
+    set origin_id = #{originId,jdbcType=VARCHAR},
+      identity_id = #{identityId,jdbcType=VARCHAR},
       file_name = #{fileName,jdbcType=VARCHAR},
       file_path = #{filePath,jdbcType=VARCHAR},
       file_type = #{fileType,jdbcType=VARCHAR},
@@ -225,9 +228,8 @@
       published_at = #{publishedAt,jdbcType=TIMESTAMP},
       has_title = #{hasTitle,jdbcType=BIT},
       remarks = #{remarks,jdbcType=VARCHAR},
-      status = #{status,jdbcType=VARCHAR},
-      meta_data_id = #{metaDataId,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
+      status = #{status,jdbcType=VARCHAR}
+    where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </update>
 
   <select id="listDataFile" parameterType="java.lang.String" resultMap="BaseResultMap">
@@ -238,17 +240,4 @@
     order by identity_id, resource_name
   </select>
 
-  <select id="findByMetaDataId" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from data_file
-    where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
-  </select>
-
-
-  <update id="deleteByMetaDataId" parameterType="java.lang.String">
-    update data_file
-    set status = 'disabled'
-    where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
-  </update>
 </mapper>

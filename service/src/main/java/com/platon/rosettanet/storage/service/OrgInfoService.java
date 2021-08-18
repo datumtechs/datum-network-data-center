@@ -16,4 +16,5 @@ public interface OrgInfoService {
 
     int deleteByPK(String identityId);
 
+    int update(OrgInfo orgInfo);
 }

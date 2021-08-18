@@ -188,6 +188,7 @@
     <result column="bandwidth" jdbcType="BIGINT" property="bandwidth" />
     <result column="used_memory" jdbcType="BIGINT" property="usedMemory" />
     <result column="used_core" jdbcType="INTEGER" property="usedCore" />
+    <result column="used_bandwidth" jdbcType="INTEGER" property="usedBandwidth" />
     <result column="power_task_count" jdbcType="INTEGER" property="powerTaskCount" />
   </resultMap>
   <select id ="countPowerGroupByOrgId" resultMap="OrgPowerTaskSummaryResultMap">

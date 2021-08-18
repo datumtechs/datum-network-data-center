@@ -87,6 +87,16 @@ public class TaskServiceGrpcStubTest {
     }
 
     @Test
+    public void listTaskByIdentityId() {
+        log.info("start to test listTaskByIdentityId()...");
+
+        TaskListByIdentityRequest request = TaskListByIdentityRequest.newBuilder().setIdentityId("identity_0bcc975ab55848bda315d7c14799bc17").setLastUpdateTime(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli()).build();
+        TaskListResponse response = taskServiceBlockingStub.listTaskByIdentity(request);
+
+        log.info("listTaskByIdentityId(), response:{}", response.getTaskListList());
+    }
+
+    @Test
     public void listTaskEvent() {
         log.info("start to test listTaskEvent()...");
 

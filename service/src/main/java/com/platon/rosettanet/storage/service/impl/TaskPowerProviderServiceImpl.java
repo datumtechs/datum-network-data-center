@@ -22,11 +22,16 @@ public class TaskPowerProviderServiceImpl implements TaskPowerProviderService {
 
     @Override
     public void insert(List<TaskPowerProvider> taskPowerProviderList) {
-        taskPowerProviderMapper.insertBatch(taskPowerProviderList);
+         taskPowerProviderMapper.insertBatch(taskPowerProviderList);
     }
 
     @Override
     public List<TaskPowerProvider> listTaskPowerProvider(String taskId) {
         return taskPowerProviderMapper.listTaskPowerProvider(taskId);
+    }
+
+    @Override
+    public int countTaskAsPowerProvider(String identityId) {
+        return taskPowerProviderMapper.countTaskAsPowerProvider(identityId);
     }
 }

@@ -3,7 +3,9 @@ package com.platon.rosettanet.storage.dao.entity;
 import java.time.LocalDateTime;
 
 public class DataFile {
-    private String id;
+    private String metaDataId;
+
+    private String originId;
 
     private String identityId;
 
@@ -31,14 +33,12 @@ public class DataFile {
 
     private String status;
 
-    private String metaDataId;
-
-    public String getId() {
-        return id;
+    public String getOriginId() {
+        return originId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setOriginId(String originId) {
+        this.originId = originId;
     }
 
     public String getIdentityId() {

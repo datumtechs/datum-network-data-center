@@ -36,7 +36,7 @@ public class MetaDataGrpc extends MetaDataServiceGrpc.MetaDataServiceImplBase {
         log.debug("metaDataSave, request:{}", request);
 
         DataFile dataFile = new DataFile();
-        dataFile.setId(request.getMetaSummary().getOriginId());
+        dataFile.setOriginId(request.getMetaSummary().getOriginId());
         dataFile.setMetaDataId(request.getMetaSummary().getMetaDataId());
         dataFile.setFileName(request.getMetaSummary().getTableName());
         dataFile.setFilePath(request.getMetaSummary().getFilePath());

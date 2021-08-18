@@ -38,7 +38,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public int countTask(String ownerIdentityId) {
-        return taskMapper.countTask(ownerIdentityId);
+    public List<Task> listTaskByIdentityId(String identityId) {
+        return taskMapper.listTaskByIdentityId(identityId);
     }
 }

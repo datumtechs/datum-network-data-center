@@ -10,5 +10,6 @@ public interface TaskService {
 
     Task findByPK(String taskId);
     List<Task> listTask();
-    int countTask(String ownerIdentityId);
+    List<Task> listTaskByIdentityId(String identityId);
+
 }

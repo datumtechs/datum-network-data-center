@@ -12,8 +12,6 @@ public class OrgInfo {
     private String status;
 
 
-    private Integer accumulativePowerTaskCount;
-    private Integer accumulativeDataTaskCount;
     private Integer accumulativeDataFileCount;
 
     public String getIdentityId() {
@@ -54,22 +52,6 @@ public class OrgInfo {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public Integer getAccumulativePowerTaskCount() {
-        return accumulativePowerTaskCount;
-    }
-
-    public void setAccumulativePowerTaskCount(Integer accumulativePowerTaskCount) {
-        this.accumulativePowerTaskCount = accumulativePowerTaskCount;
-    }
-
-    public Integer getAccumulativeDataTaskCount() {
-        return accumulativeDataTaskCount;
-    }
-
-    public void setAccumulativeDataTaskCount(Integer accumulativeDataTaskCount) {
-        this.accumulativeDataTaskCount = accumulativeDataTaskCount;
     }
 
     public Integer getAccumulativeDataFileCount() {
