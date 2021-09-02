@@ -261,7 +261,7 @@ drop trigger if exists power_server_delete_trigger $$
 CREATE trigger power_server_delete_trigger AFTER DELETE ON power_server FOR EACH Row
 begin
     insert into power_change_history (id, memory, core, bandwidth, trend, update_at)
-    values (OLD.id, 0-OLD.memory, 0-OLD.core, 0-OLD.bandwidth, 'reduced', current_date());
+    values (OLD.id, 0-OLD.memory, 0-OLD.core, 0-OLD.bandwidth, 'reduced', CURRENT_DATE());
 end
 $$
 DELIMITER ;
@@ -286,9 +286,9 @@ DELIMITER ;
 -- 创建首页统计 view
 create or replace view v_global_stats as
 select allOrg.total_org_count, powerOrg.power_org_count, srcFile.data_file_size, usedFile.used_data_file_size,
-    task.task_count, partner.partner_count, power.total_core, power.total_memory, power.total_bandwidth
+    task.task_count, (partner.partner_count + task.task_count) as partner_count, power.total_core, power.total_memory, power.total_bandwidth
 from
---  参与方数量
+--  总组织数
 (
     select count(*) as total_org_count
     from org_info where status='enabled'
@@ -322,9 +322,9 @@ from
     from task
 ) task,
 
--- 参与任务任务总人数
+-- 参与任务总人次：发起人（一个任务一个发起人，所以发起人次数就是taskCount），算力提供者，数据提供者，或者结果消费者，算法提供者
 (
-	select ifnull(dataPartner.dataPartnerCount,0) + ifnull(powerPartner.powerPartnerCount,0) as partner_count
+	select ifnull(dataPartner.dataPartnerCount,0) + ifnull(powerPartner.powerPartnerCount,0) + ifnull(algoPartner.algoPartnerCount,0)  + ifnull(resultConsumerPartner.resultConsumerPartnerCount,0) as partner_count
 	from
 	(
 		select count(*) as dataPartnerCount
@@ -333,7 +333,17 @@ from
 	(
 		select count(*) as powerPartnerCount
 		from task_power_provider
-	) powerPartner
+	) powerPartner,
+    (
+        select count(*) as algoPartnerCount
+        from task_algo_provider
+    ) algoPartner,
+    (
+        select count(DISTINCT consumer_identity_id) as resultConsumerPartnerCount
+        from task_result_consumer
+        group by task_Id
+    ) resultConsumerPartner
+
 ) as partner,
 
 -- 总算力
@@ -400,7 +410,7 @@ ORDER BY a1.update_at;
 --     GROUP BY update_at
 -- ) t, (select @i := 0) temp;
 
--- 组织参与任务数统计 view （统计组织在任务中的角色是：发起人，算力提供者，数据提供者，或者结果消费者，结果产生者）
+-- 组织参与任务数统计 view （统计组织在任务中的角色是：发起人， 算法提供方，算力提供者，数据提供者，结果消费者）
 create or replace view v_org_daily_task_stats as
 select tmp.identity_id, count(tmp.task_id) as task_count, date(t.create_at) as task_date
 from
@@ -409,6 +419,12 @@ from
     select oi.identity_id, t.id as task_id
     from org_info oi, task t
     WHERE oi.identity_id = t.owner_identity_id
+
+    union
+
+    select oi.identity_id, tap.task_id as task_id
+    from org_info oi, task_algo_provider tap
+    WHERE oi.identity_id = tap.identity_id
 
     union
 
@@ -422,12 +438,11 @@ from
     from org_info oi, task_meta_data tmd
     WHERE oi.identity_id = tmd.identity_id
 
-
     union
 
     select DISTINCT oi.identity_id, trc.task_id
-    from org_info oi,  task_result_consumer trc
-    WHERE oi.identity_id = trc.consumer_identity_id or oi.identity_id = trc.producer_identity_id
+    from org_info oi, task_result_consumer trc
+    WHERE oi.identity_id = trc.consumer_identity_id
 
     ) tmp, task t
 where tmp.task_id = t.id
