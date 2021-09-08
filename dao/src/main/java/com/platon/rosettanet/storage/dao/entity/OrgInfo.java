@@ -1,5 +1,7 @@
 package com.platon.rosettanet.storage.dao.entity;
 
+import java.time.LocalDateTime;
+
 public class OrgInfo {
     private String identityId;
 
@@ -9,10 +11,11 @@ public class OrgInfo {
 
     private String orgName;
 
-    private String status;
+    private Integer status;
 
 
     private Integer accumulativeDataFileCount;
+    private LocalDateTime updateAt;
 
     public String getIdentityId() {
         return identityId;
@@ -46,11 +49,11 @@ public class OrgInfo {
         this.orgName = orgName;
     }
 
-    public String getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
@@ -60,5 +63,13 @@ public class OrgInfo {
 
     public void setAccumulativeDataFileCount(Integer accumulativeDataFileCount) {
         this.accumulativeDataFileCount = accumulativeDataFileCount;
+    }
+
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
     }
 }

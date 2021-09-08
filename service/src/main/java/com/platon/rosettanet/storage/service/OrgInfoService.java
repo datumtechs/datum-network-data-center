@@ -2,6 +2,7 @@ package com.platon.rosettanet.storage.service;
 
 import com.platon.rosettanet.storage.dao.entity.OrgInfo;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OrgInfoService {
@@ -12,9 +13,11 @@ public interface OrgInfoService {
 
     OrgInfo findByMetaDataId(String metaDataId);
 
-    List<OrgInfo> listOrgInfo();
+    List<OrgInfo> syncOrgInfo(LocalDateTime lastUpdatedAt);
 
     int deleteByPK(String identityId);
 
     int update(OrgInfo orgInfo);
+
+    int updateStatus(String identityId, int status);
 }

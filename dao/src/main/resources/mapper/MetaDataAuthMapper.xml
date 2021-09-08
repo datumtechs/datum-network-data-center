@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platon.rosettanet.storage.dao.MetaDataAuthMapper">
+  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.MetaDataAuth">
+    <id column="meta_data_auth_id" jdbcType="VARCHAR" property="metaDataAuthId" />
+    <result column="user_identity_id" jdbcType="VARCHAR" property="userIdentityId" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="user_type" jdbcType="INTEGER" property="userType" />
+    <result column="meta_data_id" jdbcType="VARCHAR" property="metaDataId" />
+    <result column="auth_type" jdbcType="INTEGER" property="authType" />
+    <result column="start_at" jdbcType="TIMESTAMP" property="startAt" />
+    <result column="end_at" jdbcType="TIMESTAMP" property="endAt" />
+    <result column="times" jdbcType="INTEGER" property="times" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="apply_at" jdbcType="TIMESTAMP" property="applyAt" />
+    <result column="audit_at" jdbcType="TIMESTAMP" property="auditAt" />
+    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    meta_data_auth_id, user_identity_id, user_id, user_type, meta_data_id, auth_type, start_at, end_at,
+    times, status, apply_at, audit_at, update_at
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from meta_data_auth
+    where meta_data_auth_id = #{metaDataAuthId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from meta_data_auth
+    where meta_data_auth_id = #{metaDataAuthId,jdbcType=VARCHAR}
+  </delete>
+  <!-- #{auditAt,jdbcType=TIMESTAMP} 为了兼容 造伪数据 -->
+  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.MetaDataAuth">
+    insert into meta_data_auth (meta_data_auth_id, user_identity_id, user_id, user_type,
+      meta_data_id, auth_type, start_at, 
+      end_at, times, status, 
+      apply_at, audit_at, update_at)
+    values (#{metaDataAuthId,jdbcType=VARCHAR}, #{userIdentityId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{userType,jdbcType=INTEGER},
+      #{metaDataId,jdbcType=VARCHAR}, #{authType,jdbcType=INTEGER}, #{startAt,jdbcType=TIMESTAMP}, 
+      #{endAt,jdbcType=TIMESTAMP}, #{times,jdbcType=INTEGER}, #{status,jdbcType=INTEGER},
+      CURRENT_TIMESTAMP(),
+      #{auditAt,jdbcType=TIMESTAMP},
+      CURRENT_TIMESTAMP())
+  </insert>
+
+  <!-- #{auditAt,jdbcType=TIMESTAMP} 为了兼容 造伪数据 -->
+  <insert id="insertBatch">
+    insert into meta_data_auth (meta_data_auth_id, user_identity_id, user_id, user_type,
+    meta_data_id, auth_type, start_at,
+    end_at, times, status,
+    apply_at, audit_at, update_at)
+    values
+    <foreach collection ="list" item="item" separator =",">
+      (#{item.metaDataAuthId,jdbcType=VARCHAR}, #{item.userIdentityId,jdbcType=VARCHAR}, #{item.userId,jdbcType=VARCHAR}, #{item.userType,jdbcType=INTEGER},
+      #{item.metaDataId,jdbcType=VARCHAR}, #{item.authType,jdbcType=INTEGER}, #{item.startAt,jdbcType=TIMESTAMP},
+      #{item.endAt,jdbcType=TIMESTAMP}, #{item.times,jdbcType=INTEGER}, #{item.status,jdbcType=INTEGER},
+      CURRENT_TIMESTAMP(),
+      #{item.auditAt,jdbcType=TIMESTAMP},
+      CURRENT_TIMESTAMP())
+    </foreach>
+  </insert>
+
+  <update id="updateStatus">
+    update meta_data_auth
+    set status = #{status,jdbcType=INTEGER}, audit_at = CURRENT_TIMESTAMP(), update_at = CURRENT_TIMESTAMP()
+    where meta_data_auth_id = #{metaDataAuthId,jdbcType=VARCHAR}
+  </update>
+
+  <select id="syncMetaDataAuth">
+    select
+    <include refid="Base_Column_List" />
+    from meta_data_auth
+    <where>
+      <if test="userIdentityId != null and userIdentityId != ''">
+        AND user_identity_id = #{identityId,jdbcType=VARCHAR}
+      </if>
+      <if test="lastUpdateAt != null">
+        AND update_at <![CDATA[ > ]]> #{lastUpdateAt,jdbcType=TIMESTAMP}
+      </if>
+    </where>
+  </select>
+</mapper>

@@ -5,7 +5,11 @@ import com.platon.rosettanet.storage.common.util.ValueUtils;
 import com.platon.rosettanet.storage.dao.entity.OrgInfo;
 import com.platon.rosettanet.storage.dao.entity.OrgPowerTaskSummary;
 import com.platon.rosettanet.storage.dao.entity.PowerServer;
-import com.platon.rosettanet.storage.grpc.lib.*;
+import com.platon.rosettanet.storage.grpc.lib.api.*;
+import com.platon.rosettanet.storage.grpc.lib.common.PowerState;
+import com.platon.rosettanet.storage.grpc.lib.common.SimpleResponse;
+import com.platon.rosettanet.storage.grpc.lib.types.Power;
+import com.platon.rosettanet.storage.grpc.lib.types.ResourceUsageOverview;
 import com.platon.rosettanet.storage.service.ConvertorService;
 import com.platon.rosettanet.storage.service.OrgInfoService;
 import com.platon.rosettanet.storage.service.PowerServerService;
@@ -15,7 +19,9 @@ import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,8 +47,8 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * 存储资源
      * </pre>
      */
-    public void publishPower(com.platon.rosettanet.storage.grpc.lib.PublishPowerRequest request,
-                             io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.SimpleResponse> responseObserver) {
+    public void publishPower(com.platon.rosettanet.storage.grpc.lib.api.PublishPowerRequest request,
+                             io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.common.SimpleResponse> responseObserver) {
 
         log.debug("publishPower, request:{}", request);
 
@@ -54,7 +60,8 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         powerServer.setMemory(request.getInformation().getMem());
         powerServer.setBandwidth(request.getInformation().getBandwidth());
         powerServer.setPublished(true);
-        powerServer.setPublishedAt(LocalDateTime.now());
+        powerServer.setPublishedAt(LocalDateTime.now(ZoneOffset.UTC));
+        powerServer.setStatus(PowerState.PowerState_Released.ordinal());
         powerServerService.insert(powerServer);
 
         //接口返回值
@@ -73,17 +80,17 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * 新增，算力同步，实时通知算力的使用情况（组织下的具体的服务器）
      * </pre>
      */
-    public void syncPower(com.platon.rosettanet.storage.grpc.lib.SyncPowerRequest request,
-                          io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.SimpleResponse> responseObserver) {
+    public void syncPower(com.platon.rosettanet.storage.grpc.lib.api.SyncPowerRequest request,
+                          io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.common.SimpleResponse> responseObserver) {
 
         log.debug("syncPower, request:{}", request);
 
         PowerServer powerServer = new PowerServer();
         powerServer.setId(request.getPower().getPowerId());
 
-        powerServer.setUsedCore(request.getPower().getInformation().getUsedProcessor());
-        powerServer.setUsedMemory(request.getPower().getInformation().getUsedMem());
-        powerServer.setUsedBandwidth(request.getPower().getInformation().getUsedBandwidth());
+        powerServer.setUsedCore(request.getPower().getUsageOverview().getUsedProcessor());
+        powerServer.setUsedMemory(request.getPower().getUsageOverview().getUsedMem());
+        powerServer.setUsedBandwidth(request.getPower().getUsageOverview().getUsedBandwidth());
         powerServerService.updateByPrimaryKeySelective(powerServer);
 
         //接口返回值
@@ -101,12 +108,12 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * 撤销资源
      * </pre>
      */
-    public void revokePower(com.platon.rosettanet.storage.grpc.lib.RevokePowerRequest request,
-                            io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.SimpleResponse> responseObserver) {
+    public void revokePower(com.platon.rosettanet.storage.grpc.lib.api.RevokePowerRequest request,
+                            io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.common.SimpleResponse> responseObserver) {
 
         log.debug("revokePower, request:{}", request);
 
-        powerServerService.deleteByPK(request.getPowerId());
+        powerServerService.updateStatus(request.getPowerId(), PowerState.PowerState_Revoked.ordinal());
 
         //接口返回值
         SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
@@ -123,18 +130,23 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * 新增，用于同步给管理台，获取所有算力资源信息
      * </pre>
      */
-    public void getPowerList(com.platon.rosettanet.storage.grpc.lib.PowerListRequest request,
-                             io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.PowerListResponse> responseObserver) {
+    public void getPowerList(com.platon.rosettanet.storage.grpc.lib.api.PowerListRequest request,
+                             io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.PowerListResponse> responseObserver) {
 
         log.debug("getPowerList, request:{}", request);
 
-        List<PowerServer> powerServerList = powerServerService.listPowerServer();
+        LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
+        if (request.getLastUpdated() > 0) {
+            lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
+        }
+
+        List<PowerServer> powerServerList = powerServerService.syncPowerServer(lastUpdateAt);
 
         List<Power> powerList = powerServerList.parallelStream().map(powerServer -> {
             return Power.newBuilder()
                     .setPowerId(powerServer.getId())
 
-                    .setInformation(ResourceUsed.newBuilder()
+                    .setUsageOverview(ResourceUsageOverview.newBuilder()
                             .setTotalProcessor(ValueUtils.intValue(powerServer.getCore()))
                             .setTotalMem(ValueUtils.longValue(powerServer.getUsedMemory()))
                             .setTotalBandwidth(ValueUtils.longValue(powerServer.getUsedBandwidth()))
@@ -146,7 +158,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         }).collect(Collectors.toList());
 
         //接口返回值
-        PowerListResponse response = PowerListResponse.newBuilder().addAllPowerList(powerList).build();
+        PowerListResponse response = PowerListResponse.newBuilder().addAllPowers(powerList).build();
 
         log.debug("getPowerList, response:{}", response);
 
@@ -161,8 +173,8 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * 查看指定节点的总算力摘要
      * </pre>
      */
-    public void getPowerSummaryByIdentityId(com.platon.rosettanet.storage.grpc.lib.PowerSummaryByIdentityRequest request,
-                                        io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.PowerTotalSummaryResponse> responseObserver) {
+    public void getPowerSummaryByIdentityId(com.platon.rosettanet.storage.grpc.lib.api.PowerSummaryByIdentityRequest request,
+                                        io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.PowerTotalSummaryResponse> responseObserver) {
         log.debug("getPowerSummaryByNodeId, request:{}", request);
 
         String identityId = request.getIdentityId();
@@ -183,8 +195,8 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
 
         PowerTotalSummaryResponse response = PowerTotalSummaryResponse.newBuilder()
                 .setOwner(convertorService.toProtoOrganization(owner))
-                .setPower(PowerTotalSummary.newBuilder()
-                        .setInformation(ResourceUsed.newBuilder()
+                .setPowerTotalSummary(PowerTotalSummary.newBuilder()
+                        .setInformation(ResourceUsageOverview.newBuilder()
                                 .setTotalProcessor(ValueUtils.intValue(powerServer.getCore()))
                                 .setTotalMem(ValueUtils.longValue(powerServer.getMemory()))
                                 .setTotalBandwidth(ValueUtils.longValue(powerServer.getBandwidth()))
@@ -208,7 +220,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * </pre>
      */
     public void getPowerTotalSummaryList(com.google.protobuf.Empty request,
-                                         io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.PowerTotalSummaryListResponse> responseObserver) {
+                                         io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.PowerTotalSummaryListResponse> responseObserver) {
 
         log.debug("getPowerTotalSummaryList, request:{}", request);
 
@@ -222,8 +234,8 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
             }
             return PowerTotalSummaryResponse.newBuilder()
                     .setOwner(convertorService.toProtoOrganization(orgInfo))
-                    .setPower(PowerTotalSummary.newBuilder()
-                            .setInformation(ResourceUsed.newBuilder()
+                    .setPowerTotalSummary(PowerTotalSummary.newBuilder()
+                            .setInformation(ResourceUsageOverview.newBuilder()
                                     .setTotalProcessor(ValueUtils.intValue(orgPowerTaskSummary.getCore()))
                                     .setTotalMem(ValueUtils.longValue(orgPowerTaskSummary.getMemory()))
                                     .setTotalBandwidth(ValueUtils.longValue(orgPowerTaskSummary.getBandwidth()))
@@ -238,7 +250,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
 
         //结果
         PowerTotalSummaryListResponse response = PowerTotalSummaryListResponse.newBuilder()
-                .addAllPowerList(powerTotalSummaryResponseList)
+                .addAllPowers(powerTotalSummaryResponseList)
                 .build();
 
         log.debug("getPowerTotalSummaryList, response:{}", response);

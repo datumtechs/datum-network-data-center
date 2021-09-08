@@ -7,6 +7,10 @@ public class Task {
 
     private String taskName;
 
+    private String userId;
+
+    private Integer userType;
+
     private Long requiredMemory;
 
     private Integer requiredCore;
@@ -33,7 +37,9 @@ public class Task {
 
     private Long usedFileSize;
 
-    private String status;
+    private Integer status;
+
+    private LocalDateTime updateAt;
 
     public String getId() {
         return id;
@@ -155,11 +161,35 @@ public class Task {
         this.usedFileSize = usedFileSize;
     }
 
-    public String getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public Integer getUserType() {
+        return userType;
+    }
+
+    public void setUserType(Integer userType) {
+        this.userType = userType;
+    }
+
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
     }
 }

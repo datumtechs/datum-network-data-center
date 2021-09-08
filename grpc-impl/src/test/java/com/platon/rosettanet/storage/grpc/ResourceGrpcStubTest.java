@@ -1,6 +1,10 @@
 package com.platon.rosettanet.storage.grpc;
 
-import com.platon.rosettanet.storage.grpc.lib.*;
+import com.platon.rosettanet.storage.grpc.lib.api.*;
+import com.platon.rosettanet.storage.grpc.lib.common.Organization;
+import com.platon.rosettanet.storage.grpc.lib.common.SimpleResponse;
+import com.platon.rosettanet.storage.grpc.lib.types.Power;
+import com.platon.rosettanet.storage.grpc.lib.types.ResourceUsageOverview;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.junit.Test;
@@ -10,6 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -22,7 +27,7 @@ public class ResourceGrpcStubTest {
     public void publishPower() {
         log.info("start to test publishPower()...");
         PublishPowerRequest request = PublishPowerRequest.newBuilder()
-                .setOwner(Organization.newBuilder().setIdentityId("org_id_4").build())
+                .setOwner(Organization.newBuilder().setIdentityId("org_id_5").build())
                 .setPowerId("test_power_id")
                 .setInformation(PurePower.newBuilder().setProcessor(10).setMem(10000L).setBandwidth(20000L).build())
                 .build();
@@ -37,10 +42,10 @@ public class ResourceGrpcStubTest {
         SyncPowerRequest request = SyncPowerRequest.newBuilder()
                 .setPower(Power.newBuilder()
                         .setPowerId("test_power_id")
-                        .setInformation(ResourceUsed.newBuilder()
-                                .setUsedProcessor(10)
+                        .setUsageOverview(ResourceUsageOverview.newBuilder()
+                                .setUsedProcessor(1000)
                                 .setUsedMem(1000)
-                                .setUsedBandwidth(100)
+                                .setUsedBandwidth(1000)
                                 .build())
                         .build())
                 .build();
@@ -64,8 +69,13 @@ public class ResourceGrpcStubTest {
     @Test
     public void getPowerList() {
         log.info("start to test getPowerList()...");
+
+        log.info("start to test getMetadataList()...");
+        LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-08 09:00:57",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+
         PowerListRequest request = PowerListRequest.newBuilder()
-                .setLastUpdateTime(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000)
                 .build();
         PowerListResponse response = resourceServiceBlockingStub.getPowerList(request);
 

@@ -58,9 +58,9 @@
         <table tableName="data_server" domainObjectName="DataServer" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
 
         </table>-->
-        <table tableName="power_resource" domainObjectName="PowerResource" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
+        <!--<table tableName="power_resource" domainObjectName="PowerResource" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
 
-        </table>
+        </table>-->
         <!--<table tableName="data_file" domainObjectName="DataFile" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
 
         </table>
@@ -73,5 +73,8 @@
         <table tableName="task_power_provider" domainObjectName="TaskPowerProvider" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
         <table tableName="task_event" domainObjectName="TaskEvent" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
     -->
+        <table tableName="meta_data_auth" domainObjectName="MetaDataAuth" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
+
+        </table>
     </context>
 </generatorConfiguration>

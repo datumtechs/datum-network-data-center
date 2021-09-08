@@ -31,7 +31,9 @@ public class DataFile {
 
     private String remarks;
 
-    private String status;
+    private Integer status;
+
+    private LocalDateTime updateAt;
 
     public String getOriginId() {
         return originId;
@@ -137,11 +139,11 @@ public class DataFile {
         this.remarks = remarks;
     }
 
-    public String getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
@@ -151,5 +153,13 @@ public class DataFile {
 
     public void setMetaDataId(String metaDataId) {
         this.metaDataId = metaDataId;
+    }
+
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
     }
 }

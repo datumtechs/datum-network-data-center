@@ -1,7 +1,9 @@
 package com.platon.rosettanet.storage.dao;
 
 import com.platon.rosettanet.storage.dao.entity.DataFile;
+import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface DataFileMapper {
@@ -17,7 +19,11 @@ public interface DataFileMapper {
 
     int updateByPrimaryKey(DataFile record);
 
-    List<DataFile> listDataFile(String status);
+    List<DataFile> listDataFile(@Param("status") int status);
 
     void insertBatch(List<DataFile> dataFileList);
+
+    List<DataFile> syncDataFile(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt);
+
+    void updateStatus(@Param("metaDataId")String metaDataId, @Param("status")int status);
 }

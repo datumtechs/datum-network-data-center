@@ -3,6 +3,7 @@ package com.platon.rosettanet.storage.service;
 import com.platon.rosettanet.storage.dao.entity.DataFile;
 import com.platon.rosettanet.storage.dao.entity.MetaDataColumn;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface MetaDataService {
@@ -13,9 +14,9 @@ public interface MetaDataService {
 
     void insertMetaData(DataFile dataFile, List<MetaDataColumn> metaDataColumnList);
 
-    List<DataFile> listDataFile(String status);
-
+    List<DataFile> listDataFile(int status);
+    List<DataFile> syncDataFile(LocalDateTime lastUpdatedAt);
     void insertDataFile(List<DataFile> dataFileList);
     void insertMetaDataColumn(List<MetaDataColumn> metaDataColumnList);
-    void deleteByMetaDataId(String metaDataId);
+    void updateStatus(String metaDataId, int status);
 }

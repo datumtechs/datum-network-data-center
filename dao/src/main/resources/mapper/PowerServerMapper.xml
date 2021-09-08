@@ -12,10 +12,12 @@
     <result column="used_bandwidth" jdbcType="BIGINT" property="usedBandwidth" />
     <result column="published" jdbcType="BIT" property="published" />
     <result column="published_at" jdbcType="TIMESTAMP" property="publishedAt" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
   </resultMap>
   <sql id="Base_Column_List">
     id, identity_id, memory, core, bandwidth, used_memory, used_core, used_bandwidth, published,
-    published_at
+    published_at, status, update_at
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
@@ -31,95 +33,27 @@
     insert into power_server (id, identity_id, memory,
       core, bandwidth, used_memory, 
       used_core, used_bandwidth, published, 
-      published_at)
+      published_at, status, update_at)
     values (#{id,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{memory,jdbcType=BIGINT},
       #{core,jdbcType=INTEGER}, #{bandwidth,jdbcType=BIGINT}, #{usedMemory,jdbcType=BIGINT}, 
       #{usedCore,jdbcType=INTEGER}, #{usedBandwidth,jdbcType=BIGINT}, #{published,jdbcType=BIT}, 
-      #{publishedAt,jdbcType=TIMESTAMP})
+      #{publishedAt,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER}, CURRENT_TIMESTAMP())
   </insert>
 
   <insert id="insertBatch" >
     insert into power_server (id, identity_id, memory,
       core, bandwidth, used_memory,
       used_core, used_bandwidth, published,
-      published_at)
+      published_at, status, update_at)
     values
     <foreach collection ="list" item="item" separator =",">
       (#{item.id,jdbcType=VARCHAR}, #{item.identityId,jdbcType=VARCHAR}, #{item.memory,jdbcType=BIGINT},
         #{item.core,jdbcType=INTEGER}, #{item.bandwidth,jdbcType=BIGINT}, #{item.usedMemory,jdbcType=BIGINT},
         #{item.usedCore,jdbcType=INTEGER}, #{item.usedBandwidth,jdbcType=BIGINT}, #{item.published,jdbcType=BIT},
-        #{item.publishedAt,jdbcType=TIMESTAMP})
+        #{item.publishedAt,jdbcType=TIMESTAMP}, #{item.status,jdbcType=INTEGER}, CURRENT_TIMESTAMP())
     </foreach>
   </insert>
 
-
-  <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.PowerServer">
-    insert into power_server
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
-      <if test="identityId != null">
-        identity_id,
-      </if>
-      <if test="memory != null">
-        memory,
-      </if>
-      <if test="core != null">
-        core,
-      </if>
-      <if test="bandwidth != null">
-        bandwidth,
-      </if>
-      <if test="usedMemory != null">
-        used_memory,
-      </if>
-      <if test="usedCore != null">
-        used_core,
-      </if>
-      <if test="usedBandwidth != null">
-        used_bandwidth,
-      </if>
-      <if test="published != null">
-        published,
-      </if>
-      <if test="publishedAt != null">
-        published_at,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=VARCHAR},
-      </if>
-      <if test="identityId != null">
-        #{identityId,jdbcType=VARCHAR},
-      </if>
-      <if test="memory != null">
-        #{memory,jdbcType=BIGINT},
-      </if>
-      <if test="core != null">
-        #{core,jdbcType=INTEGER},
-      </if>
-      <if test="bandwidth != null">
-        #{bandwidth,jdbcType=BIGINT},
-      </if>
-      <if test="usedMemory != null">
-        #{usedMemory,jdbcType=BIGINT},
-      </if>
-      <if test="usedCore != null">
-        #{usedCore,jdbcType=INTEGER},
-      </if>
-      <if test="usedBandwidth != null">
-        #{usedBandwidth,jdbcType=BIGINT},
-      </if>
-      <if test="published != null">
-        #{published,jdbcType=BIT},
-      </if>
-      <if test="publishedAt != null">
-        #{publishedAt,jdbcType=TIMESTAMP},
-      </if>
-    </trim>
-  </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.platon.rosettanet.storage.dao.entity.PowerServer">
     update power_server
     <set>
@@ -150,28 +84,17 @@
       <if test="publishedAt != null">
         published_at = #{publishedAt,jdbcType=TIMESTAMP},
       </if>
+      update_at = CURRENT_TIMESTAMP()
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.platon.rosettanet.storage.dao.entity.PowerServer">
-    update power_server
-    set identity_id = #{identityId,jdbcType=VARCHAR},
-      memory = #{memory,jdbcType=BIGINT},
-      core = #{core,jdbcType=INTEGER},
-      bandwidth = #{bandwidth,jdbcType=BIGINT},
-      used_memory = #{usedMemory,jdbcType=BIGINT},
-      used_core = #{usedCore,jdbcType=INTEGER},
-      used_bandwidth = #{usedBandwidth,jdbcType=BIGINT},
-      published = #{published,jdbcType=BIT},
-      published_at = #{publishedAt,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
 
-  <select id="listPowerServer" resultMap="BaseResultMap">
+  <select id="syncPowerServer" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from power_server
-    order by identity_id
+    where update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
+    order by update_at
   </select>
 
 
@@ -205,4 +128,10 @@
       group by identity_id
     ) b on o.identity_id = b.identity_id
   </select>
+
+  <update id="updateStatus">
+    update power_server
+    set status = #{status,jdbcType=INTEGER}, update_at = CURRENT_TIMESTAMP()
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
 </mapper>

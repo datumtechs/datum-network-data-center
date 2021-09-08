@@ -2,7 +2,9 @@ package com.platon.rosettanet.storage.dao;
 
 import com.platon.rosettanet.storage.dao.entity.OrgPowerTaskSummary;
 import com.platon.rosettanet.storage.dao.entity.PowerServer;
+import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PowerServerMapper {
@@ -10,15 +12,13 @@ public interface PowerServerMapper {
 
     int insert(PowerServer record);
 
-    int insertSelective(PowerServer record);
-
     PowerServer selectByPrimaryKey(String id);
 
     int updateByPrimaryKeySelective(PowerServer record);
 
     int updateByPrimaryKey(PowerServer record);
 
-    List<PowerServer> listPowerServer();
+    List<PowerServer> syncPowerServer(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt);
 
     /**
      * 只包含 各项 的sum
@@ -30,4 +30,6 @@ public interface PowerServerMapper {
     List<OrgPowerTaskSummary> countPowerGroupByOrgId();
 
     void insertBatch(List<PowerServer> powerServerList);
+
+    int updateStatus(@Param("id") String powerId, @Param("status")int status);
 }

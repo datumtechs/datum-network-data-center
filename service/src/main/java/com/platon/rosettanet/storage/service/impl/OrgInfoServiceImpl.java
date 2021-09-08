@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -39,8 +40,8 @@ public class OrgInfoServiceImpl implements OrgInfoService {
     }
 
     @Override
-    public List<OrgInfo> listOrgInfo() {
-        return orgInfoMapper.listOrgInfo();
+    public List<OrgInfo> syncOrgInfo(LocalDateTime lastUpdatedAt) {
+        return orgInfoMapper.syncOrgInfo(lastUpdatedAt);
     }
 
     @Override
@@ -51,5 +52,10 @@ public class OrgInfoServiceImpl implements OrgInfoService {
     @Override
     public int update(OrgInfo orgInfo) {
         return orgInfoMapper.updateByPrimaryKey(orgInfo);
+    }
+
+    @Override
+    public int updateStatus(String identityId, int status) {
+        return orgInfoMapper.updateStatus(identityId, status);
     }
 }

@@ -1,8 +1,16 @@
 package com.platon.rosettanet.storage.service;
 
 import com.platon.rosettanet.storage.dao.entity.*;
+import com.platon.rosettanet.storage.grpc.lib.common.CommonStatus;
+import com.platon.rosettanet.storage.grpc.lib.common.DataStatus;
+import com.platon.rosettanet.storage.grpc.lib.common.MetadataState;
+import com.platon.rosettanet.storage.grpc.lib.common.TaskState;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.buf.HexUtils;
+import org.apache.tomcat.util.buf.UriUtil;
+import org.apache.tomcat.util.security.MD5Encoder;
+import org.assertj.core.data.Offset;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,13 +18,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.DigestUtils;
+import sun.misc.BASE64Encoder;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.ZoneOffset;
+import java.util.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -50,32 +63,136 @@ public class MockData {
     @Autowired
     private TaskEventService taskEventService;
 
-    static int orgCount = 100;
+    @Autowired
+    private MetaDataAuthService metaDataAuthService;
+
+    static int orgCount = 20;
     static int eachOrgDataFileCount = 10;
-    static int eachDataFileColumns = 10;
+    static int eachDataFileColumns = 5;
     static int eachOrgPowerServerCount = 10;
-    static int taskCount = 100;
+    static int taskCount = 20;
 
     // eachTaskDataProviderCount + eachTaskPowerProviderCount >= eachTaskResultConsumerCount + eachTaskResultConsumerCount * eachTaskResultConsumerSenderCount
-    static int eachTaskDataProviderCount = 10;
-    static int eachTaskDataProviderColumnCount = 10; //<=eachDataFileColumns
-    static int eachTaskPowerProviderCount = 10;
+    static int eachTaskDataProviderCount = 5;
+    static int eachTaskDataProviderColumnCount = 5; //<=eachDataFileColumns
+    static int eachTaskPowerProviderCount = 5;
     static int eachTaskResultConsumerCount = 3;
-    static int eachTaskResultConsumerSenderCount = 4;   //eachTaskDataProviderCount + eachTaskPowerProviderCount >= eachTaskResultConsumerCount*（ eachTaskResultConsumerCount + eachTaskResultConsumerSenderCount）
+    //static int eachTaskResultConsumerSenderCount = 4;   //eachTaskDataProviderCount + eachTaskPowerProviderCount >= eachTaskResultConsumerCount*（ eachTaskResultConsumerCount + eachTaskResultConsumerSenderCount）
 
 
     @Test
+    public void initMockDataFile() {
+        List<OrgInfo> orgInfoList = new ArrayList<>();
+        for(int i=1; i<=orgCount; i++){
+            String identityId = "identity_" + DigestUtils.md5DigestAsHex(StringUtils.leftPad(String.valueOf(i), 6, "0" ).getBytes(StandardCharsets.UTF_8));
+            System.out.println(identityId);
+
+            OrgInfo orgInfo = new OrgInfo();
+            orgInfo.setIdentityId(identityId);
+            orgInfo.setIdentityType("DID");
+            orgInfo.setOrgName("orgName_" + StringUtils.leftPad(String.valueOf(i), 6, "0" ) );
+            orgInfo.setStatus(CommonStatus.CommonStatus_Normal.ordinal());
+            orgInfo.setNodeId("nodeId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" ));
+            orgInfoList.add(orgInfo);
+
+        }
+        orgInfoService.insert(orgInfoList);
+
+
+        List<DataFile> dataFileList = new ArrayList<>();
+        List<MetaDataColumn> metaDataColumnList = new ArrayList<>();
+        for(int i=1; i<=orgCount; i++){
+            String identityId = "identity_" + DigestUtils.md5DigestAsHex(StringUtils.leftPad(String.valueOf(i), 6, "0" ).getBytes(StandardCharsets.UTF_8));
+            for(int j=1; j<=eachOrgDataFileCount; j++){
+                String extID = StringUtils.leftPad(String.valueOf(i) , 6, "0" ) + "_" + StringUtils.leftPad(String.valueOf(j), 6, "0" );
+                String metaDataId = "metaData:0x" + HexUtils.toHexString(RandomUtils.nextBytes(32));
+                DataFile dataFile = new DataFile();
+                dataFile.setOriginId("dataFileId_" + extID);
+                dataFile.setIdentityId(identityId);
+                dataFile.setMetaDataId(metaDataId);
+                dataFile.setFileName("fileName_" + extID);
+                dataFile.setFileType("csv");
+                dataFile.setFilePath("/opt/usr/data");
+                dataFile.setResourceName("resourceName_" + extID);
+                dataFile.setSize(209715200L);
+                dataFile.setRows(100000000L);
+                dataFile.setColumns(eachDataFileColumns);
+                dataFile.setHasTitle(true);
+                dataFile.setPublished(true);
+                dataFile.setPublishedAt(randomDay());
+                dataFile.setStatus(DataStatus.DataStatus_Normal.ordinal());
+                dataFile.setRemarks("dataFileRemarks_" + extID);
+                dataFileList.add(dataFile);
+
+                //List<MetaDataColumn> metaDataColumnList = new ArrayList<>();
+                for(int k=1; k<=eachDataFileColumns; k++){
+                    MetaDataColumn column = new MetaDataColumn();
+                    column.setMetaDataId(metaDataId);
+                    column.setColumnIdx(k);
+                    column.setColumnType("String");
+                    column.setColumnName("columnName_" + extID + "_" + k);
+                    column.setColumnSize(RandomUtils.nextInt(1, 10000));
+                    column.setRemarks("columnRemarks_" + extID + "_" + k);
+                    column.setPublished(true);
+                    metaDataColumnList.add(column);
+                }
+                //metaDataService.insertMetaData(dataFile, metaDataColumnList);
+            }
+        }
+        metaDataService.insertDataFile(dataFileList);
+        metaDataService.insertMetaDataColumn(metaDataColumnList);
+
+    }
+
+
+    @Test
+    public void initMockOrgPower() {
+
+        List<OrgInfo> orgInfoList = new ArrayList<>();
+        for(int i=1; i<=orgCount; i++){
+            String identityId = "identity_" + DigestUtils.md5DigestAsHex(StringUtils.leftPad(String.valueOf(i), 6, "0" ).getBytes(StandardCharsets.UTF_8));
+            System.out.println(identityId);
+
+            OrgInfo orgInfo = new OrgInfo();
+            orgInfo.setIdentityId(identityId);
+            orgInfo.setIdentityType("DID");
+            orgInfo.setOrgName("orgName_" + StringUtils.leftPad(String.valueOf(i), 6, "0" ) );
+            orgInfo.setStatus(CommonStatus.CommonStatus_Normal.ordinal());
+            orgInfo.setNodeId("nodeId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" ));
+            orgInfoList.add(orgInfo);
+
+        }
+        orgInfoService.insert(orgInfoList);
+
+
+        List<PowerServer> powerServerList = new ArrayList<>();
+        for(int i=1; i<=orgCount; i++){
+            String identityId = "identity_" + DigestUtils.md5DigestAsHex(StringUtils.leftPad(String.valueOf(i), 6, "0" ).getBytes(StandardCharsets.UTF_8));
+            for(int j=1; j<eachOrgPowerServerCount; j++){
+                String extID = identityId + "_" + StringUtils.leftPad(String.valueOf(j), 6, "0" );
+
+                PowerServer powerServer = new PowerServer();
+                powerServer.setIdentityId(identityId);
+                powerServer.setId("powerId_" + extID);
+                powerServer.setCore(j);
+                powerServer.setMemory((long) j * 1000000000);
+                powerServer.setBandwidth((long) j * 1000000);
+                powerServer.setPublished(true);
+                powerServer.setPublishedAt(randomDay());
+                powerServerList.add(powerServer);
+            }
+        }
+        powerServerService.insert(powerServerList);
+    }
+    @Test
     public void initMockData() {
-
-
-
         List<OrgInfo> orgInfoList = new ArrayList<>();
         for(int i=1; i<=orgCount; i++){
             OrgInfo orgInfo = new OrgInfo();
             orgInfo.setIdentityId("identityId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" ));
             orgInfo.setIdentityType("DID");
             orgInfo.setOrgName("orgName_" + StringUtils.leftPad(String.valueOf(i), 6, "0" ) );
-            orgInfo.setStatus("enabled");
+            orgInfo.setStatus(CommonStatus.CommonStatus_Normal.ordinal());
             orgInfo.setNodeId("nodeId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" ));
             orgInfoList.add(orgInfo);
 
@@ -141,7 +258,7 @@ public class MockData {
                 dataFile.setHasTitle(true);
                 dataFile.setPublished(true);
                 dataFile.setPublishedAt(randomDay());
-                dataFile.setStatus("release");
+                dataFile.setStatus(MetadataState.MetadataState_Released.ordinal());
                 dataFile.setRemarks("dataFileRemarks_" + extID);
                 dataFileList.add(dataFile);
 
@@ -171,6 +288,7 @@ public class MockData {
         List<TaskPowerProvider> taskPowerProviderList = new ArrayList<>();
         List<TaskResultConsumer> taskResultConsumerList = new ArrayList<>();
         List<TaskEvent> taskEventList = new ArrayList<>();
+        List<MetaDataAuth> metaDataAuthList = new ArrayList<>();
 
         for(int i=1; i<=taskCount; i++) {
             String taskId = StringUtils.leftPad(String.valueOf(i) , 6, "0" );
@@ -182,6 +300,8 @@ public class MockData {
             task.setTaskName("taskName_" + taskId);
             task.setOwnerIdentityId(ownerIdentityId);
             task.setOwnerPartyId(ownerPartyId);
+            task.setUserType(1); // 1: 以太坊地址; 2: Alaya地址; 3: PlatON地址'
+            task.setUserId(UUID.randomUUID().toString());
 
             LocalDateTime createAt = randomDay();
 
@@ -195,7 +315,7 @@ public class MockData {
             task.setUsedCore(10);
             task.setUsedMemory(1000000L);
             task.setUsedBandwidth(1000000L);
-            task.setStatus("success");
+            task.setStatus(TaskState.TaskState_Succeed.ordinal());
 
             taskList.add(task);
             //taskService.insert(task);
@@ -209,6 +329,8 @@ public class MockData {
 
 
             Map<String, Boolean> partnerIdMap = new HashMap<>();
+            partnerIdMap.put(ownerIdentityId, true);//任务发起者，不再提供算力和数据，但是可以接收任务结果
+
 
             for (int j=1; j<=eachTaskDataProviderCount; j++) {
 
@@ -245,6 +367,20 @@ public class MockData {
                     taskMetaDataColumnList.add(taskMetaDataColumn);
                 }
                 //taskMetaDataColumnService.insert(taskMetaDataColumnList);
+
+
+                //每个任务的metaData，都授权给任务的参与者，包括发起者，其它数据提供者，算力提供者
+                MetaDataAuth metaDataAuth = new MetaDataAuth();
+                metaDataAuth.setMetaDataId(taskMetaData.getMetaDataId());
+                metaDataAuth.setMetaDataAuthId(UUID.randomUUID().toString());
+                metaDataAuth.setStatus(1);//审核通过
+                metaDataAuth.setApplyAt(LocalDateTime.now(ZoneOffset.UTC));
+                metaDataAuth.setUserIdentityId(task.getOwnerIdentityId());
+                metaDataAuth.setUserId(task.getUserId());
+                metaDataAuth.setUserType(1);
+                metaDataAuth.setAuthType(2);  //2: 按照次数来使用
+                metaDataAuth.setTimes(100);
+                metaDataAuthList.add(metaDataAuth);
             }
 
             //List<TaskPowerProvider> taskPowerProviderList = new ArrayList<>();
@@ -266,6 +402,10 @@ public class MockData {
 
                 taskPowerProviderList.add(taskPowerProvider);
             }
+
+
+
+
             //taskPowerProviderService.insert(taskPowerProviderList);
 
 
@@ -277,24 +417,31 @@ public class MockData {
             partnerIdListCopy.addAll(partnerIdList);
 
             int partnerIdCount = partnerIdList.size();
-            System.out.println("hahahha：partnerIdCount:" + partnerIdCount + "    xxx:" + eachTaskResultConsumerCount*eachTaskResultConsumerSenderCount );
+            //System.out.println("hahahha：partnerIdCount:" + partnerIdCount + "    xxx:" + eachTaskResultConsumerCount*eachTaskResultConsumerSenderCount );
             for (int m=0; m<eachTaskResultConsumerCount; m++) {
                 //从任务参与方中选择一个不同的结果接受者
                 String receiverId = partnerIdList.get(RandomUtils.nextInt(0, partnerIdList.size()));
                 partnerIdList.remove(receiverId);
-                for (int n=0; n<eachTaskResultConsumerSenderCount; n++) {
+                TaskResultConsumer resultConsumer = new TaskResultConsumer();
+                resultConsumer.setTaskId(task.getId());
+                resultConsumer.setConsumerIdentityId(receiverId);
+                resultConsumer.setConsumerPartyId(StringUtils.replace(receiverId,"identityId", "partyId"));
+                    /*resultConsumer.setProducerIdentityId(senderId);
+                    resultConsumer.setProducerPartyId(StringUtils.replace(senderId,"identityId", "partyId"));*/
+                taskResultConsumerList.add(resultConsumer);
+                /*for (int n=0; n<eachTaskResultConsumerSenderCount; n++) {
                     //从任务参与方中选择一个不同的结果接受者
-                    String senderId = partnerIdList.get(RandomUtils.nextInt(0, partnerIdList.size()));
-                    partnerIdList.remove(senderId);
+                    //String senderId = partnerIdList.get(RandomUtils.nextInt(0, partnerIdList.size()));
+                    //partnerIdList.remove(senderId);
 
                     TaskResultConsumer resultConsumer = new TaskResultConsumer();
                     resultConsumer.setTaskId(task.getId());
                     resultConsumer.setConsumerIdentityId(receiverId);
                     resultConsumer.setConsumerPartyId(StringUtils.replace(receiverId,"identityId", "partyId"));
-                    resultConsumer.setProducerIdentityId(senderId);
-                    resultConsumer.setProducerPartyId(StringUtils.replace(senderId,"identityId", "partyId"));
+                    *//*resultConsumer.setProducerIdentityId(senderId);
+                    resultConsumer.setProducerPartyId(StringUtils.replace(senderId,"identityId", "partyId"));*//*
                     taskResultConsumerList.add(resultConsumer);
-                }
+                }*/
             }
             //taskResultConsumerService.insert(taskResultConsumerList);
 
@@ -306,7 +453,7 @@ public class MockData {
                 TaskEvent event = new TaskEvent();
                 event.setTaskId(taskId);
                 event.setIdentityId(identityId);
-                event.setEventAt(LocalDateTime.now());
+                event.setEventAt(LocalDateTime.now(ZoneOffset.UTC));
                 event.setEventType("eventType");
                 event.setEventContent("eventContent_" + taskId + "_" + identityId);
                 taskEventList.add(event);
@@ -322,12 +469,13 @@ public class MockData {
         taskPowerProviderService.insert(taskPowerProviderList);
         taskResultConsumerService.insert(taskResultConsumerList);
         taskEventService.insert(taskEventList);
+        metaDataAuthService.insert(metaDataAuthList);
     }
 
     private LocalDateTime randomDay(){
         int gaps = 60;
-        LocalDateTime start = LocalDateTime.now().minusDays(gaps);
-        Duration duration = Duration.between(start, LocalDateTime.now());
+        LocalDateTime start = LocalDateTime.now(ZoneOffset.UTC).minusDays(gaps);
+        Duration duration = Duration.between(start, LocalDateTime.now(ZoneOffset.UTC));
         long days = duration.toDays(); //相差的天数
         int random = RandomUtils.nextInt(0, (int)days);
         return start.plusDays(random);

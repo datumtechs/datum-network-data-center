@@ -3,6 +3,8 @@ package com.platon.rosettanet.storage.service;
 import com.platon.rosettanet.storage.dao.entity.OrgInfo;
 import com.platon.rosettanet.storage.dao.entity.Task;
 import com.platon.rosettanet.storage.dao.entity.TaskMetaDataColumn;
+import com.platon.rosettanet.storage.grpc.lib.common.CommonStatus;
+import com.platon.rosettanet.storage.grpc.lib.common.TaskState;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +45,7 @@ public class TaskServiceTest {
         task.setCreateAt(LocalDateTime.now());
         task.setStartAt(LocalDateTime.now());
         task.setEndAt(LocalDateTime.now().plusDays(2));
-        task.setStatus("pending");
+        task.setStatus(TaskState.TaskState_Succeed.ordinal());
         taskService.insert(task);
 
 
@@ -62,7 +64,7 @@ public class TaskServiceTest {
         orgInfo.setIdentityId("identityId");
         orgInfo.setIdentityType("DID");
         orgInfo.setOrgName("orgName");
-        orgInfo.setStatus("enabled");
+        orgInfo.setStatus(CommonStatus.CommonStatus_Normal.ordinal());
 
         orgInfoService.insert(orgInfo);
     }

@@ -16,12 +16,12 @@
     <result column="published_at" jdbcType="TIMESTAMP" property="publishedAt" />
     <result column="has_title" jdbcType="BIT" property="hasTitle" />
     <result column="remarks" jdbcType="VARCHAR" property="remarks" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
-
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
   </resultMap>
   <sql id="Base_Column_List">
     meta_data_id, origin_id, identity_id, file_name, file_path, file_type, resource_name, `size`, `rows`, columns,
-    published, published_at, has_title, remarks, status
+    published, published_at, has_title, remarks, status, update_at
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
@@ -31,7 +31,7 @@
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     update data_file
-    set status = 'disabled', published = false
+    set status = 'disabled', published = false, update_at = CURRENT_TIMESTAMP()
     where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </delete>
   <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
@@ -39,13 +39,13 @@
       file_path, file_type, resource_name, 
       `size`, `rows`, columns,
       published, published_at, has_title, 
-      remarks, status
+      remarks, status, update_at
       )
     values ( #{metaDataId,jdbcType=VARCHAR}, #{originId,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR},
       #{filePath,jdbcType=VARCHAR}, #{fileType,jdbcType=VARCHAR}, #{resourceName,jdbcType=VARCHAR}, 
       #{size,jdbcType=BIGINT}, #{rows,jdbcType=BIGINT}, #{columns,jdbcType=INTEGER}, 
       #{published,jdbcType=BIT}, #{publishedAt,jdbcType=TIMESTAMP}, #{hasTitle,jdbcType=BIT}, 
-      #{remarks,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}
+      #{remarks,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, CURRENT_TIMESTAMP()
       )
   </insert>
 
@@ -54,7 +54,7 @@
       file_path, file_type, resource_name,
       `size`, `rows`, columns,
       published, published_at, has_title,
-      remarks, status
+      remarks, status, update_at
       )
     values
     <foreach collection ="list" item="item" separator =",">
@@ -62,7 +62,7 @@
       #{item.filePath,jdbcType=VARCHAR}, #{item.fileType,jdbcType=VARCHAR}, #{item.resourceName,jdbcType=VARCHAR},
       #{item.size,jdbcType=BIGINT}, #{item.rows,jdbcType=BIGINT}, #{item.columns,jdbcType=INTEGER},
       #{item.published,jdbcType=BIT}, #{item.publishedAt,jdbcType=TIMESTAMP}, #{item.hasTitle,jdbcType=BIT},
-      #{item.remarks,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}
+      #{item.remarks,jdbcType=VARCHAR}, #{item.status,jdbcType=INTEGER}, CURRENT_TIMESTAMP()
       )
     </foreach>
   </insert>
@@ -116,6 +116,7 @@
       <if test="status != null">
         status,
       </if>
+      update_at
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="metaDataId != null">
@@ -161,8 +162,9 @@
         #{remarks,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
-        #{status,jdbcType=VARCHAR},
+        #{status,jdbcType=INTEGER},
       </if>
+      CURRENT_TIMESTAMP()
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
@@ -208,8 +210,9 @@
         remarks = #{remarks,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
-        status = #{status,jdbcType=VARCHAR},
+        status = #{status,jdbcType=INTEGER},
       </if>
+      update_at
     </set>
     where meta_data_id = #{meta_data_id,jdbcType=VARCHAR}
   </update>
@@ -228,16 +231,30 @@
       published_at = #{publishedAt,jdbcType=TIMESTAMP},
       has_title = #{hasTitle,jdbcType=BIT},
       remarks = #{remarks,jdbcType=VARCHAR},
-      status = #{status,jdbcType=VARCHAR}
+      status = #{status,jdbcType=INTEGER},
+      update_at = CURRENT_TIMESTAMP()
     where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </update>
 
-  <select id="listDataFile" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="listDataFile" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from data_file
-    where status = #{status,jdbcType=VARCHAR}
+    where status = #{status,jdbcType=INTEGER}
     order by identity_id, resource_name
   </select>
 
+  <select id="syncDataFile" parameterType="java.time.LocalDateTime" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from data_file
+    where update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
+    order by update_at
+  </select>
+
+  <update id="updateStatus">
+    update data_file
+    set status = #{status,jdbcType=INTEGER}, published = false, update_at = CURRENT_TIMESTAMP()
+    where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
+  </update>
 </mapper>

@@ -1,7 +1,9 @@
 package com.platon.rosettanet.storage.dao;
 
 import com.platon.rosettanet.storage.dao.entity.OrgInfo;
+import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OrgInfoMapper {
@@ -14,10 +16,11 @@ public interface OrgInfoMapper {
     int updateByPrimaryKeySelective(OrgInfo record);
 
     int updateByPrimaryKey(OrgInfo record);
+    int updateStatus(@Param("identityId") String identityId, @Param("status") int status);
 
     OrgInfo findByMetaDataId(String metaDataId);
 
-    List<OrgInfo> listOrgInfo();
+    List<OrgInfo> syncOrgInfo(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt);
 
     int insertBatch(List<OrgInfo> orgInfoList);
 }

@@ -1,6 +1,8 @@
 package com.platon.rosettanet.storage.grpc;
 
-import com.platon.rosettanet.storage.grpc.lib.*;
+import com.platon.rosettanet.storage.grpc.lib.api.*;
+import com.platon.rosettanet.storage.grpc.lib.common.Organization;
+import com.platon.rosettanet.storage.grpc.lib.common.SimpleResponse;
 import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
@@ -10,9 +12,15 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +40,7 @@ public class IdentityGrpcStubTest {
         log.info("start to test saveIdentity()...");
 
         SaveIdentityRequest request = SaveIdentityRequest.newBuilder()
-                .setMember(Organization.newBuilder().setIdentityId("org_id_5").setName("org_name_4").setNodeId("node_id_4").build())
+                .setMember(Organization.newBuilder().setIdentityId("org_id_5").setNodeName("org_name_4").setNodeId("node_id_4").build())
                 .setCredential("DID")
                 .build();
 
@@ -53,14 +61,15 @@ public class IdentityGrpcStubTest {
     public void getIdentityList() {
         log.info("start to test getIdentityList()...");
 
+        LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-08 08:49:24",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
         IdentityListRequest request = IdentityListRequest.newBuilder()
-                .setLastUpdateTime(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000)
                 .build();
         IdentityListResponse response = identityServiceBlockingStub.getIdentityList(request);
 
-        log.info("getIdentityList(), response:{}", response.getIdentityListList());
+        log.info("getIdentityList().size: {}", response.getIdentitiesList().size());
     }
-
 
 
     @Test
@@ -85,7 +94,7 @@ public class IdentityGrpcStubTest {
         log.info("start to test revokeIdentityJoin()...");
 
         RevokeIdentityJoinRequest request = RevokeIdentityJoinRequest.newBuilder()
-                .setMember(Organization.newBuilder().setIdentityId("org_id_4").setName("org_name_4").setNodeId("node_id_4").build())
+                .setMember(Organization.newBuilder().setIdentityId("org_id_5").setNodeName("org_name_4").setNodeId("node_id_4").build())
                 .build();
         SimpleResponse response = identityServiceBlockingStub.revokeIdentityJoin(request);
 

@@ -23,6 +23,10 @@ public class PowerServer {
 
     private LocalDateTime publishedAt;
 
+    private Integer status;
+
+    private LocalDateTime updateAt;
+
     public String getId() {
         return id;
     }
@@ -101,5 +105,21 @@ public class PowerServer {
 
     public void setPublishedAt(LocalDateTime publishedAt) {
         this.publishedAt = publishedAt;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
     }
 }

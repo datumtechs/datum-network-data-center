@@ -11,13 +11,14 @@ CREATE TABLE org_info (
 	identity_type VARCHAR(100) NOT NULL COMMENT '身份认证标识的类型 (ca 或者 did)',
     org_name VARCHAR(100) COMMENT '组织身份名称',
     node_id VARCHAR(200) NOT NULL COMMENT '组织节点ID',
-    status VARCHAR(10) NOT NULL DEFAULT 'enabled' COMMENT '状态,enabled/disabled',
+    status int NOT NULL DEFAULT 1 COMMENT '状态,1:Normal;2:NonNormal',
 --     accumulative_core INT DEFAULT 0 COMMENT '组织算力累积的core数量',
 --     accumulative_memory BIGINT DEFAULT 0 COMMENT '组织算力累积的内存数量, 字节',
 --     accumulative_bandwidth BIGINT DEFAULT 0 COMMENT '组织算力累积的带宽数量, bps',
 --     accumulative_power_task_count INT DEFAULT 0 COMMENT '组织作为算力提供方参与的任务累积数量',
 --     accumulative_data_task_count INT DEFAULT 0 COMMENT '组织作为数据提供方参与的任务累积数量',
     accumulative_data_file_count INT DEFAULT 0 COMMENT '组织的文件累积数量',
+    update_at DATETIME NOT NULL comment '(状态)修改时间',
     PRIMARY KEY (identity_id)
 ) comment '组织信息';
 
@@ -61,6 +62,8 @@ CREATE TABLE power_server (
     used_bandwidth BIGINT DEFAULT 0 COMMENT '使用的带宽, bps',
     published BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否发布，true/false',
     published_at DATETIME NOT NULL DEFAULT NOW() comment '发布时间',
+    status int COMMENT '算力的状态 (0: 未知; 1: 还未发布的算力; 2: 已发布的算力; 3: 已撤销的算力)',
+    update_at DATETIME NOT NULL comment '(状态)修改时间',
     PRIMARY KEY (id)
 ) comment '计算服务信息';
 
@@ -81,9 +84,28 @@ CREATE TABLE data_file (
     published_at DATETIME NOT NULL DEFAULT NOW() comment '发布时间',
     has_title BOOLEAN NOT NULL DEFAULT false comment '是否带标题',
     remarks VARCHAR(100) COMMENT '数据描述',
-    status VARCHAR(20) NOT NULL DEFAULT 'created' COMMENT '数据的状态 (create: 还未发布的新表; release: 已发布的表; revoke: 已撤销的表)',
+    status int COMMENT '数据的状态 (0: 未知; 1: 还未发布的新表; 2: 已发布的表; 3: 已撤销的表)',
+    update_at DATETIME NOT NULL comment '(状态)修改时间',
 	PRIMARY KEY (meta_data_id)
 ) comment '数据文件信息';
+
+DROP TABLE IF EXISTS  meta_data_auth;
+CREATE TABLE meta_data_auth(
+    meta_data_auth_id VARCHAR(200) NOT NULL COMMENT '申请数据授权的ID',
+    user_identity_id VARCHAR(200) NOT NULL COMMENT '申请用户所属组织身份ID',
+    user_id           VARCHAR(200) NOT NULL COMMENT '申请数据授权的用户ID',
+    user_type         INT          NOT NULL COMMENT '用户类型 (0: 未定义; 1: 以太坊地址; 2: Alaya地址; 3: PlatON地址',
+    meta_data_id      VARCHAR(200) NOT NULL comment '元数据ID,hash',
+    auth_type         INT          NOT NULL COMMENT '申请收集授权类型：(0: 未定义; 1: 按照时间段来使用; 2: 按照次数来使用)',
+    start_at          DATETIME COMMENT '授权开始时间(auth_type=1时)',
+    end_at            DATETIME COMMENT '授权结束时间(auth_type=1时)',
+    times             INT COMMENT '授权次数(auth_type=2时)',
+    `status`          INT COMMENT '申请状态，0：等待审核中；1：审核通过；2：审核拒绝',
+    apply_at          DATETIME     NOT NULL COMMENT '授权申请时间',
+    audit_at          DATETIME     COMMENT '授权审核时间',
+    update_at         DATETIME     NOT NULL COMMENT '(状态)修改时间',
+    PRIMARY KEY (meta_data_auth_id)
+) comment '元数据文件授权信息';
 
 DROP TABLE IF EXISTS meta_data_column;
 CREATE TABLE meta_data_column (
@@ -101,6 +123,8 @@ DROP TABLE IF EXISTS task;
 CREATE TABLE task (
     id VARCHAR(200) NOT NULL comment '任务ID,hash',
     task_name VARCHAR(100) NOT NULL COMMENT '任务名称',
+    user_id           VARCHAR(200) NOT NULL COMMENT '发起任务的用户的信息 (task是属于用户的)',
+    user_type         INT          NOT NULL COMMENT '用户类型 (0: 未定义; 1: 以太坊地址; 2: Alaya地址; 3: PlatON地址',
     required_memory BIGINT NOT NULL DEFAULT 0 COMMENT '需要的内存, 字节',
     required_core INT NOT NULL DEFAULT 0 COMMENT '需要的core',
     required_bandwidth BIGINT NOT NULL DEFAULT 0 COMMENT '需要的带宽, bps',
@@ -114,7 +138,8 @@ CREATE TABLE task (
     used_core INT NOT NULL DEFAULT 0 COMMENT '使用的core',
     used_bandwidth BIGINT NOT NULL DEFAULT 0 COMMENT '使用的带宽, bps',
     used_file_size BIGINT  DEFAULT 0 COMMENT '使用的所有数据大小，字节',
-    status VARCHAR(20) NOT NULL COMMENT '任务状态, pending/denied/computing/failed/success',
+    status int COMMENT '任务状态, 0:未知;1:等待中;2:计算中,3:失败;4:成功',
+    update_at         DATETIME     NOT NULL COMMENT '(状态)修改时间',
     PRIMARY KEY (ID)
 ) comment '任务';
 
@@ -161,9 +186,9 @@ CREATE TABLE task_result_consumer (
     task_id VARCHAR(200) NOT NULL comment '任务ID,hash',
     consumer_identity_id VARCHAR(200) NOT NULL COMMENT '结果消费者组织身份ID',
     consumer_party_id VARCHAR(200) NOT NULL COMMENT '任务参与方在本次任务中的唯一识别ID',
-    producer_identity_id VARCHAR(200) NOT NULL COMMENT '结果产生者的组织身份ID',
-    producer_party_id VARCHAR(200) NOT NULL COMMENT '任务参与方在本次任务中的唯一识别ID',
-    PRIMARY KEY (task_ID, consumer_identity_id, producer_identity_id)
+    producer_identity_id VARCHAR(200) COMMENT '结果产生者的组织身份ID',
+    producer_party_id VARCHAR(200)  COMMENT '任务参与方在本次任务中的唯一识别ID',
+    PRIMARY KEY (task_ID, consumer_identity_id)
 ) comment '任务结果接收者';
 
 
@@ -187,7 +212,7 @@ CREATE TABLE power_change_history (
     core INT NOT NULL DEFAULT 0 COMMENT '计算服务core',
     bandwidth BIGINT  NOT NULL DEFAULT 0 COMMENT '计算服务带宽, bps',
     trend VARCHAR(10) NOT NULL COMMENT 'increased:增长的/reduced:减少的',
-    update_at DATE NOT NULL comment '修改时间',
+    update_at DATE NOT NULL comment '修改日期',
 	INDEX (update_at)
 ) comment '算力增长统计表';
 
@@ -196,9 +221,9 @@ DROP TABLE IF EXISTS data_file_change_history;
 CREATE TABLE data_file_change_history (
     origin_id VARCHAR(200) NOT NULL comment 'data_file.origin_ID,hash',
     size BIGINT  NOT NULL DEFAULT 0 COMMENT '文件大小(字节)，如果release->revoke，则为负数',
-    status VARCHAR(20) NOT NULL DEFAULT 'create' COMMENT '数据的状态 (create: 还未发布的新表; release: 已发布的表; revoke: 已撤销的表)',
+    status int COMMENT '数据的状态',
     trend VARCHAR(10) NOT NULL COMMENT 'increased:增长的/reduced:减少的',
-    update_at DATE NOT NULL comment '修改时间',
+    update_at DATE NOT NULL comment '修改日期',
 	INDEX (update_at)
 ) comment '数据增长统计表';
 
@@ -246,37 +271,40 @@ DELIMITER ;
 
 -- 统计 power_server 数量
 -- 统计 org 提供的算力的累积数量
+-- published_at是为了造假数据用，生产环境应该是：NEW.update_at
 DELIMITER $$
 drop trigger if exists power_server_insert_trigger $$
 CREATE trigger power_server_insert_trigger AFTER INSERT ON power_server FOR EACH Row
 begin
     insert into power_change_history (id, memory, core, bandwidth, trend, update_at)
-    values (NEW.id, NEW.memory, NEW.core, NEW.bandwidth, 'increased', NEW.published_at);
+        values (NEW.id, NEW.memory, NEW.core, NEW.bandwidth, 'increased', NEW.published_at);
 end
 $$
 DELIMITER ;
 
 DELIMITER $$
 drop trigger if exists power_server_delete_trigger $$
-CREATE trigger power_server_delete_trigger AFTER DELETE ON power_server FOR EACH Row
+drop trigger if exists power_server_update_trigger $$
+CREATE trigger power_server_update_trigger AFTER UPDATE ON power_server FOR EACH Row
 begin
-    insert into power_change_history (id, memory, core, bandwidth, trend, update_at)
-    values (OLD.id, 0-OLD.memory, 0-OLD.core, 0-OLD.bandwidth, 'reduced', CURRENT_DATE());
+    IF OLD.status=2 AND NEW.status=3 THEN -- 从发布变成撤销
+        insert into power_change_history (id, memory, core, bandwidth, trend, update_at)
+        values (OLD.id, 0-OLD.memory, 0-OLD.core, 0-OLD.bandwidth, 'reduced', CURRENT_DATE());
+    END IF;
 end
 $$
 DELIMITER ;
-
 
 DELIMITER $$
 drop trigger if exists data_file_update_trigger $$
 CREATE trigger data_file_update_trigger AFTER UPDATE ON data_file FOR EACH Row
 begin
-    IF OLD.status='release' AND NEW.status='revoke' THEN
+    IF OLD.status=2 AND NEW.status=3 THEN -- 从发布变成撤销
         insert into data_file_change_history (origin_id, size, status, trend, update_at)
-        values (NEW.origin_id, 0-OLD.size, 'revoked', 'reduced', CURRENT_DATE());
-    ELSEIF OLD.status='revoke' AND NEW.status='release' THEN
-        insert into data_file_change_history (origin_id, size, trend, update_at)
-        values (OLD.origin_id, OLD.size, 'release', 'increased', CURRENT_DATE());
+        values (NEW.origin_id, 0-OLD.size, 3, 'reduced', CURRENT_DATE());
+    ELSEIF OLD.status=3 AND NEW.status=2 THEN -- 从撤销变成发布
+        insert into data_file_change_history (origin_id, size, status, trend, update_at)
+        values (OLD.origin_id, OLD.size, 2, 'increased', CURRENT_DATE());
     END IF;
 end
 $$
@@ -291,7 +319,7 @@ from
 --  总组织数
 (
     select count(*) as total_org_count
-    from org_info where status='enabled'
+    from org_info where status= 1
 ) allOrg,
 
 -- 算力参与方数
@@ -299,14 +327,14 @@ from
     select count(oi.identity_id) as power_org_count
     from org_info oi
     where EXISTS (select 1 from power_server ps where oi.identity_id = ps.identity_id)
-    and status = 'enabled'
+    and status = 1
 
 ) powerOrg,
 
 -- 上传数据量
 (
     select IFNULL(sum(size),0) as data_file_size
-    from data_file where status='release'
+    from data_file where status=2
 ) srcFile,
 
 -- 交易数据量

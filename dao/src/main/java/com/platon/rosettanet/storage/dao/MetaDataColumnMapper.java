@@ -22,5 +22,4 @@ public interface MetaDataColumnMapper {
 
     void insertBatch(List<MetaDataColumn> metaDataColumnList);
 
-    void deleteByMetaDataId(String metaDataId);
 }

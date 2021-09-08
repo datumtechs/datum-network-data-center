@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -30,9 +31,15 @@ public class MetaDataServiceImpl implements MetaDataService {
     }
 
     @Override
-    public List<DataFile> listDataFile(String status) {
+    public List<DataFile> listDataFile(int status) {
         return dataFileMapper.listDataFile(status);
     }
+
+    @Override
+    public List<DataFile> syncDataFile(LocalDateTime lastUpdatedAt) {
+        return dataFileMapper.syncDataFile(lastUpdatedAt);
+    }
+
 
     @Override
     public void insertDataFile(List<DataFile> dataFileList) {
@@ -45,8 +52,8 @@ public class MetaDataServiceImpl implements MetaDataService {
     }
 
     @Override
-    public void deleteByMetaDataId(String metaDataId) {
-        dataFileMapper.deleteByPrimaryKey(metaDataId);
+    public void updateStatus(String metaDataId, int status) {
+        dataFileMapper.updateStatus(metaDataId, status);
         //metaDataColumnMapper.deleteByMetaDataId(metaDataId);
     }
 

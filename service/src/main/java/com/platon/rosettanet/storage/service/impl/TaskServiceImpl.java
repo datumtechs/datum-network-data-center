@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -33,8 +34,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Task> listTask() {
-        return taskMapper.listTask();
+    public List<Task> syncTask(LocalDateTime lastUpdatedAt) {
+        return taskMapper.syncTask(lastUpdatedAt);
     }
 
     @Override

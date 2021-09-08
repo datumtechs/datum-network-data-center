@@ -3,6 +3,7 @@ package com.platon.rosettanet.storage.service;
 import com.platon.rosettanet.storage.dao.entity.OrgPowerTaskSummary;
 import com.platon.rosettanet.storage.dao.entity.PowerServer;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PowerServerService {
@@ -13,9 +14,9 @@ public interface PowerServerService {
 
     int updateByPrimaryKeySelective(PowerServer record);
 
-    int deleteByPK(String powerId);
+    int updateStatus(String powerId, int status);
 
-    List<PowerServer> listPowerServer();
+    List<PowerServer> syncPowerServer(LocalDateTime lastUpdatedAt);
 
     /**
      * 只包含 各项 的sum

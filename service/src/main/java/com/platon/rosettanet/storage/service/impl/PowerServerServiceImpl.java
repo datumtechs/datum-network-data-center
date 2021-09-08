@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -34,13 +35,13 @@ public class PowerServerServiceImpl implements PowerServerService {
     }
 
     @Override
-    public int deleteByPK(String powerId) {
-        return powerServerMapper.deleteByPrimaryKey(powerId);
+    public int updateStatus(String powerId, int status) {
+        return powerServerMapper.updateStatus(powerId, status);
     }
 
     @Override
-    public List<PowerServer> listPowerServer() {
-        return powerServerMapper.listPowerServer();
+    public List<PowerServer> syncPowerServer(LocalDateTime lastUpdatedAt) {
+        return powerServerMapper.syncPowerServer(lastUpdatedAt);
     }
 
     @Override

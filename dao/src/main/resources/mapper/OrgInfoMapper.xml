@@ -6,12 +6,13 @@
     <result column="identity_type" jdbcType="VARCHAR" property="identityType" />
     <result column="node_id" jdbcType="VARCHAR" property="nodeId" />
     <result column="org_name" jdbcType="VARCHAR" property="orgName" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="status" jdbcType="INTEGER" property="status" />
     <result column="accumulative_data_file_count" jdbcType="INTEGER" property="accumulativeDataFileCount" />
+    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
   </resultMap>
   <sql id="Base_Column_List">
     identity_id, identity_type, node_id, org_name, status,
-    accumulative_data_file_count
+    accumulative_data_file_count, update_at
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
@@ -21,26 +22,32 @@
   </select>
   <update id="deleteByPrimaryKey" parameterType="java.lang.String">
     update org_info
-    set status = 'disabled'
+    set status = 'disabled', update_at = CURRENT_TIMESTAMP()
     where identity_id = #{identityId,jdbcType=VARCHAR}
   </update>
+  <update id="updateStatus">
+    update org_info
+    set status = #{status,jdbcType=INTEGER}, update_at = CURRENT_TIMESTAMP()
+    where identity_id = #{identityId,jdbcType=VARCHAR}
+  </update>
+
   <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.OrgInfo">
     insert into org_info (identity_id, identity_type, node_id, org_name, status,
-      accumulative_data_file_count
+      accumulative_data_file_count, update_at
       )
-    values (#{identityId,jdbcType=VARCHAR}, #{identityType,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{orgName,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
-       #{accumulativeDataFileCount,jdbcType=INTEGER}
+    values (#{identityId,jdbcType=VARCHAR}, #{identityType,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{orgName,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+       #{accumulativeDataFileCount,jdbcType=INTEGER}, CURRENT_TIMESTAMP()
       )
   </insert>
 
   <insert id="insertBatch" >
     insert into org_info (identity_id, identity_type, node_id, org_name, status,
-      accumulative_data_file_count
+      accumulative_data_file_count, update_at
       )
     values
     <foreach collection ="list" item="item" separator =",">
-      (#{item.identityId,jdbcType=VARCHAR}, #{item.identityType,jdbcType=VARCHAR}, #{item.nodeId,jdbcType=VARCHAR}, #{item.orgName,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR},
-        #{item.accumulativeDataFileCount,jdbcType=INTEGER}
+      (#{item.identityId,jdbcType=VARCHAR}, #{item.identityType,jdbcType=VARCHAR}, #{item.nodeId,jdbcType=VARCHAR}, #{item.orgName,jdbcType=VARCHAR}, #{item.status,jdbcType=INTEGER},
+        #{item.accumulativeDataFileCount,jdbcType=INTEGER}, CURRENT_TIMESTAMP()
         )
     </foreach>
   </insert>
@@ -57,12 +64,13 @@
       <if test="orgName != null">
         org_name = #{orgName,jdbcType=VARCHAR},
       </if>
-      <if test="stauts != null">
-        stauts = #{stauts,jdbcType=VARCHAR},
+      <if test="status != null">
+        stauts = #{status,jdbcType=INTEGER},
       </if>
       <if test="accumulativeDataFileCount != null">
         accumulative_data_file_count = #{accumulativeDataFileCount,jdbcType=INTEGER},
       </if>
+      update_at = CURRENT_TIMESTAMP()
     </set>
     where identity_id = #{identityId,jdbcType=VARCHAR}
   </update>
@@ -71,8 +79,9 @@
     set identity_type = #{identityType,jdbcType=VARCHAR},
       node_id = #{nodeId,jdbcType=VARCHAR},
       org_name = #{orgName,jdbcType=VARCHAR},
-      status = #{status,jdbcType=VARCHAR},
-      accumulative_data_file_count = #{accumulativeDataFileCount,jdbcType=INTEGER}
+      status = #{status,jdbcType=INTEGER},
+      accumulative_data_file_count = #{accumulativeDataFileCount,jdbcType=INTEGER},
+      update_at = CURRENT_TIMESTAMP()
     where identity_id = #{identityId,jdbcType=VARCHAR}
   </update>
 
@@ -83,10 +92,15 @@
     join data_file d on o.identity_id = d.identity_id and d.meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </select>
 
-  <select id="listOrgInfo" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="syncOrgInfo" parameterType="java.time.LocalDateTime" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from org_info
+    <where>
+      <if test="lastUpdatedAt != null">
+        AND update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
+      </if>
+    </where>
     order by org_name
   </select>
 
