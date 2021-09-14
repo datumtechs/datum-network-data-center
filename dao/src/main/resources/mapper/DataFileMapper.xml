@@ -9,6 +9,7 @@
     <result column="file_path" jdbcType="VARCHAR" property="filePath" />
     <result column="file_type" jdbcType="VARCHAR" property="fileType" />
     <result column="resource_name" jdbcType="VARCHAR" property="resourceName" />
+    <result column="industry" jdbcType="VARCHAR" property="industry" />
     <result column="size" jdbcType="BIGINT" property="size" />
     <result column="rows" jdbcType="BIGINT" property="rows" />
     <result column="columns" jdbcType="INTEGER" property="columns" />
@@ -20,7 +21,7 @@
     <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
   </resultMap>
   <sql id="Base_Column_List">
-    meta_data_id, origin_id, identity_id, file_name, file_path, file_type, resource_name, `size`, `rows`, columns,
+    meta_data_id, origin_id, identity_id, file_name, file_path, file_type, resource_name, industry, `size`, `rows`, columns,
     published, published_at, has_title, remarks, status, update_at
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
@@ -31,19 +32,19 @@
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     update data_file
-    set status = 'disabled', published = false, update_at = CURRENT_TIMESTAMP()
+    set status = 3, published = false, update_at = CURRENT_TIMESTAMP()
     where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </delete>
   <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
     insert into data_file (meta_data_id, origin_id, identity_id, file_name,
-      file_path, file_type, resource_name, 
+      file_path, file_type, resource_name, industry,
       `size`, `rows`, columns,
       published, published_at, has_title, 
       remarks, status, update_at
       )
     values ( #{metaDataId,jdbcType=VARCHAR}, #{originId,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR},
-      #{filePath,jdbcType=VARCHAR}, #{fileType,jdbcType=VARCHAR}, #{resourceName,jdbcType=VARCHAR}, 
-      #{size,jdbcType=BIGINT}, #{rows,jdbcType=BIGINT}, #{columns,jdbcType=INTEGER}, 
+      #{filePath,jdbcType=VARCHAR}, #{fileType,jdbcType=VARCHAR}, #{resourceName,jdbcType=VARCHAR}, #{industry,jdbcType=VARCHAR},
+      #{size,jdbcType=BIGINT}, #{rows,jdbcType=BIGINT}, #{columns,jdbcType=INTEGER},
       #{published,jdbcType=BIT}, #{publishedAt,jdbcType=TIMESTAMP}, #{hasTitle,jdbcType=BIT}, 
       #{remarks,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, CURRENT_TIMESTAMP()
       )
@@ -51,7 +52,7 @@
 
   <insert id="insertBatch">
     insert into data_file (meta_data_id, origin_id, identity_id, file_name,
-      file_path, file_type, resource_name,
+      file_path, file_type, resource_name, industry,
       `size`, `rows`, columns,
       published, published_at, has_title,
       remarks, status, update_at
@@ -59,7 +60,7 @@
     values
     <foreach collection ="list" item="item" separator =",">
     (#{item.metaDataId,jdbcType=VARCHAR}, #{item.originId,jdbcType=VARCHAR}, #{item.identityId,jdbcType=VARCHAR}, #{item.fileName,jdbcType=VARCHAR},
-      #{item.filePath,jdbcType=VARCHAR}, #{item.fileType,jdbcType=VARCHAR}, #{item.resourceName,jdbcType=VARCHAR},
+      #{item.filePath,jdbcType=VARCHAR}, #{item.fileType,jdbcType=VARCHAR}, #{item.resourceName,jdbcType=VARCHAR}, #{item.industry,jdbcType=VARCHAR},
       #{item.size,jdbcType=BIGINT}, #{item.rows,jdbcType=BIGINT}, #{item.columns,jdbcType=INTEGER},
       #{item.published,jdbcType=BIT}, #{item.publishedAt,jdbcType=TIMESTAMP}, #{item.hasTitle,jdbcType=BIT},
       #{item.remarks,jdbcType=VARCHAR}, #{item.status,jdbcType=INTEGER}, CURRENT_TIMESTAMP()
@@ -91,6 +92,9 @@
       </if>
       <if test="resourceName != null">
         resource_name,
+      </if>
+      <if test="industry != null">
+        industry,
       </if>
       <if test="size != null">
         size,
@@ -140,6 +144,9 @@
       <if test="resourceName != null">
         #{resourceName,jdbcType=VARCHAR},
       </if>
+      <if test="industry != null">
+        #{industry,jdbcType=VARCHAR},
+      </if>
       <if test="size != null">
         #{size,jdbcType=BIGINT},
       </if>
@@ -188,6 +195,9 @@
       <if test="resourceName != null">
         resource_name = #{resourceName,jdbcType=VARCHAR},
       </if>
+      <if test="industry != null">
+        industry = #{industry,jdbcType=VARCHAR},
+      </if>
       <if test="size != null">
         `size` = #{size,jdbcType=BIGINT},
       </if>
@@ -224,6 +234,7 @@
       file_path = #{filePath,jdbcType=VARCHAR},
       file_type = #{fileType,jdbcType=VARCHAR},
       resource_name = #{resourceName,jdbcType=VARCHAR},
+      industry = #{industry,jdbcType=VARCHAR},
       `size` = #{size,jdbcType=BIGINT},
       `rows` = #{rows,jdbcType=BIGINT},
       columns = #{columns,jdbcType=INTEGER},

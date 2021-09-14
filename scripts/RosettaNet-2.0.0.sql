@@ -77,6 +77,7 @@ CREATE TABLE data_file (
     file_path VARCHAR(100) NOT NULL COMMENT '文件存储路径',
     file_type VARCHAR(20) NOT NULL COMMENT '文件后缀/类型, csv',
     resource_name VARCHAR(100) NOT NULL COMMENT '资源名称',
+    industry VARCHAR(100)  COMMENT '行业名称',
     size BIGINT NOT NULL DEFAULT 0 COMMENT '文件大小(字节)',
     `rows` BIGINT NOT NULL DEFAULT 0  COMMENT '数据行数(不算title)',
     columns INT NOT NULL DEFAULT 0  COMMENT '数据列数',
@@ -367,9 +368,8 @@ from
         from task_algo_provider
     ) algoPartner,
     (
-        select count(DISTINCT consumer_identity_id) as resultConsumerPartnerCount
+        select count(*) as resultConsumerPartnerCount
         from task_result_consumer
-        group by task_Id
     ) resultConsumerPartner
 
 ) as partner,
@@ -468,7 +468,7 @@ from
 
     union
 
-    select DISTINCT oi.identity_id, trc.task_id
+    select oi.identity_id, trc.task_id
     from org_info oi, task_result_consumer trc
     WHERE oi.identity_id = trc.consumer_identity_id
 

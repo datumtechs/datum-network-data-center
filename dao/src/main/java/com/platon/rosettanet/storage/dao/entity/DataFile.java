@@ -17,6 +17,8 @@ public class DataFile {
 
     private String resourceName;
 
+    private String industry;
+
     private Long size;
 
     private Long rows;
@@ -81,6 +83,14 @@ public class DataFile {
 
     public void setResourceName(String resourceName) {
         this.resourceName = resourceName;
+    }
+
+    public String getIndustry() {
+        return industry;
+    }
+
+    public void setIndustry(String industry) {
+        this.industry = industry;
     }
 
     public Long getSize() {

@@ -8,9 +8,6 @@ import com.platon.rosettanet.storage.grpc.lib.common.TaskState;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.buf.HexUtils;
-import org.apache.tomcat.util.buf.UriUtil;
-import org.apache.tomcat.util.security.MD5Encoder;
-import org.assertj.core.data.Offset;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.DigestUtils;
-import sun.misc.BASE64Encoder;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -66,7 +58,7 @@ public class MockData {
     @Autowired
     private MetaDataAuthService metaDataAuthService;
 
-    static int orgCount = 20;
+    static int orgCount = 30;
     static int eachOrgDataFileCount = 10;
     static int eachDataFileColumns = 5;
     static int eachOrgPowerServerCount = 10;
@@ -114,6 +106,7 @@ public class MockData {
                 dataFile.setFileType("csv");
                 dataFile.setFilePath("/opt/usr/data");
                 dataFile.setResourceName("resourceName_" + extID);
+                dataFile.setIndustry("金融行业");
                 dataFile.setSize(209715200L);
                 dataFile.setRows(100000000L);
                 dataFile.setColumns(eachDataFileColumns);
@@ -252,6 +245,7 @@ public class MockData {
                 dataFile.setFileType("csv");
                 dataFile.setFilePath("/opt/usr/data");
                 dataFile.setResourceName("resourceName_" + extID);
+                dataFile.setIndustry("金融行业");
                 dataFile.setSize(100000000000000L);
                 dataFile.setRows(100000000L);
                 dataFile.setColumns(eachDataFileColumns);
@@ -451,7 +445,7 @@ public class MockData {
                 String identityId = partnerIdListCopy.get(RandomUtils.nextInt(0, partnerIdCount));
 
                 TaskEvent event = new TaskEvent();
-                event.setTaskId(taskId);
+                event.setTaskId("taskId_" + taskId);
                 event.setIdentityId(identityId);
                 event.setEventAt(LocalDateTime.now(ZoneOffset.UTC));
                 event.setEventType("eventType");
