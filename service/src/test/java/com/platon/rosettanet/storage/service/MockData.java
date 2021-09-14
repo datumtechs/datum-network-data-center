@@ -3,6 +3,7 @@ package com.platon.rosettanet.storage.service;
 import com.platon.rosettanet.storage.dao.entity.*;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.buf.HexUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.DigestUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -50,18 +53,18 @@ public class MockData {
     @Autowired
     private TaskEventService taskEventService;
 
-    static int orgCount = 100;
+    static int orgCount = 20;
     static int eachOrgDataFileCount = 10;
-    static int eachDataFileColumns = 10;
+    static int eachDataFileColumns = 5;
     static int eachOrgPowerServerCount = 10;
-    static int taskCount = 100;
+    static int taskCount = 20;
 
     // eachTaskDataProviderCount + eachTaskPowerProviderCount >= eachTaskResultConsumerCount + eachTaskResultConsumerCount * eachTaskResultConsumerSenderCount
-    static int eachTaskDataProviderCount = 10;
-    static int eachTaskDataProviderColumnCount = 10; //<=eachDataFileColumns
-    static int eachTaskPowerProviderCount = 10;
-    static int eachTaskResultConsumerCount = 3;
-    static int eachTaskResultConsumerSenderCount = 4;   //eachTaskDataProviderCount + eachTaskPowerProviderCount >= eachTaskResultConsumerCount*（ eachTaskResultConsumerCount + eachTaskResultConsumerSenderCount）
+    static int eachTaskDataProviderCount = 5;
+    static int eachTaskDataProviderColumnCount = 5; //<=eachDataFileColumns
+    static int eachTaskPowerProviderCount = 5;
+    static int eachTaskResultConsumerCount = 2;
+    static int eachTaskResultConsumerSenderCount = 2;   //eachTaskDataProviderCount + eachTaskPowerProviderCount >= eachTaskResultConsumerCount*（ eachTaskResultConsumerCount + eachTaskResultConsumerSenderCount）
 
 
     @Test
@@ -72,7 +75,10 @@ public class MockData {
         List<OrgInfo> orgInfoList = new ArrayList<>();
         for(int i=1; i<=orgCount; i++){
             OrgInfo orgInfo = new OrgInfo();
-            orgInfo.setIdentityId("identityId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" ));
+
+            String identityId = "identity_" + DigestUtils.md5DigestAsHex(StringUtils.leftPad(String.valueOf(i), 6, "0" ).getBytes(StandardCharsets.UTF_8));
+
+            orgInfo.setIdentityId(identityId);
             orgInfo.setIdentityType("DID");
             orgInfo.setOrgName("orgName_" + StringUtils.leftPad(String.valueOf(i), 6, "0" ) );
             orgInfo.setStatus("enabled");
@@ -101,10 +107,9 @@ public class MockData {
 
         List<PowerServer> powerServerList = new ArrayList<>();
         for(int i=1; i<=orgCount; i++){
-            String identityId = "identityId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" );
+            String identityId = "identity_" + DigestUtils.md5DigestAsHex(StringUtils.leftPad(String.valueOf(i), 6, "0" ).getBytes(StandardCharsets.UTF_8));
             for(int j=1; j<eachOrgPowerServerCount; j++){
                 String extID = StringUtils.leftPad(String.valueOf(i) , 6, "0" ) + "_" + StringUtils.leftPad(String.valueOf(j), 6, "0" );
-
                 PowerServer powerServer = new PowerServer();
                 powerServer.setIdentityId(identityId);
                 powerServer.setId("powerId_" + extID);
@@ -125,8 +130,8 @@ public class MockData {
             String identityId = "identityId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" );
             for(int j=1; j<=eachOrgDataFileCount; j++){
                 String extID = StringUtils.leftPad(String.valueOf(i) , 6, "0" ) + "_" + StringUtils.leftPad(String.valueOf(j), 6, "0" );
+                String metaDataId = "metaData:0x" + HexUtils.toHexString(RandomUtils.nextBytes(32));
 
-                String metaDataId = "metaDataId_" + extID;
                 DataFile dataFile = new DataFile();
                 dataFile.setOriginId("dataFileId_" + extID);
                 dataFile.setIdentityId(identityId);
