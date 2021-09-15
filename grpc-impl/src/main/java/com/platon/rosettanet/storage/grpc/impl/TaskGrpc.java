@@ -1,18 +1,15 @@
 package com.platon.rosettanet.storage.grpc.impl;
 
-import com.platon.rosettanet.storage.common.exception.OrgNotFound;
 import com.platon.rosettanet.storage.common.exception.TaskMetaDataNotFound;
 import com.platon.rosettanet.storage.common.exception.TaskResultConsumerNotFound;
+import com.platon.rosettanet.storage.dao.entity.Task;
 import com.platon.rosettanet.storage.dao.entity.*;
-import com.platon.rosettanet.storage.grpc.lib.api.TaskEventResponse;
-import com.platon.rosettanet.storage.grpc.lib.api.TaskListResponse;
-import com.platon.rosettanet.storage.grpc.lib.api.TaskServiceGrpc;
+import com.platon.rosettanet.storage.grpc.lib.api.*;
 import com.platon.rosettanet.storage.grpc.lib.common.SimpleResponse;
 import com.platon.rosettanet.storage.grpc.lib.common.TaskOrganization;
-import com.platon.rosettanet.storage.grpc.lib.common.TaskState;
 import com.platon.rosettanet.storage.grpc.lib.types.MetadataColumn;
 import com.platon.rosettanet.storage.grpc.lib.types.TaskDataSupplier;
-import com.platon.rosettanet.storage.grpc.lib.types.TaskDetail;
+import com.platon.rosettanet.storage.grpc.lib.types.TaskPB;
 import com.platon.rosettanet.storage.grpc.lib.types.TaskPowerSupplier;
 import com.platon.rosettanet.storage.service.*;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +24,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @GrpcService
@@ -74,66 +70,66 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
      * 存储任务
      * </pre>
      */
-    public void saveTask(TaskDetail request,
+    public void saveTask(SaveTaskRequest request,
                          io.grpc.stub.StreamObserver<SimpleResponse> responseObserver) {
 
         log.debug("saveTask, request:{}", request);
 
         // 业务代码
 
-        String taskId = request.getTaskId();
+        String taskId = request.getTask().getTaskId();
 
         //==任务
         Task task = new Task();
 
         task.setId(taskId);
         //任务名称
-        task.setTaskName(request.getTaskName());
+        task.setTaskName(request.getTask().getTaskName());
 
         //任务所有人
-        task.setOwnerIdentityId(request.getSender().getIdentityId());
-        task.setOwnerPartyId(request.getSender().getPartyId());
+        task.setOwnerIdentityId(request.getTask().getIdentityId());
+        task.setOwnerPartyId(request.getTask().getPartyId());
 
-        task.setUserId(request.getUser());
-        task.setUserType(request.getUserType().ordinal());
+        task.setUserId(request.getTask().getUser());
+        task.setUserType(request.getTask().getUserType().ordinal());
 
         //所需资源
-        task.setRequiredBandwidth(request.getOperationCost().getBandwidth());
-        task.setRequiredCore(request.getOperationCost().getProcessor());
-        task.setRequiredMemory(request.getOperationCost().getMemory());
-        task.setRequiredDuration(request.getOperationCost().getDuration());
+        task.setRequiredBandwidth(request.getTask().getOperationCost().getBandwidth());
+        task.setRequiredCore(request.getTask().getOperationCost().getProcessor());
+        task.setRequiredMemory(request.getTask().getOperationCost().getMemory());
+        task.setRequiredDuration(request.getTask().getOperationCost().getDuration());
 
-        task.setUsedBandwidth(request.getOperationCost().getBandwidth());
-        task.setUsedCore(request.getOperationCost().getProcessor());
-        task.setUsedMemory(request.getOperationCost().getMemory());
+        task.setUsedBandwidth(request.getTask().getOperationCost().getBandwidth());
+        task.setUsedCore(request.getTask().getOperationCost().getProcessor());
+        task.setUsedMemory(request.getTask().getOperationCost().getMemory());
 
         //创建时间
-        task.setCreateAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getCreateAt()), ZoneOffset.UTC));
+        task.setCreateAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getTask().getCreateAt()), ZoneOffset.UTC));
         //开始时间
-        task.setStartAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getStartAt()), ZoneOffset.UTC));
+        task.setStartAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getTask().getStartAt()), ZoneOffset.UTC));
         //结束时间
-        task.setEndAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getEndAt()), ZoneOffset.UTC));
+        task.setEndAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getTask().getEndAt()), ZoneOffset.UTC));
 
         //任务状态
-        task.setStatus(request.getState().ordinal());
+        task.setStatus(request.getTask().getState().ordinal());
 
         taskService.insert(task);
 
         //==算法提供者
         TaskAlgoProvider taskAlgoProvider = new TaskAlgoProvider();
         taskAlgoProvider.setTaskId(taskId);
-        taskAlgoProvider.setIdentityId(request.getAlgoSupplier().getIdentityId());
-        taskAlgoProvider.setPartyId(request.getAlgoSupplier().getPartyId());
+        taskAlgoProvider.setIdentityId(request.getTask().getAlgoSupplier().getIdentityId());
+        taskAlgoProvider.setPartyId(request.getTask().getAlgoSupplier().getPartyId());
         taskAlgoProviderService.insert(taskAlgoProvider);
 
         //==任务的数据提供者
 
-        if(CollectionUtils.isEmpty(request.getDataSuppliersList())) {
+        if(CollectionUtils.isEmpty(request.getTask().getDataSuppliersList())) {
             throw new TaskMetaDataNotFound();
         }else{
             List<TaskMetaDataColumn> taskMetaDataColumnList = new ArrayList<>();
             List<TaskMetaData> taskMetaDataList = new ArrayList<>();
-            for (TaskDataSupplier dataSupplier : request.getDataSuppliersList()) {
+            for (TaskDataSupplier dataSupplier : request.getTask().getDataSuppliersList()) {
 
                 TaskMetaData taskMetaData = new TaskMetaData();
                 taskMetaData.setTaskId(taskId);
@@ -174,9 +170,9 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
 
         //==任务的算力提供者
-        if(!CollectionUtils.isEmpty(request.getPowerSuppliersList())) {
+        if(!CollectionUtils.isEmpty(request.getTask().getPowerSuppliersList())) {
             List<TaskPowerProvider> taskPowerProviderList = new ArrayList<>();
-            for (TaskPowerSupplier powerSupplier : request.getPowerSuppliersList()) {
+            for (TaskPowerSupplier powerSupplier : request.getTask().getPowerSuppliersList()) {
                 TaskPowerProvider powerProvider = new TaskPowerProvider();
                 powerProvider.setTaskId(taskId);
                 powerProvider.setIdentityId(powerSupplier.getOrganization().getIdentityId());
@@ -190,11 +186,11 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         }
 
         //==任务结果接收者
-        if(CollectionUtils.isEmpty(request.getReceiversList())) {
+        if(CollectionUtils.isEmpty(request.getTask().getReceiversList())) {
             throw new TaskResultConsumerNotFound();
         }else{
             List<TaskResultConsumer> taskResultConsumerList = new ArrayList<>();
-            for (TaskOrganization taskConsumer : request.getReceiversList()) {
+            for (TaskOrganization taskConsumer : request.getTask().getReceiversList()) {
                 TaskResultConsumer taskResultConsumer = new TaskResultConsumer();
                 taskResultConsumer.setTaskId(taskId);
                 taskResultConsumer.setConsumerIdentityId(taskConsumer.getIdentityId());
@@ -206,9 +202,9 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
 
         //==任务日志
-        if(!CollectionUtils.isEmpty(request.getTaskEventsList())) {
+        if(!CollectionUtils.isEmpty(request.getTask().getTaskEventsList())) {
             List<TaskEvent> taskEventList = new ArrayList<>();
-            for (com.platon.rosettanet.storage.grpc.lib.types.TaskEvent event : request.getTaskEventsList()) {
+            for (com.platon.rosettanet.storage.grpc.lib.types.TaskEvent event : request.getTask().getTaskEventsList()) {
                 TaskEvent taskEvent = new TaskEvent();
                 taskEvent.setTaskId(taskId);
                 taskEvent.setEventAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getCreateAt()), ZoneOffset.UTC));
@@ -236,8 +232,8 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
      * 查询任务详情（任务ID、节点ID、参与方标识）
      * </pre>
      */
-    public void getDetailTask(com.platon.rosettanet.storage.grpc.lib.api.DetailTaskRequest request,
-                              io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.types.TaskDetail> responseObserver) {
+    public void getTaskDetail(com.platon.rosettanet.storage.grpc.lib.api.GetTaskDetailRequest request,
+                              io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.GetTaskDetailResponse> responseObserver) {
 
         log.debug("getDetailTask, request:{}", request);
 
@@ -245,12 +241,13 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         String taskId = request.getTaskId();
         Task task = taskService.findByPK(taskId);
 
-        TaskDetail taskDetail = toTaskDetail(task);
+        TaskPB taskPB = convertorService.toTaskPB(task);
 
-        log.debug("getDetailTask, taskDetail:{}", taskDetail);
+        log.debug("getTaskDetail, taskDetail:{}", taskPB);
 
+        GetTaskDetailResponse response = GetTaskDetailResponse.newBuilder().setTask(taskPB).build();
         // 返回
-        responseObserver.onNext(taskDetail);
+        responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
 
@@ -260,8 +257,8 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
      * 查询任务列表
      * </pre>
      */
-    public void listTask(com.platon.rosettanet.storage.grpc.lib.api.TaskListRequest request,
-                         io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.TaskListResponse> responseObserver) {
+    public void listTask(com.platon.rosettanet.storage.grpc.lib.api.ListTaskRequest request,
+                         io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.ListTaskResponse> responseObserver) {
 
         log.debug("listTask, request:{}", request);
 
@@ -272,9 +269,9 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
         List<Task> taskList = taskService.syncTask(lastUpdateAt);
 
-        List<com.platon.rosettanet.storage.grpc.lib.types.TaskDetail> grpcTaskList = toTaskDetailList(taskList);
+        List<com.platon.rosettanet.storage.grpc.lib.types.TaskPB> grpcTaskList = convertorService.toTaskPB(taskList);
 
-        TaskListResponse response = TaskListResponse.newBuilder().addAllTaskDetails(grpcTaskList).build();
+        ListTaskResponse response = ListTaskResponse.newBuilder().addAllTasks(grpcTaskList).build();
 
         log.debug("listTask, response:{}", response);
         // 返回
@@ -282,64 +279,17 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private List<com.platon.rosettanet.storage.grpc.lib.types.TaskDetail> toTaskDetailList(List<Task> taskList){
-        List<com.platon.rosettanet.storage.grpc.lib.types.TaskDetail> grpcTaskList =
-                taskList.parallelStream().map(task -> {
-                    return toTaskDetail(task);
-                }).collect(Collectors.toList());
-        return grpcTaskList;
-    }
 
-    private com.platon.rosettanet.storage.grpc.lib.types.TaskDetail toTaskDetail(Task task){
-        OrgInfo owner = orgInfoService.findByPK(task.getOwnerIdentityId());
-        if(owner==null){
-            log.error("task owner identity id not found. taskId:={}, identityId:={}", task.getId(), task.getOwnerIdentityId());
-            throw new OrgNotFound();
-        }
 
-        TaskAlgoProvider taskAlgoProvider = taskAlgoProviderService.findAlgoProviderByTaskId(task.getId());
-        OrgInfo taskAlgoProviderOrgInfo = orgInfoService.findByPK(taskAlgoProvider.getIdentityId());
-
-        List<TaskMetaData> taskMetaDataList = taskMetaDataService.listTaskMetaData(task.getId());
-        if(CollectionUtils.isEmpty(taskMetaDataList)){
-            log.error("task metadata not found. taskId:={}", task.getId());
-            throw new TaskMetaDataNotFound();
-        }
-
-        List<TaskPowerProvider> taskPowerProviderList = taskPowerProviderService.listTaskPowerProvider(task.getId());
-        //task 可以没有power
-        /*if(CollectionUtils.isEmpty(taskPowerProviderList)){
-            log.error("task power not found. taskId:={}", task.getId());
-            throw new TaskPowerNotFound();
-        }*/
-
-        List<TaskResultConsumer> taskResultConsumerList = taskResultConsumerService.listTaskResultConsumer(task.getId());
-
-        return com.platon.rosettanet.storage.grpc.lib.types.TaskDetail.newBuilder()
-                .setTaskId(task.getId())
-                .setTaskName(task.getTaskName())
-                .setCreateAt(task.getCreateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
-                .setStartAt(task.getStartAt().toInstant(ZoneOffset.UTC).toEpochMilli())
-                .setEndAt(task.getEndAt().toInstant(ZoneOffset.UTC).toEpochMilli())
-                .setState(TaskState.forNumber(task.getStatus())) //todo: to check is right
-                .setSender(convertorService.toProtoTaskOrganization(owner, task.getOwnerPartyId()))
-                .setAlgoSupplier(convertorService.toProtoTaskOrganization(taskAlgoProviderOrgInfo, taskAlgoProvider.getPartyId()))
-                .setOperationCost(com.platon.rosettanet.storage.grpc.lib.common.TaskResourceCostDeclare.newBuilder().setProcessor(task.getRequiredCore()).setMemory(task.getRequiredMemory()).setBandwidth(task.getRequiredBandwidth()).setDuration(task.getRequiredDuration()).build())
-                .addAllDataSuppliers(convertorService.toProtoDataSupplier(taskMetaDataList))
-                .addAllPowerSuppliers(convertorService.toProtoPowerSupplier(taskPowerProviderList))
-                .addAllReceivers(convertorService.toProtoResultReceiver(taskResultConsumerList))
-                .build();
-    }
-
-    public void listTaskByIdentity(com.platon.rosettanet.storage.grpc.lib.api.TaskListByIdentityRequest request,
-                                   io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.TaskListResponse> responseObserver) {
+    public void listTaskByIdentity(com.platon.rosettanet.storage.grpc.lib.api.ListTaskByIdentityRequest request,
+                                   io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.ListTaskResponse> responseObserver) {
         log.debug("listTaskByIdentity, request:{}", request);
 
         List<Task> taskList = taskService.listTaskByIdentityId(request.getIdentityId());
 
-        List<com.platon.rosettanet.storage.grpc.lib.types.TaskDetail> grpcTaskList = toTaskDetailList(taskList);
+        List<com.platon.rosettanet.storage.grpc.lib.types.TaskPB> grpcTaskList = convertorService.toTaskPB(taskList);
 
-        TaskListResponse response = TaskListResponse.newBuilder().addAllTaskDetails(grpcTaskList).build();
+        ListTaskResponse response = ListTaskResponse.newBuilder().addAllTasks(grpcTaskList).build();
 
         log.debug("listTaskByIdentity, response:{}", response);
         // 返回
@@ -353,8 +303,8 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
      * 查询任务的事件列表
      * </pre>
      */
-    public void listTaskEvent(com.platon.rosettanet.storage.grpc.lib.api.TaskEventRequest request,
-                              io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.TaskEventResponse> responseObserver) {
+    public void listTaskEvent(com.platon.rosettanet.storage.grpc.lib.api.ListTaskEventRequest request,
+                              io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.ListTaskEventResponse> responseObserver) {
         log.debug("listTaskEvent, request:{}", request);
 
         List<TaskEvent> taskEventList = taskEventService.listTaskEventByTaskId(request.getTaskId());
@@ -362,7 +312,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         List<com.platon.rosettanet.storage.grpc.lib.types.TaskEvent>
                 grpcTaskEventList = convertorService.toProtoTaskEvent(taskEventList);
 
-        TaskEventResponse response = TaskEventResponse.newBuilder().addAllTaskEvents(grpcTaskEventList).build();
+        ListTaskEventResponse response = ListTaskEventResponse.newBuilder().addAllTaskEvents(grpcTaskEventList).build();
 
         log.debug("listTaskEvent, response:{}", response);
         // 返回

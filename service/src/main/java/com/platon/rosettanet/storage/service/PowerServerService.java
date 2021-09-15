@@ -23,7 +23,7 @@ public interface PowerServerService {
      * @param identityId
      * @return
      */
-    PowerServer countPowerByOrgId(String identityId);
+    PowerServer sumPowerByOrgId(String identityId);
 
     /**
      *
@@ -31,5 +31,7 @@ public interface PowerServerService {
      * 其中Map<String, Object> 是一行，key是column_name
      * @return
      */
-    List<OrgPowerTaskSummary> countPowerGroupByOrgId();
+    List<OrgPowerTaskSummary> listPowerSummaryGroupByOrgId();
+
+    OrgPowerTaskSummary getPowerSummaryByOrgId(String identityId);
 }

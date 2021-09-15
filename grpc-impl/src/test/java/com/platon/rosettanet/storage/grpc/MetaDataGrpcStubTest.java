@@ -2,11 +2,10 @@ package com.platon.rosettanet.storage.grpc;
 
 import com.platon.rosettanet.storage.grpc.lib.api.*;
 import com.platon.rosettanet.storage.grpc.lib.common.MetadataState;
-import com.platon.rosettanet.storage.grpc.lib.common.Organization;
 import com.platon.rosettanet.storage.grpc.lib.common.OriginFileType;
 import com.platon.rosettanet.storage.grpc.lib.common.SimpleResponse;
 import com.platon.rosettanet.storage.grpc.lib.types.MetadataColumn;
-import com.platon.rosettanet.storage.grpc.lib.types.MetadataSummary;
+import com.platon.rosettanet.storage.grpc.lib.types.MetadataPB;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.junit.Test;
@@ -27,12 +26,12 @@ public class MetaDataGrpcStubTest {
 
 
     @Test
-    public void metaDataSave() {
-        log.info("start to test metaDataSave()...");
+    public void saveMetaData() {
+        log.info("start to test saveMetaData()...");
 
-        MetadataSaveRequest request = MetadataSaveRequest.newBuilder()
-                .setOwner(Organization.newBuilder().setIdentityId("org_id_5").setNodeName("org_name_4").setNodeId("node_id_4").build())
-                .setMetaSummary(MetadataSummary.newBuilder()
+        SaveMetadataRequest request = SaveMetadataRequest.newBuilder()
+                .setMetadata(MetadataPB.newBuilder()
+                        .setIdentityId("org_id_5")
                         .setHasTitle(true)
                         .setOriginId("data_file_origin_id_2")
                         .setSize(1000000000L)
@@ -44,45 +43,45 @@ public class MetaDataGrpcStubTest {
                         .setRows(10000)
                         .setDesc("desc")
                         .setState(MetadataState.MetadataState_Released)
-                        .build())
-                .addColumnMeta(MetadataColumn.newBuilder().setCIndex(0).setCName("col_name_0").setCType("long").setCSize(100).setCComment("comment_0").build())
-                .addColumnMeta(MetadataColumn.newBuilder().setCIndex(1).setCName("col_name_1").setCType("string").setCSize(100).setCComment("comment_1").build())
-                .addColumnMeta(MetadataColumn.newBuilder().setCIndex(2).setCName("col_name_2").setCType("date").setCSize(100).setCComment("comment_2").build())
-                .addColumnMeta(MetadataColumn.newBuilder().setCIndex(3).setCName("col_name_3").setCType("bool").setCSize(100).setCComment("comment_3").build())
-                .build();
-        SimpleResponse response = metaDataServiceBlockingStub.metadataSave(request);
+                        .addMetadataColumns(MetadataColumn.newBuilder().setCIndex(0).setCName("col_name_0").setCType("long").setCSize(100).setCComment("comment_0").build())
+                        .addMetadataColumns(MetadataColumn.newBuilder().setCIndex(1).setCName("col_name_1").setCType("string").setCSize(100).setCComment("comment_1").build())
+                        .addMetadataColumns(MetadataColumn.newBuilder().setCIndex(2).setCName("col_name_2").setCType("date").setCSize(100).setCComment("comment_2").build())
+                        .addMetadataColumns(MetadataColumn.newBuilder().setCIndex(3).setCName("col_name_3").setCType("bool").setCSize(100).setCComment("comment_3").build())
+                        .build()
+                ).build();
+        SimpleResponse response = metaDataServiceBlockingStub.saveMetadata(request);
 
-        log.info("metaDataSave(), response.status:{}", response.getStatus());
+        log.info("saveMetaData(), response.status:{}", response.getStatus());
     }
 
     @Test
-    public void getMetaDataSummaryList() {
-        log.info("start to test getMetaDataSummaryList()...");
+    public void listMetaDataSummary() {
+        log.info("start to test listMetaDataSummary()...");
         com.google.protobuf.Empty request = com.google.protobuf.Empty.getDefaultInstance();
-        MetadataSummaryListResponse response = metaDataServiceBlockingStub.getMetadataSummaryList(request);
+        ListMetadataSummaryResponse response = metaDataServiceBlockingStub.listMetadataSummary(request);
 
-        log.info("getMetaDataSummaryList(), response:{}", response.getMetadataSummariesList());
+        log.info("listMetaDataSummary(), response:{}", response.getMetadataSummariesList());
     }
 
     @Test
-    public void getMetadataList() {
-        log.info("start to test getMetadataList()...");
+    public void listMetadata() {
+        log.info("start to test listMetadata()...");
         LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-08 08:45:37",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
 
-        MetadataListRequest request = MetadataListRequest.newBuilder().setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000).build();
-        MetadataListResponse response = metaDataServiceBlockingStub.getMetadataList(request);
+        ListMetadataRequest request = ListMetadataRequest.newBuilder().setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000).build();
+        ListMetadataResponse response = metaDataServiceBlockingStub.listMetadata(request);
 
-        log.info("getMetadataList(), response:{}", response.getMetadatasList());
+        log.info("listMetadata(), response:{}", response.getMetadataList());
     }
 
     @Test
-    public void getMetadataById() {
-        log.info("start to test getMetadataById()...");
-        MetadataByIdRequest request = MetadataByIdRequest.newBuilder().setMetadataId("test_meta_data_2").build();
-        MetadataByIdResponse response = metaDataServiceBlockingStub.getMetadataById(request);
+    public void findMetadataById() {
+        log.info("start to test findMetadataById()...");
+        FindMetadataByIdRequest request = FindMetadataByIdRequest.newBuilder().setMetadataId("test_meta_data_2").build();
+        FindMetadataByIdResponse response = metaDataServiceBlockingStub.findMetadataById(request);
 
-        log.info("getMetadataById(), response:{}", response.getMetadata());
+        log.info("findMetadataById(), response:{}", response.getMetadata());
     }
 
     @Test

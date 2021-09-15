@@ -27,9 +27,11 @@ public interface PowerServerMapper {
      */
     PowerServer countPowerByOrgId(String identityId);
 
-    List<OrgPowerTaskSummary> countPowerGroupByOrgId();
+    List<OrgPowerTaskSummary> listPowerSummaryGroupByOrgId();
 
     void insertBatch(List<PowerServer> powerServerList);
 
     int updateStatus(@Param("id") String powerId, @Param("status")int status);
+
+    OrgPowerTaskSummary getPowerSummaryByOrgId(@Param("identityId") String identityId);
 }

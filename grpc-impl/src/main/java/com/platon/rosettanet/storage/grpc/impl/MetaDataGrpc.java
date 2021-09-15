@@ -6,6 +6,7 @@ import com.platon.rosettanet.storage.grpc.lib.api.*;
 import com.platon.rosettanet.storage.grpc.lib.common.MetadataState;
 import com.platon.rosettanet.storage.grpc.lib.common.SimpleResponse;
 import com.platon.rosettanet.storage.grpc.lib.types.MetadataColumn;
+import com.platon.rosettanet.storage.grpc.lib.types.MetadataPB;
 import com.platon.rosettanet.storage.service.ConvertorService;
 import com.platon.rosettanet.storage.service.MetaDataService;
 import lombok.extern.slf4j.Slf4j;
@@ -35,31 +36,31 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * 保存元数据
      * </pre>
      */
-    public void metadataSave(com.platon.rosettanet.storage.grpc.lib.api.MetadataSaveRequest request,
+    public void saveMetadata(com.platon.rosettanet.storage.grpc.lib.api.SaveMetadataRequest request,
                              io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.common.SimpleResponse> responseObserver) {
 
         log.debug("metaDataSave, request:{}", request);
 
         DataFile dataFile = new DataFile();
-        dataFile.setOriginId(request.getMetaSummary().getOriginId());
-        dataFile.setMetaDataId(request.getMetaSummary().getMetadataId());
-        dataFile.setFileName(request.getMetaSummary().getTableName());
-        dataFile.setFilePath(request.getMetaSummary().getFilePath());
-        dataFile.setFileType(request.getMetaSummary().getFileType().name());
-        dataFile.setIdentityId(request.getOwner().getIdentityId());
-        dataFile.setHasTitle(request.getMetaSummary().getHasTitle());
-        dataFile.setResourceName(request.getMetaSummary().getTableName());
-        dataFile.setSize((long)request.getMetaSummary().getSize());
-        dataFile.setRows((long)request.getMetaSummary().getRows());
-        dataFile.setColumns(request.getMetaSummary().getColumns());
-        dataFile.setRemarks(request.getMetaSummary().getDesc());
+        dataFile.setOriginId(request.getMetadata().getOriginId());
+        dataFile.setMetaDataId(request.getMetadata().getDataId());
+        dataFile.setFileName(request.getMetadata().getTableName());
+        dataFile.setFilePath(request.getMetadata().getFilePath());
+        dataFile.setFileType(request.getMetadata().getFileType().name());
+        dataFile.setIdentityId(request.getMetadata().getIdentityId());
+        dataFile.setHasTitle(request.getMetadata().getHasTitle());
+        dataFile.setResourceName(request.getMetadata().getTableName());
+        dataFile.setSize((long)request.getMetadata().getSize());
+        dataFile.setRows((long)request.getMetadata().getRows());
+        dataFile.setColumns(request.getMetadata().getColumns());
+        dataFile.setRemarks(request.getMetadata().getDesc());
         dataFile.setPublishedAt(LocalDateTime.now(ZoneOffset.UTC));
         dataFile.setPublished(true);
-        dataFile.setStatus(request.getMetaSummary().getState().ordinal());
+        dataFile.setStatus(request.getMetadata().getState().ordinal());
 
-        List<MetaDataColumn> metaDataColumnList = request.getColumnMetaList().stream().map(column -> {
+        List<MetaDataColumn> metaDataColumnList = request.getMetadata().getMetadataColumnsList().stream().map(column -> {
             MetaDataColumn metaDataColumn = new MetaDataColumn();
-            metaDataColumn.setMetaDataId(request.getMetaSummary().getMetadataId());
+            metaDataColumn.setMetaDataId(request.getMetadata().getDataId());
             metaDataColumn.setColumnIdx(column.getCIndex());
             metaDataColumn.setColumnName(column.getCName());
             metaDataColumn.setColumnType(column.getCType());
@@ -86,18 +87,18 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * 查看全部元数据摘要列表 (不包含 列字段描述)，状态为可用
      * </pre>
      */
-    public void getMetadataSummaryList(com.google.protobuf.Empty request,
-                                       io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.MetadataSummaryListResponse> responseObserver) {
-        log.debug("getMetaDataSummaryList, request:{}", request);
+    public void listMetadataSummary(com.google.protobuf.Empty request,
+                                       io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.ListMetadataSummaryResponse> responseObserver) {
+        log.debug("listMetadataSummary, request:{}", request);
 
         List<DataFile> dataFileList = metaDataService.listDataFile(MetadataState.MetadataState_Released.ordinal());
 
         List<MetadataSummaryOwner> metaDataSummaryOwnerList = convertorService.toProtoMetaDataSummaryOwner(dataFileList);
 
-        MetadataSummaryListResponse response = MetadataSummaryListResponse.newBuilder()
+        ListMetadataSummaryResponse response = ListMetadataSummaryResponse.newBuilder()
                 .addAllMetadataSummaries(metaDataSummaryOwnerList)
                 .build();
-        log.debug("getMetaDataSummaryList, response:{}", response);
+        log.debug("listMetadataSummary, response:{}", response);
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
@@ -108,10 +109,10 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * 新增：元数据详细列表（用于将数据同步给管理台，考虑checkpoint同步点位）
      * </pre>
      */
-    public void getMetadataList(com.platon.rosettanet.storage.grpc.lib.api.MetadataListRequest request,
-                                io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.MetadataListResponse> responseObserver) {
+    public void listMetadata(com.platon.rosettanet.storage.grpc.lib.api.ListMetadataRequest request,
+                                io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.ListMetadataResponse> responseObserver) {
 
-        log.debug("getMetadataList, request:{}", request);
+        log.debug("listMetadata, request:{}", request);
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
@@ -120,27 +121,26 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
 
         List<DataFile> dataFileList = metaDataService.syncDataFile(lastUpdateAt);
 
-        List<MetadataSummaryOwner> metaDataSummaryOwnerList = convertorService.toProtoMetaDataSummaryOwner(dataFileList);
+        List<MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
 
-        List<Metadata> metadataList = metaDataSummaryOwnerList.parallelStream().map(summaryOwner -> {
-            String metaDataId = summaryOwner.getInformation().getMetadataId();
+        List<MetadataPB> metadataList = mtadataPBList.parallelStream().map(metadataPB -> {
+            String metaDataId = metadataPB.getMetadataId();
 
             List<MetaDataColumn> metaDataColumnList = metaDataService.listMetaDataColumn(metaDataId);
             List<MetadataColumn> metaDataColumnDetailList = metaDataColumnList.parallelStream().map(column ->{
                 return this.convertorService.toProtoMetaDataColumnDetail(column);
             }).collect(Collectors.toList());
 
-            return Metadata.newBuilder()
-                    .setOwner(summaryOwner.getOwner())
-                    .setMetaSummary(summaryOwner.getInformation())
+            return MetadataPB.newBuilder()
+                    .setIdentityId(metadataPB.getIdentityId())
                     .addAllMetadataColumns(metaDataColumnDetailList)
                     .build();
 
         }).collect(Collectors.toList());
 
-        MetadataListResponse response = MetadataListResponse.newBuilder().addAllMetadatas(metadataList).build();
+        ListMetadataResponse response = ListMetadataResponse.newBuilder().addAllMetadata(metadataList).build();
 
-        log.debug("getMetadataList, response:{}", response);
+        log.debug("listMetadata, response:{}", response);
 
         // 返回
         responseObserver.onNext(response);
@@ -152,36 +152,25 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * 新增，根据元数据ID查询元数据详情
      * </pre>
      */
-    public void getMetadataById(com.platon.rosettanet.storage.grpc.lib.api.MetadataByIdRequest request,
-                                io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.MetadataByIdResponse> responseObserver) {
+    public void findMetadataById(com.platon.rosettanet.storage.grpc.lib.api.FindMetadataByIdRequest request,
+                                io.grpc.stub.StreamObserver<com.platon.rosettanet.storage.grpc.lib.api.FindMetadataByIdResponse> responseObserver) {
 
-        log.debug("getMetadataById, request:{}", request);
+        log.debug("findMetadataById, request:{}", request);
 
         String metaDataId = request.getMetadataId();
-        Metadata metadata = null;
+        MetadataPB metadataPB = null;
 
         DataFile dataFile = metaDataService.findByMetaDataId(metaDataId);
 
         if(dataFile != null) {
-            MetadataSummaryOwner summaryOwner = convertorService.toProtoMetaDataSummaryOwner(dataFile);
-
-            List<MetaDataColumn> metaDataColumnList = metaDataService.listMetaDataColumn(metaDataId);
-            List<MetadataColumn> metaDataColumnDetailList = metaDataColumnList.stream().map(column -> {
-                return this.convertorService.toProtoMetaDataColumnDetail(column);
-            }).collect(Collectors.toList());
-
-            metadata = Metadata.newBuilder()
-                    .setOwner(summaryOwner.getOwner())
-                    .setMetaSummary(summaryOwner.getInformation())
-                    .addAllMetadataColumns(metaDataColumnDetailList)
-                    .build();
+            metadataPB = convertorService.toProtoMetadataPB(dataFile);
         }else{
-            metadata = Metadata.getDefaultInstance();
+            metadataPB = MetadataPB.getDefaultInstance();
         }
 
-        MetadataByIdResponse response = MetadataByIdResponse.newBuilder().setMetadata(metadata).build();
+        FindMetadataByIdResponse response = FindMetadataByIdResponse.newBuilder().setMetadata(metadataPB).build();
 
-        log.debug("getMetadataById, response:{}", response);
+        log.debug("findMetadataById, response:{}", response);
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();

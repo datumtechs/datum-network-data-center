@@ -43,4 +43,3 @@ message DataLookupEntry {
   string nodeId = 4;
   string type = 5;
 }
-

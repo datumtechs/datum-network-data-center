@@ -26,7 +26,7 @@ public class TaskServiceGrpcStubTest {
     public void saveTask() {
         log.info("start to test saveTask()...");
 
-        TaskDetail request = TaskDetail.newBuilder()
+        TaskPB taskPB = TaskPB.newBuilder()
                 .setTaskId("taskId")
                 .setUser("userId")
                 .setUserType(UserType.User_LAT)
@@ -35,7 +35,7 @@ public class TaskServiceGrpcStubTest {
                 .setEndAt(1623852296000L)
                 .setState(TaskState.TaskState_Succeed)
                 .setOperationCost(TaskResourceCostDeclare.newBuilder().setProcessor(1).setMemory(100L).setBandwidth(100L).build())
-                .setSender(TaskOrganization.newBuilder().setIdentityId("org_id_5").setPartyId("partyId").build())
+                .setIdentityId("org_id_5")
                 .setAlgoSupplier(TaskOrganization.newBuilder().setIdentityId("algoSupplier").setPartyId("algoSupplierPartyId").build())
 
                 .addDataSuppliers(TaskDataSupplier.newBuilder().setOrganization(TaskOrganization.newBuilder().setIdentityId("dataSupper_id_1").setPartyId("dataSupper_partyId_1").build()).setMetadataId("metaDataId_1")
@@ -61,6 +61,7 @@ public class TaskServiceGrpcStubTest {
                 .addReceivers(TaskOrganization.newBuilder().setIdentityId("receiverId_24").setPartyId("receiverId_4_party").build())
                 .build();
 
+        SaveTaskRequest request = SaveTaskRequest.newBuilder().setTask(taskPB).build();
         SimpleResponse response;
         try {
             response = taskServiceBlockingStub.saveTask(request);
@@ -72,13 +73,13 @@ public class TaskServiceGrpcStubTest {
     }
 
     @Test
-    public void getDetailTask() {
-        log.info("start to test getDetailTask()...");
+    public void getTaskDetail() {
+        log.info("start to test getTaskDetail()...");
 
-        DetailTaskRequest request = DetailTaskRequest.newBuilder().setTaskId("taskId_000006").build();
-        TaskDetail taskDetail = taskServiceBlockingStub.getDetailTask(request);
+        GetTaskDetailRequest request = GetTaskDetailRequest.newBuilder().setTaskId("taskId_000006").build();
+        GetTaskDetailResponse response = taskServiceBlockingStub.getTaskDetail(request);
 
-        log.info("getDetailTask(), response:{}", taskDetail);
+        log.info("getTaskDetail(), response:{}", response);
     }
 
     @Test
@@ -87,10 +88,10 @@ public class TaskServiceGrpcStubTest {
 
         LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-08 08:49:24",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        TaskListRequest request = TaskListRequest.newBuilder().setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000).build();
-        TaskListResponse response = taskServiceBlockingStub.listTask(request);
+        ListTaskRequest request = ListTaskRequest.newBuilder().setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000).build();
+        ListTaskResponse response = taskServiceBlockingStub.listTask(request);
 
-        log.info("listTask(), response.size:{}", response.getTaskDetailsList().size());
+        log.info("listTask(), response.size:{}", response.getTasksList().size());
     }
 
     @Test
@@ -98,32 +99,22 @@ public class TaskServiceGrpcStubTest {
         log.info("start to test listTaskByIdentityId()...");
         LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-08 08:49:24",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        TaskListByIdentityRequest request = TaskListByIdentityRequest.newBuilder()
+        ListTaskByIdentityRequest request = ListTaskByIdentityRequest.newBuilder()
                 .setIdentityId("identityId_000019")
                 .setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000)
                 .build();
-        TaskListResponse response = taskServiceBlockingStub.listTaskByIdentity(request);
+        ListTaskResponse response = taskServiceBlockingStub.listTaskByIdentity(request);
 
-        log.info("listTaskByIdentityId(), response.size:{}", response.getTaskDetailsList().size());
+        log.info("listTaskByIdentityId(), response.size:{}", response.getTasksList().size());
     }
 
     @Test
     public void listTaskEvent() {
         log.info("start to test listTaskEvent()...");
 
-        TaskEventRequest request = TaskEventRequest.newBuilder().setTaskId("taskId").build();
-        TaskEventResponse response = taskServiceBlockingStub.listTaskEvent(request);
+        ListTaskEventRequest request = ListTaskEventRequest.newBuilder().setTaskId("taskId").build();
+        ListTaskEventResponse response = taskServiceBlockingStub.listTaskEvent(request);
 
         log.info("listTaskEvent(), response.size:{}", response.getTaskEventsList().size());
-    }
-
-    @Test
-    public void revokeIdentityJoin() {
-        log.info("start to test revokeIdentityJoin()...");
-
-        TaskEventRequest request = TaskEventRequest.newBuilder().setTaskId("identityId_000003").build();
-        TaskEventResponse response = taskServiceBlockingStub.listTaskEvent(request);
-
-        log.info("revokeIdentityJoin(), response.status:{}", response.getStatus());
     }
 }

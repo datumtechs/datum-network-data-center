@@ -1,8 +1,8 @@
 package com.platon.rosettanet.storage.service;
 
 import com.platon.rosettanet.storage.dao.entity.*;
-import com.platon.rosettanet.storage.grpc.lib.api.MetadataAuthorityDetail;
 import com.platon.rosettanet.storage.grpc.lib.api.MetadataSummaryOwner;
+import com.platon.rosettanet.storage.grpc.lib.types.MetadataAuthorityPB;
 import com.platon.rosettanet.storage.grpc.lib.types.TaskDataSupplier;
 
 import java.util.List;
@@ -29,5 +29,13 @@ public interface ConvertorService {
 
     List<MetadataSummaryOwner> toProtoMetaDataSummaryOwner(List<DataFile> dataFileList);
 
-    MetadataAuthorityDetail toProtoMetaDataAuthorityResponse(MetaDataAuth metaDataAuth);
+
+    com.platon.rosettanet.storage.grpc.lib.types.MetadataPB toProtoMetadataPB(DataFile dataFile);
+
+    List<com.platon.rosettanet.storage.grpc.lib.types.MetadataPB> toProtoMetadataPB(List<DataFile> dataFileList);
+
+    MetadataAuthorityPB toProtoMetadataAuthorityPB(MetaDataAuth metaDataAuth);
+
+    com.platon.rosettanet.storage.grpc.lib.types.TaskPB toTaskPB(Task task);
+    List<com.platon.rosettanet.storage.grpc.lib.types.TaskPB> toTaskPB(List<Task> taskList);
 }

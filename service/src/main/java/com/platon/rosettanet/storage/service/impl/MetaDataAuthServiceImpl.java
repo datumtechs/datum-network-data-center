@@ -1,6 +1,5 @@
 package com.platon.rosettanet.storage.service.impl;
 
-import com.platon.rosettanet.storage.dao.DataFileMapper;
 import com.platon.rosettanet.storage.dao.MetaDataAuthMapper;
 import com.platon.rosettanet.storage.dao.entity.MetaDataAuth;
 import com.platon.rosettanet.storage.service.MetaDataAuthService;
@@ -36,5 +35,10 @@ public class MetaDataAuthServiceImpl implements MetaDataAuthService {
     @Override
     public List<MetaDataAuth> syncMetaDataAuth(String identityId, LocalDateTime lastUpdateAt) {
         return metaDataAuthMapper.syncMetaDataAuth(identityId, lastUpdateAt);
+    }
+
+    @Override
+    public MetaDataAuth findByPK(String metaDataAuthId) {
+        return metaDataAuthMapper.selectByPrimaryKey(metaDataAuthId);
     }
 }

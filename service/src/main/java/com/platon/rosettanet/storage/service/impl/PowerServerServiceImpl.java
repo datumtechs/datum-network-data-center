@@ -45,13 +45,18 @@ public class PowerServerServiceImpl implements PowerServerService {
     }
 
     @Override
-    public PowerServer countPowerByOrgId(String identityId) {
+    public PowerServer sumPowerByOrgId(String identityId) {
         return powerServerMapper.countPowerByOrgId(identityId);
     }
 
     @Override
-    public List<OrgPowerTaskSummary> countPowerGroupByOrgId() {
-        return powerServerMapper.countPowerGroupByOrgId();
+    public List<OrgPowerTaskSummary> listPowerSummaryGroupByOrgId() {
+        return powerServerMapper.listPowerSummaryGroupByOrgId();
+    }
+
+    @Override
+    public OrgPowerTaskSummary getPowerSummaryByOrgId(String identityId) {
+        return powerServerMapper.getPowerSummaryByOrgId(identityId);
     }
 
 

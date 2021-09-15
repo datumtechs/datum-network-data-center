@@ -12,15 +12,10 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,10 +58,10 @@ public class IdentityGrpcStubTest {
 
         LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-08 08:49:24",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        IdentityListRequest request = IdentityListRequest.newBuilder()
+        ListIdentityRequest request = ListIdentityRequest.newBuilder()
                 .setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000)
                 .build();
-        IdentityListResponse response = identityServiceBlockingStub.getIdentityList(request);
+        ListIdentityResponse response = identityServiceBlockingStub.listIdentity(request);
 
         log.info("getIdentityList().size: {}", response.getIdentitiesList().size());
     }
@@ -93,10 +88,10 @@ public class IdentityGrpcStubTest {
     public void revokeIdentityJoin() {
         log.info("start to test revokeIdentityJoin()...");
 
-        RevokeIdentityJoinRequest request = RevokeIdentityJoinRequest.newBuilder()
-                .setMember(Organization.newBuilder().setIdentityId("org_id_5").setNodeName("org_name_4").setNodeId("node_id_4").build())
+        RevokeIdentityRequest request = RevokeIdentityRequest.newBuilder()
+                .setIdentityId("org_id_5")
                 .build();
-        SimpleResponse response = identityServiceBlockingStub.revokeIdentityJoin(request);
+        SimpleResponse response = identityServiceBlockingStub.revokeIdentity(request);
 
         log.info("revokeIdentityJoin(), response.status:{}", response.getStatus());
     }
