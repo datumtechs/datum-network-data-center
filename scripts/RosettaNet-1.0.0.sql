@@ -339,9 +339,12 @@ from
         from task_algo_provider
     ) algoPartner,
     (
-        select count(DISTINCT consumer_identity_id) as resultConsumerPartnerCount
-        from task_result_consumer
-        group by task_Id
+        select sum(t.taskConsumerCount) as resultConsumerPartnerCount
+        from (
+             select count(DISTINCT consumer_identity_id) as taskConsumerCount
+             from task_result_consumer
+             group by task_Id, consumer_identity_id
+         ) t
     ) resultConsumerPartner
 
 ) as partner,
