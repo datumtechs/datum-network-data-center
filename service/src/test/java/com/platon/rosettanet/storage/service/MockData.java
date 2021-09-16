@@ -181,14 +181,14 @@ public class MockData {
     public void initMockData() {
         List<OrgInfo> orgInfoList = new ArrayList<>();
         for(int i=1; i<=orgCount; i++){
+            String identityId = "identity_" + DigestUtils.md5DigestAsHex(StringUtils.leftPad(String.valueOf(i), 6, "0" ).getBytes(StandardCharsets.UTF_8));
             OrgInfo orgInfo = new OrgInfo();
-            orgInfo.setIdentityId("identityId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" ));
+            orgInfo.setIdentityId(identityId);
             orgInfo.setIdentityType("DID");
             orgInfo.setOrgName("orgName_" + StringUtils.leftPad(String.valueOf(i), 6, "0" ) );
             orgInfo.setStatus(CommonStatus.CommonStatus_Normal.ordinal());
             orgInfo.setNodeId("nodeId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" ));
             orgInfoList.add(orgInfo);
-
         }
         orgInfoService.insert(orgInfoList);
 
@@ -211,10 +211,9 @@ public class MockData {
 
         List<PowerServer> powerServerList = new ArrayList<>();
         for(int i=1; i<=orgCount; i++){
-            String identityId = "identityId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" );
+            String identityId = "identity_" + DigestUtils.md5DigestAsHex(StringUtils.leftPad(String.valueOf(i), 6, "0" ).getBytes(StandardCharsets.UTF_8));
             for(int j=1; j<eachOrgPowerServerCount; j++){
                 String extID = StringUtils.leftPad(String.valueOf(i) , 6, "0" ) + "_" + StringUtils.leftPad(String.valueOf(j), 6, "0" );
-
                 PowerServer powerServer = new PowerServer();
                 powerServer.setIdentityId(identityId);
                 powerServer.setId("powerId_" + extID);
@@ -231,12 +230,16 @@ public class MockData {
 
         List<DataFile> dataFileList = new ArrayList<>();
         List<MetaDataColumn> metaDataColumnList = new ArrayList<>();
+        Map<String, List<String>> orgMetaDataListMap = new HashMap<>();
         for(int i=1; i<=orgCount; i++){
-            String identityId = "identityId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" );
+            //String identityId = "identityId_" + StringUtils.leftPad(String.valueOf(i), 6, "0" );
+            String identityId = "identity_" + DigestUtils.md5DigestAsHex(StringUtils.leftPad(String.valueOf(i), 6, "0" ).getBytes(StandardCharsets.UTF_8));
+            List<String> orgMetaDataList = new ArrayList<>();
             for(int j=1; j<=eachOrgDataFileCount; j++){
                 String extID = StringUtils.leftPad(String.valueOf(i) , 6, "0" ) + "_" + StringUtils.leftPad(String.valueOf(j), 6, "0" );
+                String metaDataId = "metaData:0x" + HexUtils.toHexString(RandomUtils.nextBytes(32));
+                orgMetaDataList.add(metaDataId);
 
-                String metaDataId = "metaDataId_" + extID;
                 DataFile dataFile = new DataFile();
                 dataFile.setOriginId("dataFileId_" + extID);
                 dataFile.setIdentityId(identityId);
@@ -246,8 +249,8 @@ public class MockData {
                 dataFile.setFilePath("/opt/usr/data");
                 dataFile.setResourceName("resourceName_" + extID);
                 dataFile.setIndustry("金融行业");
-                dataFile.setSize(100000000000000L);
-                dataFile.setRows(100000000L);
+                dataFile.setSize(1024*1024 * RandomUtils.nextLong(10, 10000));
+                dataFile.setRows(RandomUtils.nextLong(10000, 1000000));
                 dataFile.setColumns(eachDataFileColumns);
                 dataFile.setHasTitle(true);
                 dataFile.setPublished(true);
@@ -270,6 +273,7 @@ public class MockData {
                 }
                 //metaDataService.insertMetaData(dataFile, metaDataColumnList);
             }
+            orgMetaDataListMap.put(identityId, orgMetaDataList);
         }
         metaDataService.insertDataFile(dataFileList);
         metaDataService.insertMetaDataColumn(metaDataColumnList);
@@ -286,9 +290,10 @@ public class MockData {
 
         for(int i=1; i<=taskCount; i++) {
             String taskId = StringUtils.leftPad(String.valueOf(i) , 6, "0" );
-            String ownerIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount)) , 6, "0" );
-            String ownerPartyId = "partyId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount)) , 6, "0" );
-
+            //String ownerIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount)) , 6, "0" );
+            //String ownerPartyId = "partyId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount)) , 6, "0" );
+            String ownerIdentityId = "identity_" + DigestUtils.md5DigestAsHex(StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount)) , 6, "0" ).getBytes(StandardCharsets.UTF_8));
+            String ownerPartyId = StringUtils.replace(ownerIdentityId,"identity_", "partyId_");
             Task task = new Task();
             task.setId("taskId_" + taskId);
             task.setTaskName("taskName_" + taskId);
@@ -329,15 +334,22 @@ public class MockData {
             for (int j=1; j<=eachTaskDataProviderCount; j++) {
 
                 //随机挑选1个不同的org来提供data file
-                String dataIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
-                String dataPartyId = StringUtils.replace(dataIdentityId,"identityId", "partyId");
-                String metaDataId = StringUtils.replace(dataIdentityId,"identityId", "metaDataId") + "_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, eachOrgDataFileCount+1)), 6, "0");
+                //String dataIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
+                String dataIdentityId = "identity_" + DigestUtils.md5DigestAsHex(StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" ).getBytes(StandardCharsets.UTF_8));
+                String dataPartyId = StringUtils.replace(dataIdentityId,"identity_", "partyId_");
+
+
+                //String metaDataId = StringUtils.replace(dataIdentityId,"identityId", "metaDataId") + "_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, eachOrgDataFileCount+1)), 6, "0");
+                String metaDataId = orgMetaDataListMap.get(dataIdentityId).get(RandomUtils.nextInt(0, eachOrgDataFileCount));
 
                 while (partnerIdMap.containsKey(dataIdentityId)) {
                     //重新生成
-                    dataIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
-                    dataPartyId = StringUtils.replace(dataIdentityId,"identityId", "partyId");
-                    metaDataId = StringUtils.replace(dataIdentityId,"identityId", "metaDataId") + "_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, eachOrgDataFileCount+1)), 6, "0");
+                    //dataIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
+                    dataIdentityId = "identity_" + DigestUtils.md5DigestAsHex(StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" ).getBytes(StandardCharsets.UTF_8));
+
+                    dataPartyId = StringUtils.replace(dataIdentityId,"identity_", "partyId_");
+                    //metaDataId = StringUtils.replace(dataIdentityId,"identityId", "metaDataId") + "_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, eachOrgDataFileCount+1)), 6, "0");
+                    metaDataId = orgMetaDataListMap.get(dataIdentityId).get(RandomUtils.nextInt(0, eachOrgDataFileCount));
                 }
                 partnerIdMap.put(dataIdentityId, Boolean.TRUE);
 
@@ -353,11 +365,12 @@ public class MockData {
                 //taskMetaDataService.insert(taskMetaData);
 
                 //List<TaskMetaDataColumn> taskMetaDataColumnList = new ArrayList<>();
-                for (int k = 1; k <= eachTaskDataProviderColumnCount; k++) {
+                taskMetaData.setKeyColumnIdx(1); //第1列是主键列，其它列是参与计算列
+                for (int k = 2; k <= eachTaskDataProviderColumnCount; k++) {
                     TaskMetaDataColumn taskMetaDataColumn = new TaskMetaDataColumn();
                     taskMetaDataColumn.setTaskId(task.getId());
                     taskMetaDataColumn.setMetaDataId(metaDataId);
-                    taskMetaDataColumn.setColumnIdx(k);
+                    taskMetaDataColumn.setSelectedColumnIdx(k);
                     taskMetaDataColumnList.add(taskMetaDataColumn);
                 }
                 //taskMetaDataColumnService.insert(taskMetaDataColumnList);
@@ -380,12 +393,15 @@ public class MockData {
             //List<TaskPowerProvider> taskPowerProviderList = new ArrayList<>();
             for (int jj=1; jj<=eachTaskPowerProviderCount; jj++) {//每个任务10个不同的powerProvider
                 //随机挑选1个不同的org来提供power
-                String powerIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
-                String powerPartyId = StringUtils.replace(powerIdentityId,"identityId", "partyId");
+                //String powerIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
+                String powerIdentityId = "identity_" + DigestUtils.md5DigestAsHex(StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" ).getBytes(StandardCharsets.UTF_8));
+                String powerPartyId = StringUtils.replace(powerIdentityId,"identity_", "partyId_");
+
                 while (partnerIdMap.containsKey(powerIdentityId)) {
                     //重新生成
-                    powerIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
-                    powerPartyId = StringUtils.replace(powerIdentityId,"identityId", "partyId");
+                    //powerIdentityId = "identityId_" + StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" );
+                    powerIdentityId = "identity_" + DigestUtils.md5DigestAsHex(StringUtils.leftPad(String.valueOf(RandomUtils.nextInt(1, orgCount+1)) , 6, "0" ).getBytes(StandardCharsets.UTF_8));
+                    powerPartyId = StringUtils.replace(powerIdentityId,"identity_", "partyId_");
                 }
                 partnerIdMap.put(powerIdentityId, Boolean.TRUE);
 

@@ -5,7 +5,7 @@ public class TaskMetaDataColumn {
 
     private String metaDataId;
 
-    private Integer columnIdx;
+    private Integer selectedColumnIdx;
 
     public String getTaskId() {
         return taskId;
@@ -23,11 +23,11 @@ public class TaskMetaDataColumn {
         this.metaDataId = metaDataId;
     }
 
-    public Integer getColumnIdx() {
-        return columnIdx;
+    public Integer getSelectedColumnIdx() {
+        return selectedColumnIdx;
     }
 
-    public void setColumnIdx(Integer columnIdx) {
-        this.columnIdx = columnIdx;
+    public void setSelectedColumnIdx(Integer selectedColumnIdx) {
+        this.selectedColumnIdx = selectedColumnIdx;
     }
 }

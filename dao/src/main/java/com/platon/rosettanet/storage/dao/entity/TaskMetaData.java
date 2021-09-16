@@ -9,6 +9,8 @@ public class TaskMetaData {
 
     private String partyId;
 
+    private Integer keyColumnIdx;
+
     public String getTaskId() {
         return taskId;
     }
@@ -39,5 +41,13 @@ public class TaskMetaData {
 
     public void setPartyId(String partyId) {
         this.partyId = partyId;
+    }
+
+    public Integer getKeyColumnIdx() {
+        return keyColumnIdx;
+    }
+
+    public void setKeyColumnIdx(Integer keyColumnIdx) {
+        this.keyColumnIdx = keyColumnIdx;
     }
 }

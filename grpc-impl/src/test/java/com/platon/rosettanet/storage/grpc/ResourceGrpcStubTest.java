@@ -43,7 +43,7 @@ public class ResourceGrpcStubTest {
         log.info("start to test syncPower()...");
         SyncPowerRequest request = SyncPowerRequest.newBuilder()
                 .setPower(LocalResourcePB.newBuilder()
-                        .setDataId("test_power_id")
+                        .setDataId("powerId_000001_000001")
                         .setUsedProcessor(1000)
                         .setUsedMem(1000)
                         .setUsedBandwidth(1000)
@@ -71,7 +71,7 @@ public class ResourceGrpcStubTest {
         log.info("start to test listPower()...");
 
         log.info("start to test getMetadataList()...");
-        LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-08 09:00:57",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-16 09:00:57",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
 
         ListPowerRequest request = ListPowerRequest.newBuilder()
@@ -86,7 +86,7 @@ public class ResourceGrpcStubTest {
     public void getPowerSummaryByIdentityId() {
         log.info("start to test getPowerSummaryByIdentityId()...");
         GetPowerSummaryByIdentityRequest request = GetPowerSummaryByIdentityRequest.newBuilder()
-                .setIdentityId("identity_d7b7acd0d7a444f6b1496722eeff792b")
+                .setIdentityId("identity_04fc711301f3c784d66955d98d399afb")
                 .build();
         PowerSummaryResponse response = resourceServiceBlockingStub.getPowerSummaryByIdentityId(request);
 

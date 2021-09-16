@@ -137,30 +137,31 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
                 //冗余
                 taskMetaData.setIdentityId(dataSupplier.getOrganization().getIdentityId());
                 taskMetaData.setPartyId(dataSupplier.getOrganization().getPartyId());
+                taskMetaData.setKeyColumnIdx(dataSupplier.getKeyColumn().getCIndex());
                 taskMetaDataList.add(taskMetaData);
 
-                if(CollectionUtils.isEmpty(dataSupplier.getColumnsList())) {
+                if(CollectionUtils.isEmpty(dataSupplier.getSelectedColumnsList())) {
                     throw new TaskMetaDataNotFound();
                 }else {
-                    for (MetadataColumn columnDetail : dataSupplier.getColumnsList()) {
-                        TaskMetaDataColumn dataProvider = new TaskMetaDataColumn();
-                        dataProvider.setTaskId(taskId);
+                    for (MetadataColumn selectedColumn : dataSupplier.getSelectedColumnsList()) {
+                        TaskMetaDataColumn taskMetaDataColumn = new TaskMetaDataColumn();
+                        taskMetaDataColumn.setTaskId(taskId);
 
                         String metaId = dataSupplier.getMetadataId();
-                        int cindex = columnDetail.getCIndex();
+                        int selectedColumnIdx = selectedColumn.getCIndex();
 
                         //元数据校验
-                   /*
-                   List<MetaDataColumn> metaDataColumns = metaDataService.listMetaDataColumn(metaId);
-                    Optional<MetaDataColumn> first = metaDataColumns.stream().filter(metaDataColumn -> {
-                        return cindex == metaDataColumn.getColumnIdx();
-                    }).findFirst();
-                    first.orElseThrow(() -> new RuntimeException("元数据校验失败,metaId=" + metaId + ",cindex=" + cindex));
-                    */
+                       /*todo:
+                       List<MetaDataColumn> metaDataColumns = metaDataService.listMetaDataColumn(metaId);
+                        Optional<MetaDataColumn> first = metaDataColumns.stream().filter(metaDataColumn -> {
+                            return cindex == metaDataColumn.getColumnIdx();
+                        }).findFirst();
+                        first.orElseThrow(() -> new RuntimeException("元数据校验失败,metaId=" + metaId + ",cindex=" + cindex));
+                        */
 
-                        dataProvider.setMetaDataId(metaId);
-                        dataProvider.setColumnIdx(cindex);
-                        taskMetaDataColumnList.add(dataProvider);
+                        taskMetaDataColumn.setMetaDataId(metaId);
+                        taskMetaDataColumn.setSelectedColumnIdx(selectedColumnIdx);
+                        taskMetaDataColumnList.add(taskMetaDataColumn);
                     }
                 }
             }

@@ -56,7 +56,7 @@ public class IdentityGrpcStubTest {
     public void getIdentityList() {
         log.info("start to test getIdentityList()...");
 
-        LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-08 08:49:24",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-16 08:49:24",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         ListIdentityRequest request = ListIdentityRequest.newBuilder()
                 .setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000)
@@ -89,7 +89,7 @@ public class IdentityGrpcStubTest {
         log.info("start to test revokeIdentityJoin()...");
 
         RevokeIdentityRequest request = RevokeIdentityRequest.newBuilder()
-                .setIdentityId("org_id_5")
+                .setIdentityId("identity_04fc711301f3c784d66955d98d399afb")
                 .build();
         SimpleResponse response = identityServiceBlockingStub.revokeIdentity(request);
 

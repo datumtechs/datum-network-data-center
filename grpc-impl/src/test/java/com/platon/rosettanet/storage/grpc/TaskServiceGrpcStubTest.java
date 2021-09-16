@@ -39,17 +39,20 @@ public class TaskServiceGrpcStubTest {
                 .setAlgoSupplier(TaskOrganization.newBuilder().setIdentityId("algoSupplier").setPartyId("algoSupplierPartyId").build())
 
                 .addDataSuppliers(TaskDataSupplier.newBuilder().setOrganization(TaskOrganization.newBuilder().setIdentityId("dataSupper_id_1").setPartyId("dataSupper_partyId_1").build()).setMetadataId("metaDataId_1")
-                        .addColumns(MetadataColumn.newBuilder().setCIndex(1).build())
-                        .addColumns(MetadataColumn.newBuilder().setCIndex(2).build())
-                        .addColumns(MetadataColumn.newBuilder().setCIndex(3).build())
-                        .addColumns(MetadataColumn.newBuilder().setCIndex(4).build()))
+                        .setKeyColumn(MetadataColumn.newBuilder().setCIndex(0).build())
+                        .addSelectedColumns(MetadataColumn.newBuilder().setCIndex(1).build())
+                        .addSelectedColumns(MetadataColumn.newBuilder().setCIndex(2).build())
+                        .addSelectedColumns(MetadataColumn.newBuilder().setCIndex(3).build())
+                        .addSelectedColumns(MetadataColumn.newBuilder().setCIndex(4).build()))
                 .addDataSuppliers(TaskDataSupplier.newBuilder().setOrganization(TaskOrganization.newBuilder().setIdentityId("dataSupper_id_2").setPartyId("dataSupper_partyId_2").build()).setMetadataId("metaDataId_2")
-                        .addColumns(MetadataColumn.newBuilder().setCIndex(1).build())
-                        .addColumns(MetadataColumn.newBuilder().setCIndex(2).build())
-                        .addColumns(MetadataColumn.newBuilder().setCIndex(3).build()))
+                        .setKeyColumn(MetadataColumn.newBuilder().setCIndex(0).build())
+                        .addSelectedColumns(MetadataColumn.newBuilder().setCIndex(1).build())
+                        .addSelectedColumns(MetadataColumn.newBuilder().setCIndex(2).build())
+                        .addSelectedColumns(MetadataColumn.newBuilder().setCIndex(3).build()))
                 .addDataSuppliers(TaskDataSupplier.newBuilder().setOrganization(TaskOrganization.newBuilder().setIdentityId("dataSupper_id_3").setPartyId("dataSupper_partyId_3").build()).setMetadataId("metaDataId_3")
-                        .addColumns(MetadataColumn.newBuilder().setCIndex(1).build())
-                        .addColumns(MetadataColumn.newBuilder().setCIndex(2).build()))
+                        .setKeyColumn(MetadataColumn.newBuilder().setCIndex(0).build())
+                        .addSelectedColumns(MetadataColumn.newBuilder().setCIndex(1).build())
+                        .addSelectedColumns(MetadataColumn.newBuilder().setCIndex(2).build()))
 
                 .addPowerSuppliers(TaskPowerSupplier.newBuilder().setOrganization(TaskOrganization.newBuilder().setIdentityId("power_1").setPartyId("power_party_1").build()).setResourceUsedOverview(ResourceUsageOverview.newBuilder().setUsedMem(100L).setUsedProcessor(1).setUsedBandwidth(1000L).build()).build())
                 .addPowerSuppliers(TaskPowerSupplier.newBuilder().setOrganization(TaskOrganization.newBuilder().setIdentityId("power_2").setPartyId("power_party_2").build()).setResourceUsedOverview(ResourceUsageOverview.newBuilder().setUsedMem(200L).setUsedProcessor(2).setUsedBandwidth(2000L).build()).build())
@@ -100,7 +103,7 @@ public class TaskServiceGrpcStubTest {
         LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-08 08:49:24",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         ListTaskByIdentityRequest request = ListTaskByIdentityRequest.newBuilder()
-                .setIdentityId("identityId_000019")
+                .setIdentityId("identity_04fc711301f3c784d66955d98d399afb")
                 .setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000)
                 .build();
         ListTaskResponse response = taskServiceBlockingStub.listTaskByIdentity(request);
@@ -112,7 +115,7 @@ public class TaskServiceGrpcStubTest {
     public void listTaskEvent() {
         log.info("start to test listTaskEvent()...");
 
-        ListTaskEventRequest request = ListTaskEventRequest.newBuilder().setTaskId("taskId").build();
+        ListTaskEventRequest request = ListTaskEventRequest.newBuilder().setTaskId("taskId_000001").build();
         ListTaskEventResponse response = taskServiceBlockingStub.listTaskEvent(request);
 
         log.info("listTaskEvent(), response.size:{}", response.getTaskEventsList().size());

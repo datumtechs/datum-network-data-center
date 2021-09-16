@@ -4,18 +4,18 @@
   <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.TaskMetaDataColumn">
     <id column="task_id" jdbcType="VARCHAR" property="taskId" />
     <id column="meta_data_id" jdbcType="VARCHAR" property="metaDataId" />
-    <id column="column_idx" jdbcType="INTEGER" property="columnIdx" />
+    <id column="selected_column_idx" jdbcType="INTEGER" property="selectedColumnIdx" />
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="map">
     delete from task_meta_data_column
     where task_id = #{taskId,jdbcType=VARCHAR}
       and meta_data_id = #{metaDataId,jdbcType=VARCHAR}
-      and column_idx = #{columnIdx,jdbcType=INTEGER}
+      and selected_column_idx = #{selectedColumnIdx,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.TaskMetaDataColumn">
-    insert into task_meta_data_column (task_id, meta_data_id, column_idx
+    insert into task_meta_data_column (task_id, meta_data_id, selected_column_idx
       )
-    values (#{taskId,jdbcType=VARCHAR}, #{metaDataId,jdbcType=VARCHAR}, #{columnIdx,jdbcType=INTEGER}
+    values (#{taskId,jdbcType=VARCHAR}, #{metaDataId,jdbcType=VARCHAR}, #{selectedColumnIdx,jdbcType=INTEGER}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.TaskMetaDataColumn">
@@ -27,8 +27,8 @@
       <if test="metaDataId != null">
         meta_data_id,
       </if>
-      <if test="columnIdx != null">
-        column_idx,
+      <if test="selectedColumnIdx != null">
+        selected_column_idx,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -38,25 +38,25 @@
       <if test="metaDataId != null">
         #{metaDataId,jdbcType=VARCHAR},
       </if>
-      <if test="columnIdx != null">
-        #{columnIdx,jdbcType=INTEGER},
+      <if test="selectedColumnIdx != null">
+        #{selectedColumnIdx,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
 
   <insert id="insertBatch">
-    insert into task_meta_data_column (task_id, meta_data_id, column_idx
+    insert into task_meta_data_column (task_id, meta_data_id, selected_column_idx
     )
     values
     <foreach collection ="list" item="taskMetaDataColumn" separator =",">
-      (#{taskMetaDataColumn.taskId,jdbcType=VARCHAR}, #{taskMetaDataColumn.metaDataId,jdbcType=VARCHAR}, #{taskMetaDataColumn.columnIdx,jdbcType=INTEGER}
+      (#{taskMetaDataColumn.taskId,jdbcType=VARCHAR}, #{taskMetaDataColumn.metaDataId,jdbcType=VARCHAR}, #{taskMetaDataColumn.selectedColumnIdx,jdbcType=INTEGER}
       )
     </foreach>
   </insert>
 
 
   <select id="listTaskMetaDataColumn" parameterType="map" resultMap="BaseResultMap">
-    select task_id, meta_data_id, column_idx
+    select task_id, meta_data_id, selected_column_idx
     from task_meta_data_column
     where task_id = #{taskId,jdbcType=VARCHAR} and meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </select>

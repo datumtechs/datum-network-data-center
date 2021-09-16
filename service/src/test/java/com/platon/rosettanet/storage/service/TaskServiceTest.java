@@ -54,7 +54,7 @@ public class TaskServiceTest {
             TaskMetaDataColumn taskMetaDataColumn = new TaskMetaDataColumn();
             taskMetaDataColumn.setTaskId("testTask");
             taskMetaDataColumn.setMetaDataId("metaDataId");
-            taskMetaDataColumn.setColumnIdx(i);
+            taskMetaDataColumn.setSelectedColumnIdx(i);
             taskMetaDataColumnList.add(taskMetaDataColumn);
         }
         taskMetaDataColumnService.insert(taskMetaDataColumnList);

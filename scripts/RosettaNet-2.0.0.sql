@@ -158,6 +158,7 @@ CREATE TABLE task_meta_data (
     meta_data_id VARCHAR(200) NOT NULL COMMENT '参与任务的元数据ID',
     identity_id VARCHAR(200) NOT NULL COMMENT '(冗余)参与任务的元数据的所属组织的identity_id',
     party_id VARCHAR(200) NOT NULL COMMENT '任务参与方在本次任务中的唯一识别ID',
+    key_column_idx INT COMMENT '元数据在此次任务中的主键列下标索引序号',
     PRIMARY KEY (task_ID, meta_data_ID)
 ) comment '任务metadata';
 
@@ -165,8 +166,8 @@ DROP TABLE IF EXISTS task_meta_data_column;
 CREATE TABLE task_meta_data_column (
     task_id VARCHAR(200) NOT NULL comment '任务ID,hash',
     meta_data_id VARCHAR(200) NOT NULL COMMENT '参与任务的元数据ID',
-    column_idx int NOT NULL COMMENT '字段索引序号',
-    PRIMARY KEY (task_ID, meta_data_ID,column_idx)
+    selected_column_idx int NOT NULL COMMENT '元数据在此次任务中的参与计算的字段索引序号',
+    PRIMARY KEY (task_ID, meta_data_ID, selected_column_idx)
 ) comment '任务metadata明细';
 
 

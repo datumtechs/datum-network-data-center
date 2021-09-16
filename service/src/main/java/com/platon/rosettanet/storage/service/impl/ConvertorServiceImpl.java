@@ -73,16 +73,10 @@ public class ConvertorServiceImpl implements ConvertorService {
 
         //把任务所用meta data column子集的参数补齐
         List<MetadataColumn> metaDataColumnDetailList = taskMetaDataColumnService.listTaskMetaDataColumn(taskMetaData.getTaskId(), taskMetaData.getMetaDataId()).stream()
-                .filter(taskMetaDataColumn -> columnMap.get(taskMetaDataColumn.getColumnIdx()) != null)
+                .filter(taskMetaDataColumn -> columnMap.get(taskMetaDataColumn.getSelectedColumnIdx()) != null)
                 .map(taskMetaDataColumn -> {
-                    MetaDataColumn column = columnMap.get(taskMetaDataColumn.getColumnIdx());
-                    return MetadataColumn.newBuilder()
-                            .setCIndex(column.getColumnIdx())
-                            .setCName(column.getColumnName())
-                            .setCType(column.getColumnType())
-                            .setCSize(column.getColumnSize())
-                            .setCComment(StringUtils.trimToEmpty(column.getRemarks()))
-                            .build();
+                    MetaDataColumn column = columnMap.get(taskMetaDataColumn.getSelectedColumnIdx());
+                    return toProtoMetadataColumn(column);
                 }).collect(Collectors.toList());
 
         //一个meta data id 属于一个data_file，也属于确定的组织
@@ -94,7 +88,18 @@ public class ConvertorServiceImpl implements ConvertorService {
         return com.platon.rosettanet.storage.grpc.lib.types.TaskDataSupplier.newBuilder()
                 .setMetadataId(taskMetaData.getMetaDataId())
                 .setOrganization(this.toProtoTaskOrganization(orgInfo, taskMetaData.getPartyId()))
-                .addAllColumns(metaDataColumnDetailList)
+                .setKeyColumn(toProtoMetadataColumn(columnMap.get(taskMetaData.getKeyColumnIdx()))) //主键列
+                .addAllSelectedColumns(metaDataColumnDetailList)    //参与计算列
+                .build();
+    }
+
+    private com.platon.rosettanet.storage.grpc.lib.types.MetadataColumn toProtoMetadataColumn(MetaDataColumn column){
+        return MetadataColumn.newBuilder()
+                .setCIndex(column.getColumnIdx())
+                .setCName(column.getColumnName())
+                .setCType(column.getColumnType())
+                .setCSize(column.getColumnSize())
+                .setCComment(StringUtils.trimToEmpty(column.getRemarks()))
                 .build();
     }
 
@@ -274,6 +279,8 @@ public class ConvertorServiceImpl implements ConvertorService {
 
     @Override
     public com.platon.rosettanet.storage.grpc.lib.types.TaskPB toTaskPB(Task task) {
+
+        //算法提供者
         TaskAlgoProvider taskAlgoProvider = taskAlgoProviderService.findAlgoProviderByTaskId(task.getId());
         OrgInfo taskAlgoProviderOrgInfo = orgInfoService.findByPK(taskAlgoProvider.getIdentityId());
 
