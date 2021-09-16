@@ -6,7 +6,7 @@ import "lib/common/base.proto";
 
 option go_package = "github.com/RosettaFlow/Carrier-Go/lib/types";
 option java_multiple_files = true;
-option java_package = "com.platon.rosettanet.storage.grpc.lib.types";
+option java_package = "com.platon.metis.storage.grpc.lib.types";
 
 // IdentityData represents the stored data structure.
 message IdentityPB {

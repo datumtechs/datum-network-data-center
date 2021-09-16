@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.rosettanet.storage.dao.MetaDataColumnMapper">
-  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.MetaDataColumn">
+<mapper namespace="com.platon.metis.storage.dao.MetaDataColumnMapper">
+  <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.MetaDataColumn">
     <id column="meta_data_id" jdbcType="VARCHAR" property="metaDataId" />
     <id column="column_idx" jdbcType="INTEGER" property="columnIdx" />
     <result column="column_name" jdbcType="VARCHAR" property="columnName" />
@@ -25,7 +25,7 @@
     where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
       and column_idx = #{columnIdx,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.MetaDataColumn">
+  <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.MetaDataColumn">
     insert into meta_data_column (meta_data_id, column_idx, `column_name`,
       column_type, `column_size`, remarks, published
       )
@@ -33,7 +33,7 @@
       #{columnType,jdbcType=VARCHAR}, #{columnSize,jdbcType=INTEGER}, #{remarks,jdbcType=VARCHAR}, #{published,jdbcType=BIT}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.MetaDataColumn">
+  <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.MetaDataColumn">
     insert into meta_data_column
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="metaDataId != null">
@@ -82,7 +82,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.platon.rosettanet.storage.dao.entity.MetaDataColumn">
+  <update id="updateByPrimaryKeySelective" parameterType="com.platon.metis.storage.dao.entity.MetaDataColumn">
     update meta_data_column
     <set>
       <if test="columnName != null">
@@ -104,7 +104,7 @@
     where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
       and column_idx = #{columnIdx,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.platon.rosettanet.storage.dao.entity.MetaDataColumn">
+  <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.MetaDataColumn">
     update meta_data_column
     set column_name = #{columnName,jdbcType=VARCHAR},
       column_type = #{columnType,jdbcType=VARCHAR},

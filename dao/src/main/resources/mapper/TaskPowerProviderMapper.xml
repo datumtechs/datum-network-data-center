@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.rosettanet.storage.dao.TaskPowerProviderMapper">
-  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.TaskPowerProvider">
+<mapper namespace="com.platon.metis.storage.dao.TaskPowerProviderMapper">
+  <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.TaskPowerProvider">
     <id column="task_id" jdbcType="VARCHAR" property="taskId" />
     <id column="identity_id" jdbcType="VARCHAR" property="identityId" />
     <result column="party_id" jdbcType="VARCHAR" property="partyId" />
@@ -24,13 +24,13 @@
     where task_id = #{taskId,jdbcType=VARCHAR}
       and identity_id = #{identityId,jdbcType=VARCHAR}
   </delete>
-  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.TaskPowerProvider">
+  <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.TaskPowerProvider">
     insert into task_power_provider (task_id, identity_id, party_id, used_memory,
       used_core, used_bandwidth)
     values (#{taskId,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{partyId,jdbcType=VARCHAR}, #{usedMemory,jdbcType=BIGINT},
       #{usedCore,jdbcType=INTEGER}, #{usedBandwidth,jdbcType=BIGINT})
   </insert>
-  <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.TaskPowerProvider">
+  <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.TaskPowerProvider">
     insert into task_power_provider
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="taskId != null">
@@ -73,7 +73,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.platon.rosettanet.storage.dao.entity.TaskPowerProvider">
+  <update id="updateByPrimaryKeySelective" parameterType="com.platon.metis.storage.dao.entity.TaskPowerProvider">
     update task_power_provider
     <set>
       <if test="partyId != null">
@@ -92,7 +92,7 @@
     where task_id = #{taskId,jdbcType=VARCHAR}
       and identity_id = #{identityId,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.platon.rosettanet.storage.dao.entity.TaskPowerProvider">
+  <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.TaskPowerProvider">
     update task_power_provider
     set party_id = #{partyId,jdbcType=VARCHAR},
       used_memory = #{usedMemory,jdbcType=BIGINT},

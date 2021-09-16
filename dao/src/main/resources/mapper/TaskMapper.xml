@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.rosettanet.storage.dao.TaskMapper">
-  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.Task">
+<mapper namespace="com.platon.metis.storage.dao.TaskMapper">
+  <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.Task">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="task_name" jdbcType="VARCHAR" property="taskName" />
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
@@ -37,7 +37,7 @@
     delete from task
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.Task">
+  <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.Task">
     insert into task (id, task_name, user_id, user_type, required_memory,
       required_core, required_bandwidth, required_duration, 
       owner_identity_id, owner_party_id, create_at, start_at,
@@ -68,7 +68,7 @@
 
 
 
-  <update id="updateByPrimaryKey" parameterType="com.platon.rosettanet.storage.dao.entity.Task">
+  <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.Task">
     update task
     set task_name = #{taskName,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=VARCHAR},

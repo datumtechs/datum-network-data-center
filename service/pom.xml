@@ -3,31 +3,31 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>com.platon.rosettanet.storage</groupId>
-        <artifactId>rosettanet-storage</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>com.platon.metis</groupId>
+        <artifactId>metis-storage</artifactId>
+        <version>2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>service</artifactId>
+    <artifactId>storage-service</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>com.platon.rosettanet.storage</groupId>
-            <artifactId>common</artifactId>
+            <groupId>com.platon.metis</groupId>
+            <artifactId>storage-common</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.platon.rosettanet.storage</groupId>
-            <artifactId>dao</artifactId>
+            <groupId>com.platon.metis</groupId>
+            <artifactId>storage-dao</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.platon.rosettanet.storage</groupId>
-            <artifactId>grpc-lib</artifactId>
+            <groupId>com.platon.metis</groupId>
+            <artifactId>storage-grpc-lib</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>

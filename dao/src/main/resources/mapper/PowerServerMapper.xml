@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.rosettanet.storage.dao.PowerServerMapper">
-  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.PowerServer">
+<mapper namespace="com.platon.metis.storage.dao.PowerServerMapper">
+  <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.PowerServer">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="identity_id" jdbcType="VARCHAR" property="identityId" />
     <result column="memory" jdbcType="BIGINT" property="memory" />
@@ -29,7 +29,7 @@
     delete from power_server
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.PowerServer">
+  <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.PowerServer">
     insert into power_server (id, identity_id, memory,
       core, bandwidth, used_memory, 
       used_core, used_bandwidth, published, 
@@ -54,7 +54,7 @@
     </foreach>
   </insert>
 
-  <update id="updateByPrimaryKeySelective" parameterType="com.platon.rosettanet.storage.dao.entity.PowerServer">
+  <update id="updateByPrimaryKeySelective" parameterType="com.platon.metis.storage.dao.entity.PowerServer">
     update power_server
     <set>
       <if test="identityId != null">
@@ -104,7 +104,7 @@
     where identity_id = #{identityId,jdbcType=VARCHAR}
   </select>
 
-  <resultMap id="OrgPowerTaskSummaryResultMap" type="com.platon.rosettanet.storage.dao.entity.OrgPowerTaskSummary">
+  <resultMap id="OrgPowerTaskSummaryResultMap" type="com.platon.metis.storage.dao.entity.OrgPowerTaskSummary">
     <result column="identity_id" jdbcType="VARCHAR" property="identityId" />
     <result column="memory" jdbcType="BIGINT" property="memory" />
     <result column="core" jdbcType="INTEGER" property="core" />

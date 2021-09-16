@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.rosettanet.storage.dao.TaskMetaDataColumnMapper">
-  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.TaskMetaDataColumn">
+<mapper namespace="com.platon.metis.storage.dao.TaskMetaDataColumnMapper">
+  <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.TaskMetaDataColumn">
     <id column="task_id" jdbcType="VARCHAR" property="taskId" />
     <id column="meta_data_id" jdbcType="VARCHAR" property="metaDataId" />
     <id column="selected_column_idx" jdbcType="INTEGER" property="selectedColumnIdx" />
@@ -12,13 +12,13 @@
       and meta_data_id = #{metaDataId,jdbcType=VARCHAR}
       and selected_column_idx = #{selectedColumnIdx,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.TaskMetaDataColumn">
+  <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.TaskMetaDataColumn">
     insert into task_meta_data_column (task_id, meta_data_id, selected_column_idx
       )
     values (#{taskId,jdbcType=VARCHAR}, #{metaDataId,jdbcType=VARCHAR}, #{selectedColumnIdx,jdbcType=INTEGER}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.TaskMetaDataColumn">
+  <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.TaskMetaDataColumn">
     insert into task_meta_data_column
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="taskId != null">

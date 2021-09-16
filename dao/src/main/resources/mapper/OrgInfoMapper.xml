@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.rosettanet.storage.dao.OrgInfoMapper">
-  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.OrgInfo">
+<mapper namespace="com.platon.metis.storage.dao.OrgInfoMapper">
+  <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.OrgInfo">
     <id column="identity_id" jdbcType="VARCHAR" property="identityId" />
     <result column="identity_type" jdbcType="VARCHAR" property="identityType" />
     <result column="node_id" jdbcType="VARCHAR" property="nodeId" />
@@ -31,7 +31,7 @@
     where identity_id = #{identityId,jdbcType=VARCHAR}
   </update>
 
-  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.OrgInfo">
+  <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.OrgInfo">
     insert into org_info (identity_id, identity_type, node_id, org_name, status,
       accumulative_data_file_count, update_at
       )
@@ -52,7 +52,7 @@
     </foreach>
   </insert>
 
-  <update id="updateByPrimaryKeySelective" parameterType="com.platon.rosettanet.storage.dao.entity.OrgInfo">
+  <update id="updateByPrimaryKeySelective" parameterType="com.platon.metis.storage.dao.entity.OrgInfo">
     update org_info
     <set>
       <if test="identityType != null">
@@ -74,7 +74,7 @@
     </set>
     where identity_id = #{identityId,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.platon.rosettanet.storage.dao.entity.OrgInfo">
+  <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.OrgInfo">
     update org_info
     set identity_type = #{identityType,jdbcType=VARCHAR},
       node_id = #{nodeId,jdbcType=VARCHAR},

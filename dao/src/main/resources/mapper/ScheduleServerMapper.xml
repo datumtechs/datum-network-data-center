@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.rosettanet.storage.dao.ScheduleServerMapper">
-  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.ScheduleServer">
+<mapper namespace="com.platon.metis.storage.dao.ScheduleServerMapper">
+  <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.ScheduleServer">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="identity_id" jdbcType="VARCHAR" property="identityId" />
     <result column="internal_ip" jdbcType="VARCHAR" property="internalIp" />
@@ -21,13 +21,13 @@
     delete from schedule_server
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.ScheduleServer">
+  <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.ScheduleServer">
     insert into schedule_server (id, identity_id, internal_ip, 
       internal_port, status)
     values (#{id,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{internalIp,jdbcType=VARCHAR}, 
       #{internalPort,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.ScheduleServer">
+  <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.ScheduleServer">
     insert into schedule_server
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -64,7 +64,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.platon.rosettanet.storage.dao.entity.ScheduleServer">
+  <update id="updateByPrimaryKeySelective" parameterType="com.platon.metis.storage.dao.entity.ScheduleServer">
     update schedule_server
     <set>
       <if test="identityId != null">
@@ -82,7 +82,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.platon.rosettanet.storage.dao.entity.ScheduleServer">
+  <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.ScheduleServer">
     update schedule_server
     set identity_id = #{identityId,jdbcType=VARCHAR},
       internal_ip = #{internalIp,jdbcType=VARCHAR},

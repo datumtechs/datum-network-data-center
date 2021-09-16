@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.rosettanet.storage.dao.TaskResultConsumerMapper">
-  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.TaskResultConsumer">
+<mapper namespace="com.platon.metis.storage.dao.TaskResultConsumerMapper">
+  <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.TaskResultConsumer">
     <id column="task_id" jdbcType="VARCHAR" property="taskId" />
     <id column="consumer_identity_id" jdbcType="VARCHAR" property="consumerIdentityId" />
     <id column="producer_identity_id" jdbcType="VARCHAR" property="producerIdentityId" />
@@ -14,13 +14,13 @@
       and consumer_identity_id = #{consumerIdentityId,jdbcType=VARCHAR}
       and producer_identity_id = #{producerIdentityId,jdbcType=VARCHAR}
   </delete>
-  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.TaskResultConsumer">
+  <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.TaskResultConsumer">
     insert into task_result_consumer (task_id, consumer_identity_id, consumer_party_id, producer_identity_id, producer_party_id
       )
     values (#{taskId,jdbcType=VARCHAR}, #{consumerIdentityId,jdbcType=VARCHAR}, #{consumerPartyId,jdbcType=VARCHAR}, #{producerIdentityId,jdbcType=VARCHAR}, #{producerPartyId,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.TaskResultConsumer">
+  <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.TaskResultConsumer">
     insert into task_result_consumer
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="taskId != null">

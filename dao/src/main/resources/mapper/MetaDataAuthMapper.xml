@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.rosettanet.storage.dao.MetaDataAuthMapper">
-  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.MetaDataAuth">
+<mapper namespace="com.platon.metis.storage.dao.MetaDataAuthMapper">
+  <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.MetaDataAuth">
     <id column="meta_data_auth_id" jdbcType="VARCHAR" property="metaDataAuthId" />
     <result column="user_identity_id" jdbcType="VARCHAR" property="userIdentityId" />
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
@@ -31,7 +31,7 @@
     where meta_data_auth_id = #{metaDataAuthId,jdbcType=VARCHAR}
   </delete>
   <!-- #{auditAt,jdbcType=TIMESTAMP} 为了兼容 造伪数据 -->
-  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.MetaDataAuth">
+  <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.MetaDataAuth">
     insert into meta_data_auth (meta_data_auth_id, user_identity_id, user_id, user_type,
       meta_data_id, auth_type, start_at, 
       end_at, times, status, 

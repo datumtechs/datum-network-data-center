@@ -4,7 +4,7 @@ package api;
 
 option go_package = "github.com/RosettaFlow/Carrier-Go/lib/center/api";
 option java_multiple_files = true;
-option java_package = "com.platon.rosettanet.storage.grpc.lib.api";
+option java_package = "com.platon.metis.storage.grpc.lib.api";
 
 import "lib/common/base.proto";
 import "lib/types/metadata.proto";

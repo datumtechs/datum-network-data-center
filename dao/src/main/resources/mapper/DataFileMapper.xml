@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.rosettanet.storage.dao.DataFileMapper">
-  <resultMap id="BaseResultMap" type="com.platon.rosettanet.storage.dao.entity.DataFile">
+<mapper namespace="com.platon.metis.storage.dao.DataFileMapper">
+  <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.DataFile">
     <id column="meta_data_id" jdbcType="VARCHAR" property="metaDataId" />
     <result column="origin_id" jdbcType="VARCHAR" property="originId" />
     <result column="identity_id" jdbcType="VARCHAR" property="identityId" />
@@ -35,7 +35,7 @@
     set status = 3, published = false, update_at = CURRENT_TIMESTAMP()
     where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </delete>
-  <insert id="insert" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
+  <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.DataFile">
     insert into data_file (meta_data_id, origin_id, identity_id, file_name,
       file_path, file_type, resource_name, industry,
       `size`, `rows`, columns,
@@ -69,7 +69,7 @@
   </insert>
 
 
-  <insert id="insertSelective" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
+  <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.DataFile">
     insert into data_file
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="metaDataId != null">
@@ -174,7 +174,7 @@
       CURRENT_TIMESTAMP()
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
+  <update id="updateByPrimaryKeySelective" parameterType="com.platon.metis.storage.dao.entity.DataFile">
     update data_file
     <set>
       <if test="originId != null">
@@ -226,7 +226,7 @@
     </set>
     where meta_data_id = #{meta_data_id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.platon.rosettanet.storage.dao.entity.DataFile">
+  <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.DataFile">
     update data_file
     set origin_id = #{originId,jdbcType=VARCHAR},
       identity_id = #{identityId,jdbcType=VARCHAR},

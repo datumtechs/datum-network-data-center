@@ -4,7 +4,7 @@ package api.protobuf;
 
 option go_package = "github.com/RosettaFlow/Carrier-Go/lib/common";
 option java_multiple_files = true;
-option java_package = "com.platon.rosettanet.storage.grpc.lib.common";
+option java_package = "com.platon.metis.storage.grpc.lib.common";
 
 // A represents the basic information of the organization.
 message Organization  {

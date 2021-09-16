@@ -1,8 +1,8 @@
-drop database if exists rosettanet_storage;
+drop database if exists metis_storage;
 
-CREATE DATABASE rosettanet_storage DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE metis_storage DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE rosettanet_storage;
+USE metis_storage;
 
 -- 组织计算资源的使用率是动态的，当有任务正在计算时才有意义。
 DROP TABLE IF EXISTS org_info;
@@ -261,7 +261,7 @@ DELIMITER $$
 drop trigger if exists data_file_insert_trigger $$
 CREATE trigger data_file_insert_trigger AFTER INSERT ON data_file FOR EACH Row
 begin
-    insert into data_file_change_history (origin_id, size, trend, status, update_at)
+    insert into data_file_change_history (origin_id, size, status, trend, update_at)
     values (NEW.origin_id, NEW.size, NEW.status, 'increased', NEW.published_at);
 
     update org_info
