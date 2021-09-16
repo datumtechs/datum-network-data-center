@@ -79,11 +79,20 @@ message TaskPowerSupplier {
 //}
 
 // 任务数据提供方基本信息
+//message TaskDataSupplier {
+//  api.protobuf.TaskOrganization       organization = 1;                                // 身份信息
+//  string                              metadata_id = 2;                                // 元数据Id
+//  string                              metadata_name = 3;                              // 元数据名称
+//  repeated types.MetadataColumn       columns = 4;
+//}
+
+// 任务数据提供方基本信息
 message TaskDataSupplier {
-  api.protobuf.TaskOrganization       organization = 1;                                // 身份信息
-  string                              metadata_id = 2;                                // 元数据Id
-  string                              metadata_name = 3;                              // 元数据名称
-  repeated types.MetadataColumn       columns = 4;
+  api.protobuf.TaskOrganization       organization = 1;                                 // 身份信息
+  string                              metadata_id = 2;                                  // 元数据Id
+  string                              metadata_name = 3;                                // 元数据名称
+  types.MetadataColumn                key_column = 4;                                   // 元数据主键列（只支持单列主键）
+  repeated types.MetadataColumn       selected_columns = 5;                             // 元数据参与计算的数据列索引
 }
 
 // 任务事件定义
