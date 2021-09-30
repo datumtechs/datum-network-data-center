@@ -75,7 +75,7 @@ CREATE TABLE data_file (
     identity_id VARCHAR(200) NOT NULL COMMENT '组织身份ID',
     file_name VARCHAR(100) NOT NULL COMMENT '文件名称',
     file_path VARCHAR(100) NOT NULL COMMENT '文件存储路径',
-    file_type VARCHAR(20) NOT NULL COMMENT '文件后缀/类型, csv',
+    file_type int NOT NULL COMMENT '文件后缀/类型, 0:未知; 1:csv',
     resource_name VARCHAR(100) NOT NULL COMMENT '资源名称',
     industry VARCHAR(100)  COMMENT '行业名称',
     size BIGINT NOT NULL DEFAULT 0 COMMENT '文件大小(字节)',
@@ -85,8 +85,10 @@ CREATE TABLE data_file (
     published_at DATETIME NOT NULL DEFAULT NOW() comment '发布时间',
     has_title BOOLEAN NOT NULL DEFAULT false comment '是否带标题',
     remarks VARCHAR(100) COMMENT '数据描述',
-    status int COMMENT '数据的状态 (0: 未知; 1: 还未发布的新表; 2: 已发布的表; 3: 已撤销的表)',
+    status int COMMENT '元数据的状态 (0: 未知; 1: 还未发布的新表; 2: 已发布的表; 3: 已撤销的表)',
     update_at DATETIME NOT NULL comment '(状态)修改时间',
+    dfs_data_status int COMMENT '元数据在分布式存储环境中的状态 (0: DataStatus_Unknown ; DataStatus_Normal = 1; DataStatus_Deleted = 2)',
+    dfs_data_id  VARCHAR(200) COMMENT '元数据在分布式存储环境中的ID',
 	PRIMARY KEY (meta_data_id)
 ) comment '数据文件信息';
 
@@ -97,14 +99,21 @@ CREATE TABLE meta_data_auth(
     user_id           VARCHAR(200) NOT NULL COMMENT '申请数据授权的用户ID',
     user_type         INT          NOT NULL COMMENT '用户类型 (0: 未定义; 1: 以太坊地址; 2: Alaya地址; 3: PlatON地址',
     meta_data_id      VARCHAR(200) NOT NULL comment '元数据ID,hash',
-    auth_type         INT          NOT NULL COMMENT '申请收集授权类型：(0: 未定义; 1: 按照时间段来使用; 2: 按照次数来使用)',
+    dfs_data_status   INT COMMENT '元数据在分布式存储环境中的状态 (0: DataStatus_Unknown ; DataStatus_Normal = 1; DataStatus_Deleted = 2)',
+    dfs_data_id       VARCHAR(200) COMMENT '元数据在分布式存储环境中的ID',
+    auth_type         INT DEFAULT 0 NOT NULL COMMENT '申请收集授权类型：(0: 未定义; 1: 按照时间段来使用; 2: 按照次数来使用)',
     start_at          DATETIME COMMENT '授权开始时间(auth_type=1时)',
     end_at            DATETIME COMMENT '授权结束时间(auth_type=1时)',
-    times             INT COMMENT '授权次数(auth_type=2时)',
-    `status`          INT COMMENT '申请状态，0：等待审核中；1：审核通过；2：审核拒绝',
-    apply_at          DATETIME     NOT NULL COMMENT '授权申请时间',
-    audit_at          DATETIME     COMMENT '授权审核时间',
-    update_at         DATETIME     NOT NULL COMMENT '(状态)修改时间',
+    times             INT DEFAULT 0 COMMENT '授权次数(auth_type=2时)',
+    expired           BOOLEAN DEFAULT FALSE COMMENT '是否已过期 (当 usage_type 为 1 时才需要的字段)',
+    used_times        INT DEFAULT 0 COMMENT '已经使用的次数 (当 usage_type 为 2 时才需要的字段)',
+    `status`          INT DEFAULT 0 COMMENT '申请状态，0：等待审核中；1：审核通过；2：审核拒绝',
+    apply_at          DATETIME NOT NULL COMMENT '授权申请时间',
+    audit_desc        VARCHAR(256) DEFAULT '' COMMENT '审核意见 (允许""字符)',
+    audit_at          DATETIME COMMENT '授权审核时间',
+    auth_sign         VARCHAR(1024) COMMENT '授权签名hex',
+    auth_status       INT DEFAULT 0 COMMENT '数据授权信息的状态 (0: 未知; 1: 还未发布的数据授权; 2: 已发布的数据授权; 3: 已撤销的数据授权 <失效前主动撤回的>; 4: 已经失效的数据授权 <过期or达到使用上限的>)',
+    update_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  COMMENT '修改时间',
     PRIMARY KEY (meta_data_auth_id)
 ) comment '元数据文件授权信息';
 
@@ -140,6 +149,9 @@ CREATE TABLE task (
     used_bandwidth BIGINT NOT NULL DEFAULT 0 COMMENT '使用的带宽, bps',
     used_file_size BIGINT  DEFAULT 0 COMMENT '使用的所有数据大小，字节',
     status int COMMENT '任务状态, 0:未知;1:等待中;2:计算中,3:失败;4:成功',
+    status_desc VARCHAR(255) COMMENT '任务状态说明',
+    remarks VARCHAR(255) COMMENT '任务描述',
+    task_sign VARCHAR(1024) COMMENT '任务签名',
     update_at         DATETIME     NOT NULL COMMENT '(状态)修改时间',
     PRIMARY KEY (ID)
 ) comment '任务';

@@ -10,8 +10,13 @@ public interface MetaDataAuthMapper {
     int deleteByPrimaryKey(String metaDataAuthId);
 
     int insert(MetaDataAuth record);
+    int insertSelective(MetaDataAuth record);
 
     MetaDataAuth selectByPrimaryKey(String metaDataAuthId);
+
+    int updateByPrimaryKey(MetaDataAuth record);
+
+    int updateByPrimaryKeySelective(MetaDataAuth record);
 
     void insertBatch(List<MetaDataAuth> metaDataAuthList);
 

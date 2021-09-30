@@ -66,7 +66,7 @@ public class MetaDataGrpcStubTest {
     @Test
     public void listMetadata() {
         log.info("start to test listMetadata()...");
-        LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-08 08:45:37",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime lastUpdated = LocalDateTime.parse("2021-08-28 08:45:37",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
 
         ListMetadataRequest request = ListMetadataRequest.newBuilder().setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000).build();

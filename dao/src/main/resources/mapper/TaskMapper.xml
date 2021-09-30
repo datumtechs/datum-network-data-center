@@ -20,12 +20,15 @@
     <result column="used_bandwidth" jdbcType="BIGINT" property="usedBandwidth" />
     <result column="used_file_size" jdbcType="BIGINT" property="usedFileSize" />
     <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="status_desc" jdbcType="VARCHAR" property="statusDesc" />
+    <result column="remarks" jdbcType="VARCHAR" property="remarks" />
+    <result column="task_sign" jdbcType="VARCHAR" property="taskSign" />
     <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
   </resultMap>
   <sql id="Base_Column_List">
       id, task_name, user_id, user_type, required_memory, required_core, required_bandwidth, required_duration,
     owner_identity_id, owner_party_id, create_at, start_at, end_at, used_memory, used_core, used_bandwidth, used_file_size,
-    status, update_at
+    status, status_desc, remarks, task_sign, update_at
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
@@ -42,12 +45,14 @@
       required_core, required_bandwidth, required_duration, 
       owner_identity_id, owner_party_id, create_at, start_at,
       end_at, used_memory, used_core, 
-      used_bandwidth, used_file_size, status, update_at)
+      used_bandwidth, used_file_size, status, status_desc, remarks, task_sign, update_at)
     values (#{id,jdbcType=VARCHAR}, #{taskName,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{userType,jdbcType=INTEGER}, #{requiredMemory,jdbcType=BIGINT},
       #{requiredCore,jdbcType=INTEGER}, #{requiredBandwidth,jdbcType=BIGINT}, #{requiredDuration,jdbcType=BIGINT}, 
       #{ownerIdentityId,jdbcType=VARCHAR}, #{ownerPartyId,jdbcType=VARCHAR}, #{createAt,jdbcType=TIMESTAMP}, #{startAt,jdbcType=TIMESTAMP},
       #{endAt,jdbcType=TIMESTAMP}, #{usedMemory,jdbcType=BIGINT}, #{usedCore,jdbcType=INTEGER}, 
-      #{usedBandwidth,jdbcType=BIGINT}, #{usedFileSize,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, CURRENT_TIMESTAMP())
+      #{usedBandwidth,jdbcType=BIGINT}, #{usedFileSize,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR},
+      #{statusDesc,jdbcType=VARCHAR}, #{remarks,jdbcType=VARCHAR}, #{taskSign,jdbcType=VARCHAR},
+      CURRENT_TIMESTAMP())
   </insert>
 
   <insert id="insertBatch">
@@ -55,14 +60,16 @@
       required_core, required_bandwidth, required_duration,
       owner_identity_id, owner_party_id, create_at, start_at,
       end_at, used_memory, used_core,
-      used_bandwidth, used_file_size, status, update_at)
+      used_bandwidth, used_file_size, status, status_desc, remarks, task_sign, update_at)
     values
     <foreach collection ="list" item="item" separator =",">
     (#{item.id,jdbcType=VARCHAR}, #{item.taskName,jdbcType=VARCHAR}, #{item.userId,jdbcType=VARCHAR}, #{item.userType,jdbcType=INTEGER}, #{item.requiredMemory,jdbcType=BIGINT},
       #{item.requiredCore,jdbcType=INTEGER}, #{item.requiredBandwidth,jdbcType=BIGINT}, #{item.requiredDuration,jdbcType=BIGINT},
       #{item.ownerIdentityId,jdbcType=VARCHAR}, #{item.ownerPartyId,jdbcType=VARCHAR}, #{item.createAt,jdbcType=TIMESTAMP}, #{item.startAt,jdbcType=TIMESTAMP},
       #{item.endAt,jdbcType=TIMESTAMP}, #{item.usedMemory,jdbcType=BIGINT}, #{item.usedCore,jdbcType=INTEGER},
-      #{item.usedBandwidth,jdbcType=BIGINT}, #{item.usedFileSize,jdbcType=BIGINT}, #{item.status,jdbcType=VARCHAR}, CURRENT_TIMESTAMP())
+      #{item.usedBandwidth,jdbcType=BIGINT}, #{item.usedFileSize,jdbcType=BIGINT}, #{item.status,jdbcType=VARCHAR},
+      #{item.statusDesc,jdbcType=VARCHAR}, #{item.remarks,jdbcType=VARCHAR}, #{item.taskSign,jdbcType=VARCHAR},
+      CURRENT_TIMESTAMP())
     </foreach>
   </insert>
 
@@ -87,6 +94,9 @@
       used_bandwidth = #{usedBandwidth,jdbcType=BIGINT},
       used_file_size = #{usedFileSize,jdbcType=BIGINT},
       status = #{status,jdbcType=VARCHAR},
+      status_desc = #{statusDesc,jdbcType=VARCHAR},
+      remarks = #{remarks,jdbcType=VARCHAR},
+      task_sign = #{taskSign,jdbcType=VARCHAR},
       update_at = CURRENT_TIMESTAMP()
     where id = #{id,jdbcType=VARCHAR}
   </update>

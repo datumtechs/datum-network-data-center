@@ -1,14 +1,18 @@
 package com.platon.metis.storage.service.impl;
 
+import com.google.protobuf.ByteString;
 import com.platon.metis.storage.common.exception.OrgNotFound;
 import com.platon.metis.storage.common.exception.TaskMetaDataNotFound;
 import com.platon.metis.storage.common.util.ValueUtils;
+import com.platon.metis.storage.dao.entity.TaskEvent;
 import com.platon.metis.storage.dao.entity.*;
 import com.platon.metis.storage.grpc.lib.api.MetadataSummaryOwner;
 import com.platon.metis.storage.grpc.lib.common.*;
 import com.platon.metis.storage.grpc.lib.types.*;
 import com.platon.metis.storage.service.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,7 +50,8 @@ public class ConvertorServiceImpl implements ConvertorService {
 
     @Autowired
     private TaskResultConsumerService taskResultConsumerService;
-
+    @Autowired
+    private TaskEventService taskEventService;
     /**
      * 对同一个任务的数据提供者进行分类，以便过滤出任务使用的metaData钟的column idx list
      *
@@ -85,8 +90,11 @@ public class ConvertorServiceImpl implements ConvertorService {
             log.error("task (taskId: {}) data (metadataId: {}) provider identity id: {} not found.", taskMetaData.getTaskId(), taskMetaData.getMetaDataId(), taskMetaData.getIdentityId());
             throw new OrgNotFound();
         }
+        DataFile dataFile = metaDataService.findByMetaDataId(taskMetaData.getMetaDataId());
+
         return com.platon.metis.storage.grpc.lib.types.TaskDataSupplier.newBuilder()
-                .setMetadataId(taskMetaData.getMetaDataId())
+                .setMetadataId(dataFile.getMetaDataId())
+                .setMetadataName(dataFile.getResourceName())
                 .setOrganization(this.toProtoTaskOrganization(orgInfo, taskMetaData.getPartyId()))
                 .setKeyColumn(toProtoMetadataColumn(columnMap.get(taskMetaData.getKeyColumnIdx()))) //主键列
                 .addAllSelectedColumns(metaDataColumnDetailList)    //参与计算列
@@ -196,7 +204,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                         .setMetadataId(dataFile.getMetaDataId())
                         .setTableName(dataFile.getFileName())
                         .setFilePath(dataFile.getFilePath())
-                        .setFileType(OriginFileType.valueOf(dataFile.getFileType()))
+                        .setFileType(OriginFileType.forNumber(dataFile.getFileType()))
                         .setHasTitle(dataFile.getHasTitle())
                         .setSize(dataFile.getSize().intValue())
                         .setRows(dataFile.getRows().intValue())
@@ -216,13 +224,11 @@ public class ConvertorServiceImpl implements ConvertorService {
 
     @Override
     public com.platon.metis.storage.grpc.lib.types.MetadataPB toProtoMetadataPB(DataFile dataFile) {
-        /*OrgInfo orgInfo = orgInfoService.findByPK(dataFile.getIdentityId());
+        OrgInfo orgInfo = orgInfoService.findByPK(dataFile.getIdentityId());
         if(orgInfo==null){
             log.error("identity not found. identityId:={}", dataFile.getIdentityId());
             throw new OrgNotFound();
         }
-        OrgInfo orgInfo = orgInfoService.findByPK(dataFile.getIdentityId());
-        */
 
         List<MetaDataColumn> metaDataColumnList = metaDataService.listMetaDataColumn(dataFile.getMetaDataId());
         List<MetadataColumn> metaDataColumnDetailList = metaDataColumnList.parallelStream().map(column -> {
@@ -231,17 +237,22 @@ public class ConvertorServiceImpl implements ConvertorService {
 
         return MetadataPB.newBuilder()
                 .setIdentityId(dataFile.getIdentityId())
+                .setNodeId(orgInfo.getNodeId())
+                .setNodeName(orgInfo.getOrgName())
                 .setOriginId(dataFile.getOriginId())
                 .setMetadataId(dataFile.getMetaDataId())
                 .setTableName(dataFile.getFileName())
                 .setFilePath(dataFile.getFilePath())
-                .setFileType(OriginFileType.valueOf(dataFile.getFileType()))
+                .setFileType(OriginFileType.forNumber(dataFile.getFileType()))
                 .setHasTitle(dataFile.getHasTitle())
                 .setSize(dataFile.getSize().intValue())
                 .setRows(dataFile.getRows().intValue())
                 .setColumns(dataFile.getColumns())
                 .setDesc(StringUtils.trimToEmpty(dataFile.getRemarks()))
                 .setState(MetadataState.forNumber(dataFile.getStatus()))
+                .setIndustry(dataFile.getIndustry())
+                .setDataStatus(DataStatus.forNumber(dataFile.getDfsDataStatus()))
+                .setDataId(dataFile.getDfsDataId())
                 .addAllMetadataColumns(metaDataColumnDetailList)
                 .build();
     }
@@ -255,16 +266,54 @@ public class ConvertorServiceImpl implements ConvertorService {
 
     @Override
     public MetadataAuthorityPB toProtoMetadataAuthorityPB(MetaDataAuth metaDataAuth) {
+        ByteString sign = ByteString.EMPTY;
+        if(StringUtils.isNotEmpty(metaDataAuth.getAuthSign())){
+            try {
+                 sign = ByteString.copyFrom(Hex.decodeHex(metaDataAuth.getAuthSign()));
+            } catch (DecoderException e) {
+                log.error("cannot decode the sign", e);
+            }
+        }
+
+        OrgInfo orgInfo = orgInfoService.findByPK(metaDataAuth.getUserIdentityId());
+        if (orgInfo == null) {
+            log.error("identity not found. identityId:={}", metaDataAuth.getUserIdentityId());
+            throw new OrgNotFound();
+        }
+
         return MetadataAuthorityPB.newBuilder()
                 .setMetadataAuthId(metaDataAuth.getMetaDataAuthId())
                 .setUser(metaDataAuth.getUserId())
+                .setDataId(metaDataAuth.getDfsDataId())
+                .setDataStatus(DataStatus.forNumber(metaDataAuth.getDfsDataStatus()))
                 .setUserType(UserType.forNumber(metaDataAuth.getUserType()))
-                .setApplyAt(metaDataAuth.getApplyAt().toInstant(ZoneOffset.UTC).toEpochMilli())
-                .setAuditOption(AuditMetadataOption.forNumber(metaDataAuth.getStatus()))
-                .setAuditAt(metaDataAuth.getApplyAt() == null ? 0 : metaDataAuth.getAuditAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .setAuth(MetadataAuthority.newBuilder()
                         .setMetadataId(metaDataAuth.getMetaDataId())
-                        .setOwner(Organization.newBuilder().setIdentityId(metaDataAuth.getUserIdentityId()).build()))
+                        .setOwner(Organization.newBuilder()
+                                .setIdentityId(metaDataAuth.getUserIdentityId())
+                                .setNodeId(orgInfo.getNodeId())
+                                .setNodeName(orgInfo.getOrgName())
+                                .setStatus(CommonStatus.forNumber(orgInfo.getStatus()))
+                                .build())
+                        .setUsageRule(MetadataUsageRule.newBuilder()
+                                .setUsageType(MetadataUsageType.forNumber(metaDataAuth.getAuthType()))
+                                .setTimes(metaDataAuth.getTimes())
+                                .setStartAt(metaDataAuth.getStartAt()==null?0:metaDataAuth.getStartAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+                                .setEndAt(metaDataAuth.getEndAt()==null?0:metaDataAuth.getEndAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+                                .build())
+                )
+                .setAuditOption(AuditMetadataOption.forNumber(metaDataAuth.getStatus()))
+                .setAuditSuggestion(StringUtils.trimToEmpty(metaDataAuth.getAuditDesc()))
+                .setUsedQuo(MetadataUsedQuo.newBuilder().setUsageType(MetadataUsageType.forNumber(metaDataAuth.getAuthType()))
+                        .setExpire(metaDataAuth.getExpired())
+                        .setUsedTimes(metaDataAuth.getUsedTimes())
+                        .build())
+
+                .setApplyAt(metaDataAuth.getApplyAt()==null?0:metaDataAuth.getApplyAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+
+                .setAuditAt(metaDataAuth.getAuditAt() == null ? 0 : metaDataAuth.getAuditAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setState(MetadataAuthorityState.forNumber(metaDataAuth.getAuthStatus()))
+                .setSign(sign)
                 .build();
     }
 
@@ -284,6 +333,9 @@ public class ConvertorServiceImpl implements ConvertorService {
         TaskAlgoProvider taskAlgoProvider = taskAlgoProviderService.findAlgoProviderByTaskId(task.getId());
         OrgInfo taskAlgoProviderOrgInfo = orgInfoService.findByPK(taskAlgoProvider.getIdentityId());
 
+        OrgInfo owner =  orgInfoService.findByPK(task.getOwnerIdentityId());
+
+
         List<TaskMetaData> taskMetaDataList = taskMetaDataService.listTaskMetaData(task.getId());
         if (CollectionUtils.isEmpty(taskMetaDataList)) {
             log.error("task metadata not found. taskId:={}", task.getId());
@@ -299,20 +351,42 @@ public class ConvertorServiceImpl implements ConvertorService {
 
         List<TaskResultConsumer> taskResultConsumerList = taskResultConsumerService.listTaskResultConsumer(task.getId());
 
+        List<TaskEvent> taskEventList = taskEventService.listTaskEventByTaskId(task.getId());
+
+        ByteString sign = ByteString.EMPTY;
+        if(StringUtils.isNotEmpty(task.getTaskSign())){
+            try {
+                sign = ByteString.copyFrom(Hex.decodeHex(task.getTaskSign()));
+            } catch (DecoderException e) {
+                log.error("cannot decode the task sign", e);
+            }
+        }
+
         return com.platon.metis.storage.grpc.lib.types.TaskPB.newBuilder()
+                .setIdentityId(owner.getIdentityId())
+                .setNodeId(owner.getNodeId())
+                .setNodeName(owner.getOrgName())
+                //.setDataId("")
+                //.setDataStatus(DataStatus.DataStatus_Unknown)
                 .setTaskId(task.getId())
                 .setTaskName(task.getTaskName())
+                .setState(TaskState.forNumber(task.getStatus())) //todo: to check is right
+                .setReason(StringUtils.trimToEmpty(task.getStatusDesc()))
+                .setEventCount(taskEventList.size())
+                .setDesc(StringUtils.trimToEmpty(task.getRemarks()))
                 .setCreateAt(task.getCreateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .setStartAt(task.getStartAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .setEndAt(task.getEndAt().toInstant(ZoneOffset.UTC).toEpochMilli())
-                .setState(TaskState.forNumber(task.getStatus())) //todo: to check is right
-                .setIdentityId(task.getOwnerIdentityId())
                 .setPartyId(task.getOwnerPartyId())
                 .setAlgoSupplier(toProtoTaskOrganization(taskAlgoProviderOrgInfo, taskAlgoProvider.getPartyId()))
                 .setOperationCost(com.platon.metis.storage.grpc.lib.common.TaskResourceCostDeclare.newBuilder().setProcessor(task.getRequiredCore()).setMemory(task.getRequiredMemory()).setBandwidth(task.getRequiredBandwidth()).setDuration(task.getRequiredDuration()).build())
                 .addAllDataSuppliers(toProtoDataSupplier(taskMetaDataList))
                 .addAllPowerSuppliers(toProtoPowerSupplier(taskPowerProviderList))
                 .addAllReceivers(toProtoResultReceiver(taskResultConsumerList))
+                .addAllTaskEvents(toProtoTaskEvent(taskEventList))
+                .setUser(task.getUserId())
+                .setUserType(UserType.forNumber(task.getUserType()))
+                .setSign(sign)
                 .build();
     }
 }

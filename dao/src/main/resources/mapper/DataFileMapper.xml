@@ -7,7 +7,7 @@
     <result column="identity_id" jdbcType="VARCHAR" property="identityId" />
     <result column="file_name" jdbcType="VARCHAR" property="fileName" />
     <result column="file_path" jdbcType="VARCHAR" property="filePath" />
-    <result column="file_type" jdbcType="VARCHAR" property="fileType" />
+    <result column="file_type" jdbcType="INTEGER" property="fileType" />
     <result column="resource_name" jdbcType="VARCHAR" property="resourceName" />
     <result column="industry" jdbcType="VARCHAR" property="industry" />
     <result column="size" jdbcType="BIGINT" property="size" />
@@ -19,10 +19,12 @@
     <result column="remarks" jdbcType="VARCHAR" property="remarks" />
     <result column="status" jdbcType="INTEGER" property="status" />
     <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
+    <result column="dfs_data_status" jdbcType="INTEGER" property="dfsDataStatus" />
+    <result column="dfs_data_id" jdbcType="VARCHAR" property="dfsDataId" />
   </resultMap>
   <sql id="Base_Column_List">
     meta_data_id, origin_id, identity_id, file_name, file_path, file_type, resource_name, industry, `size`, `rows`, columns,
-    published, published_at, has_title, remarks, status, update_at
+    published, published_at, has_title, remarks, status, update_at, dfs_data_status, dfs_data_id
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
@@ -40,13 +42,13 @@
       file_path, file_type, resource_name, industry,
       `size`, `rows`, columns,
       published, published_at, has_title, 
-      remarks, status, update_at
+      remarks, status, update_at, dfs_data_status, dfs_data_id
       )
     values ( #{metaDataId,jdbcType=VARCHAR}, #{originId,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR},
-      #{filePath,jdbcType=VARCHAR}, #{fileType,jdbcType=VARCHAR}, #{resourceName,jdbcType=VARCHAR}, #{industry,jdbcType=VARCHAR},
+      #{filePath,jdbcType=VARCHAR}, #{fileType,jdbcType=INTEGER}, #{resourceName,jdbcType=VARCHAR}, #{industry,jdbcType=VARCHAR},
       #{size,jdbcType=BIGINT}, #{rows,jdbcType=BIGINT}, #{columns,jdbcType=INTEGER},
       #{published,jdbcType=BIT}, #{publishedAt,jdbcType=TIMESTAMP}, #{hasTitle,jdbcType=BIT}, 
-      #{remarks,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, CURRENT_TIMESTAMP()
+      #{remarks,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, CURRENT_TIMESTAMP(), #{dfsDataStatus,jdbcType=INTEGER}, #{dfsDataId,jdbcType=VARCHAR}
       )
   </insert>
 
@@ -55,15 +57,15 @@
       file_path, file_type, resource_name, industry,
       `size`, `rows`, columns,
       published, published_at, has_title,
-      remarks, status, update_at
+      remarks, status, update_at, dfs_data_status, dfs_data_id
       )
     values
     <foreach collection ="list" item="item" separator =",">
     (#{item.metaDataId,jdbcType=VARCHAR}, #{item.originId,jdbcType=VARCHAR}, #{item.identityId,jdbcType=VARCHAR}, #{item.fileName,jdbcType=VARCHAR},
-      #{item.filePath,jdbcType=VARCHAR}, #{item.fileType,jdbcType=VARCHAR}, #{item.resourceName,jdbcType=VARCHAR}, #{item.industry,jdbcType=VARCHAR},
+      #{item.filePath,jdbcType=VARCHAR}, #{item.fileType,jdbcType=INTEGER}, #{item.resourceName,jdbcType=VARCHAR}, #{item.industry,jdbcType=VARCHAR},
       #{item.size,jdbcType=BIGINT}, #{item.rows,jdbcType=BIGINT}, #{item.columns,jdbcType=INTEGER},
       #{item.published,jdbcType=BIT}, #{item.publishedAt,jdbcType=TIMESTAMP}, #{item.hasTitle,jdbcType=BIT},
-      #{item.remarks,jdbcType=VARCHAR}, #{item.status,jdbcType=INTEGER}, CURRENT_TIMESTAMP()
+      #{item.remarks,jdbcType=VARCHAR}, #{item.status,jdbcType=INTEGER}, CURRENT_TIMESTAMP(), #{item.dfsDataStatus,jdbcType=INTEGER}, #{item.dfsDataId,jdbcType=VARCHAR}
       )
     </foreach>
   </insert>
@@ -120,6 +122,12 @@
       <if test="status != null">
         status,
       </if>
+      <if test="dfsDataStatus != null">
+        dfs_data_status,
+      </if>
+      <if test="dfsDataId != null">
+        dfs_data_id,
+      </if>
       update_at
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -139,7 +147,7 @@
         #{filePath,jdbcType=VARCHAR},
       </if>
       <if test="fileType != null">
-        #{fileType,jdbcType=VARCHAR},
+        #{fileType,jdbcType=INTEGER},
       </if>
       <if test="resourceName != null">
         #{resourceName,jdbcType=VARCHAR},
@@ -171,6 +179,12 @@
       <if test="status != null">
         #{status,jdbcType=INTEGER},
       </if>
+      <if test="dfsDataStatus != null">
+        #{dfsDataStatus},
+      </if>
+      <if test="dfsDataId != null">
+        #{dfsDataId},
+      </if>
       CURRENT_TIMESTAMP()
     </trim>
   </insert>
@@ -190,7 +204,7 @@
         file_path = #{filePath,jdbcType=VARCHAR},
       </if>
       <if test="fileType != null">
-        file_type = #{fileType,jdbcType=VARCHAR},
+        file_type = #{fileType,jdbcType=INTEGER},
       </if>
       <if test="resourceName != null">
         resource_name = #{resourceName,jdbcType=VARCHAR},
@@ -222,6 +236,12 @@
       <if test="status != null">
         status = #{status,jdbcType=INTEGER},
       </if>
+      <if test="dfsDataStatus != null">
+        dfs_data_status = #{dfsDataStatus},
+      </if>
+      <if test="dfsDataId != null">
+        dfs_data_id = #{dfsDataId},
+      </if>
       update_at
     </set>
     where meta_data_id = #{meta_data_id,jdbcType=VARCHAR}
@@ -232,7 +252,7 @@
       identity_id = #{identityId,jdbcType=VARCHAR},
       file_name = #{fileName,jdbcType=VARCHAR},
       file_path = #{filePath,jdbcType=VARCHAR},
-      file_type = #{fileType,jdbcType=VARCHAR},
+      file_type = #{fileType,jdbcType=INTEGER},
       resource_name = #{resourceName,jdbcType=VARCHAR},
       industry = #{industry,jdbcType=VARCHAR},
       `size` = #{size,jdbcType=BIGINT},
@@ -243,6 +263,8 @@
       has_title = #{hasTitle,jdbcType=BIT},
       remarks = #{remarks,jdbcType=VARCHAR},
       status = #{status,jdbcType=INTEGER},
+      dfs_data_status = #{dfsDataStatus,jdbcType=INTEGER},
+      dfs_data_id = #{dfsDataId},
       update_at = CURRENT_TIMESTAMP()
     where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </update>

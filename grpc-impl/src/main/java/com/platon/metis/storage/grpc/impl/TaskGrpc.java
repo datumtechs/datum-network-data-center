@@ -14,6 +14,7 @@ import com.platon.metis.storage.grpc.lib.types.TaskPowerSupplier;
 import com.platon.metis.storage.service.*;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,6 +94,9 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         task.setUserId(request.getTask().getUser());
         task.setUserType(request.getTask().getUserType().ordinal());
 
+        task.setTaskSign(Hex.encodeHexString(request.getTask().getSign().toByteArray()));
+        task.setRemarks(request.getTask().getDesc());
+
         //所需资源
         task.setRequiredBandwidth(request.getTask().getOperationCost().getBandwidth());
         task.setRequiredCore(request.getTask().getOperationCost().getProcessor());
@@ -112,6 +116,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
         //任务状态
         task.setStatus(request.getTask().getState().ordinal());
+        task.setStatusDesc(request.getTask().getReason());
 
         taskService.insert(task);
 

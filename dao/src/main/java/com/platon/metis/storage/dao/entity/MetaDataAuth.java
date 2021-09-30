@@ -13,6 +13,10 @@ public class MetaDataAuth {
 
     private String metaDataId;
 
+    private Integer dfsDataStatus;
+
+    private String dfsDataId;
+
     private Integer authType;
 
     private LocalDateTime startAt;
@@ -21,11 +25,23 @@ public class MetaDataAuth {
 
     private Integer times;
 
+    private Boolean expired;
+
+    private Integer usedTimes;
+
     private Integer status;
+
     private LocalDateTime applyAt;
+
+    private String auditDesc;
+
     private LocalDateTime auditAt;
 
+    private Integer authStatus;
+
     private LocalDateTime updateAt;
+
+    private String authSign;
 
     public String getMetaDataAuthId() {
         return metaDataAuthId;
@@ -67,6 +83,22 @@ public class MetaDataAuth {
         this.metaDataId = metaDataId;
     }
 
+    public Integer getDfsDataStatus() {
+        return dfsDataStatus;
+    }
+
+    public void setDfsDataStatus(Integer dfsDataStatus) {
+        this.dfsDataStatus = dfsDataStatus;
+    }
+
+    public String getDfsDataId() {
+        return dfsDataId;
+    }
+
+    public void setDfsDataId(String dfsDataId) {
+        this.dfsDataId = dfsDataId;
+    }
+
     public Integer getAuthType() {
         return authType;
     }
@@ -99,6 +131,22 @@ public class MetaDataAuth {
         this.times = times;
     }
 
+    public Boolean getExpired() {
+        return expired;
+    }
+
+    public void setExpired(Boolean expired) {
+        this.expired = expired;
+    }
+
+    public Integer getUsedTimes() {
+        return usedTimes;
+    }
+
+    public void setUsedTimes(Integer usedTimes) {
+        this.usedTimes = usedTimes;
+    }
+
     public Integer getStatus() {
         return status;
     }
@@ -115,6 +163,14 @@ public class MetaDataAuth {
         this.applyAt = applyAt;
     }
 
+    public String getAuditDesc() {
+        return auditDesc;
+    }
+
+    public void setAuditDesc(String auditDesc) {
+        this.auditDesc = auditDesc;
+    }
+
     public LocalDateTime getAuditAt() {
         return auditAt;
     }
@@ -123,11 +179,27 @@ public class MetaDataAuth {
         this.auditAt = auditAt;
     }
 
+    public Integer getAuthStatus() {
+        return authStatus;
+    }
+
+    public void setAuthStatus(Integer authStatus) {
+        this.authStatus = authStatus;
+    }
+
     public LocalDateTime getUpdateAt() {
         return updateAt;
     }
 
     public void setUpdateAt(LocalDateTime updateAt) {
         this.updateAt = updateAt;
+    }
+
+    public String getAuthSign() {
+        return authSign;
+    }
+
+    public void setAuthSign(String authSign) {
+        this.authSign = authSign;
     }
 }

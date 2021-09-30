@@ -18,8 +18,8 @@ public class MetaDataAuthServiceImpl implements MetaDataAuthService {
     private MetaDataAuthMapper metaDataAuthMapper;
 
     @Override
-    public int insert(MetaDataAuth metaDataAuth) {
-        return metaDataAuthMapper.insert(metaDataAuth);
+    public int insertSelective(MetaDataAuth metaDataAuth) {
+        return metaDataAuthMapper.insertSelective(metaDataAuth);
     }
 
     @Override
@@ -30,6 +30,12 @@ public class MetaDataAuthServiceImpl implements MetaDataAuthService {
     @Override
     public int updateStatus(String metaDataAuthId, int status) {
         return metaDataAuthMapper.updateStatus(metaDataAuthId, status);
+    }
+
+
+    @Override
+    public int updateSelective(MetaDataAuth metaDataAuth) {
+        return metaDataAuthMapper.updateByPrimaryKeySelective(metaDataAuth);
     }
 
     @Override

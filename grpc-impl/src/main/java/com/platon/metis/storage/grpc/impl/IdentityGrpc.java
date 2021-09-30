@@ -1,9 +1,13 @@
 package com.platon.metis.storage.grpc.impl;
 
+import com.platon.metis.storage.common.exception.BizException;
 import com.platon.metis.storage.dao.entity.MetaDataAuth;
 import com.platon.metis.storage.dao.entity.OrgInfo;
 import com.platon.metis.storage.grpc.lib.api.*;
-import com.platon.metis.storage.grpc.lib.common.*;
+import com.platon.metis.storage.grpc.lib.common.CommonStatus;
+import com.platon.metis.storage.grpc.lib.common.MetadataUsageType;
+import com.platon.metis.storage.grpc.lib.common.Organization;
+import com.platon.metis.storage.grpc.lib.common.SimpleResponse;
 import com.platon.metis.storage.grpc.lib.types.MetadataAuthorityPB;
 import com.platon.metis.storage.service.ConvertorService;
 import com.platon.metis.storage.service.MetaDataAuthService;
@@ -11,6 +15,8 @@ import com.platon.metis.storage.service.OrgInfoService;
 import io.grpc.Status;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -135,22 +141,11 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
                                       io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
         log.debug("saveMetadataAuthority, request:{}", request);
 
-        MetaDataAuth metaDataAuth = new MetaDataAuth();
-        metaDataAuth.setMetaDataAuthId(request.getMetadataAuthority().getMetadataAuthId());
-        metaDataAuth.setUserId(request.getMetadataAuthority().getUser());
-        metaDataAuth.setUserType(request.getMetadataAuthority().getUserType().ordinal());
-        metaDataAuth.setMetaDataId(request.getMetadataAuthority().getAuth().getMetadataId());
-        metaDataAuth.setAuthType(request.getMetadataAuthority().getAuth().getUsageRule().getUsageType().ordinal());
-        metaDataAuth.setUserIdentityId(request.getMetadataAuthority().getAuth().getOwner().getIdentityId());
+        MetaDataAuth metaDataAuth = convertMetadataAuthorityPB(request.getMetadataAuthority());
 
-        if(metaDataAuth.getAuthType() == MetadataUsageType.Usage_Period.ordinal()){
-            metaDataAuth.setEndAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getMetadataAuthority().getAuth().getUsageRule().getEndAt()), ZoneOffset.UTC));
-        } else if (metaDataAuth.getAuthType() == MetadataUsageType.Usage_Times.ordinal()){
-            metaDataAuth.setTimes(request.getMetadataAuthority().getAuth().getUsageRule().getTimes());
-        }
-        metaDataAuth.setStatus(AuditMetadataOption.Audit_Pending.ordinal());
+       // metaDataAuth.setStatus(AuditMetadataOption.Audit_Pending.ordinal());
 
-        metaDataAuthService.insert(metaDataAuth);
+        metaDataAuthService.insertSelective(metaDataAuth);
 
         SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
 
@@ -161,6 +156,39 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
         responseObserver.onCompleted();
     }
 
+    private static MetaDataAuth convertMetadataAuthorityPB(MetadataAuthorityPB metadataAuthorityPB){
+        MetaDataAuth metaDataAuth = new MetaDataAuth();
+        metaDataAuth.setMetaDataAuthId(metadataAuthorityPB.getMetadataAuthId());
+        metaDataAuth.setUserId(metadataAuthorityPB.getUser());
+        metaDataAuth.setUserType(metadataAuthorityPB.getUserType().ordinal());
+        metaDataAuth.setMetaDataId(metadataAuthorityPB.getAuth().getMetadataId());
+        metaDataAuth.setAuthType(metadataAuthorityPB.getAuth().getUsageRule().getUsageType().ordinal());
+        metaDataAuth.setUserIdentityId(metadataAuthorityPB.getAuth().getOwner().getIdentityId());
+        metaDataAuth.setDfsDataId(metadataAuthorityPB.getDataId());
+        metaDataAuth.setDfsDataStatus(metadataAuthorityPB.getDataStatusValue());
+        if(metadataAuthorityPB.getApplyAt()>0) {
+            metaDataAuth.setApplyAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(metadataAuthorityPB.getApplyAt()), ZoneOffset.UTC));
+        }
+        if(metadataAuthorityPB.getAuditAt()>0) {
+            metaDataAuth.setAuditAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(metadataAuthorityPB.getAuditAt()), ZoneOffset.UTC));
+        }
+        metaDataAuth.setStatus(metadataAuthorityPB.getAuditOption().getNumber());
+        metaDataAuth.setAuditDesc(metadataAuthorityPB.getAuditSuggestion());
+
+        metaDataAuth.setAuthSign(Hex.encodeHexString(metadataAuthorityPB.getSign().toByteArray()));
+        metaDataAuth.setAuthStatus(metadataAuthorityPB.getStateValue());
+
+        if(metaDataAuth.getAuthType() == MetadataUsageType.Usage_Period.ordinal()){
+            metaDataAuth.setStartAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(metadataAuthorityPB.getAuth().getUsageRule().getStartAt()), ZoneOffset.UTC));
+            metaDataAuth.setEndAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(metadataAuthorityPB.getAuth().getUsageRule().getEndAt()), ZoneOffset.UTC));
+            metaDataAuth.setExpired(metadataAuthorityPB.getUsedQuo().getExpire());
+        } else if (metaDataAuth.getAuthType() == MetadataUsageType.Usage_Times.ordinal()){
+            metaDataAuth.setTimes(metadataAuthorityPB.getAuth().getUsageRule().getTimes());
+            metaDataAuth.setUsedTimes(metadataAuthorityPB.getUsedQuo().getUsedTimes());
+        }
+
+        return metaDataAuth;
+    }
 
     /**
      * <pre>
@@ -173,7 +201,9 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
         log.debug("findMetadataAuthority, request:{}", request);
 
         MetaDataAuth metaDataAuth = metaDataAuthService.findByPK(request.getMetadataAuthId());
-
+        if(metaDataAuth==null){
+            throw new BizException(-1, "metadata authority not found");
+        }
         MetadataAuthorityPB metadataAuthorityPB = this.convertorService.toProtoMetadataAuthorityPB(metaDataAuth);
 
         FindMetadataAuthorityResponse response = FindMetadataAuthorityResponse.newBuilder()
@@ -197,8 +227,9 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
                                        io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
 
         log.debug("updateMetadataAuthority, request:{}", request);
+        MetaDataAuth metaDataAuth = convertMetadataAuthorityPB(request.getMetadataAuthority());
 
-        metaDataAuthService.updateStatus(request.getMetadataAuthority().getMetadataAuthId(), request.getMetadataAuthority().getAuditOption().ordinal());
+        metaDataAuthService.updateSelective(metaDataAuth);
 
         SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
 
@@ -228,14 +259,20 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
 
         }
         String identityId = request.getIdentityId();
-
         List<MetaDataAuth> metaDataAuthList = metaDataAuthService.syncMetaDataAuth(identityId, lastUpdateAt);
-        List<MetadataAuthorityPB> metaDataAuthorityDetailList = metaDataAuthList.parallelStream().map(metaDataAuth -> {
-            return this.convertorService.toProtoMetadataAuthorityPB(metaDataAuth);
-        }).collect(Collectors.toList());
 
-        ListMetadataAuthorityResponse response = ListMetadataAuthorityResponse.newBuilder().addAllMetadataAuthorities(metaDataAuthorityDetailList).build();
 
+        ListMetadataAuthorityResponse response ;
+        if(CollectionUtils.isEmpty(metaDataAuthList)) {
+            response = ListMetadataAuthorityResponse.newBuilder().build();
+
+        }else{
+            List<MetadataAuthorityPB> metaDataAuthorityDetailList = metaDataAuthList.parallelStream().map(metaDataAuth -> {
+                return this.convertorService.toProtoMetadataAuthorityPB(metaDataAuth);
+            }).collect(Collectors.toList());
+
+            response = ListMetadataAuthorityResponse.newBuilder().addAllMetadataAuthorities(metaDataAuthorityDetailList).build();
+        }
         log.debug("listMetadataAuthority response:{}", response);
 
         // 返回

@@ -39,6 +39,12 @@ public class Task {
 
     private Integer status;
 
+    private String statusDesc;
+
+    private String remarks;
+
+    private String taskSign;
+
     private LocalDateTime updateAt;
 
     public String getId() {
@@ -169,6 +175,14 @@ public class Task {
         this.status = status;
     }
 
+    public String getStatusDesc() {
+        return statusDesc;
+    }
+
+    public void setStatusDesc(String statusDesc) {
+        this.statusDesc = statusDesc;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -185,11 +199,27 @@ public class Task {
         this.userType = userType;
     }
 
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
     public LocalDateTime getUpdateAt() {
         return updateAt;
     }
 
     public void setUpdateAt(LocalDateTime updateAt) {
         this.updateAt = updateAt;
+    }
+
+    public String getTaskSign() {
+        return taskSign;
+    }
+
+    public void setTaskSign(String taskSign) {
+        this.taskSign = taskSign;
     }
 }

@@ -1,10 +1,7 @@
 package com.platon.metis.storage.service;
 
 import com.platon.metis.storage.dao.entity.*;
-import com.platon.metis.storage.grpc.lib.common.CommonStatus;
-import com.platon.metis.storage.grpc.lib.common.DataStatus;
-import com.platon.metis.storage.grpc.lib.common.MetadataState;
-import com.platon.metis.storage.grpc.lib.common.TaskState;
+import com.platon.metis.storage.grpc.lib.common.*;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.buf.HexUtils;
@@ -103,7 +100,7 @@ public class MockData {
                 dataFile.setIdentityId(identityId);
                 dataFile.setMetaDataId(metaDataId);
                 dataFile.setFileName("fileName_" + extID);
-                dataFile.setFileType("csv");
+                dataFile.setFileType(1);
                 dataFile.setFilePath("/opt/usr/data");
                 dataFile.setResourceName("resourceName_" + extID);
                 dataFile.setIndustry("金融行业");
@@ -177,6 +174,12 @@ public class MockData {
         }
         powerServerService.insert(powerServerList);
     }
+
+    @Test
+    public void testFileType(){
+        System.out.println(OriginFileType.forNumber(1));
+    }
+
     @Test
     public void initMockData() {
         List<OrgInfo> orgInfoList = new ArrayList<>();
@@ -245,7 +248,7 @@ public class MockData {
                 dataFile.setIdentityId(identityId);
                 dataFile.setMetaDataId(metaDataId);
                 dataFile.setFileName("fileName_" + extID);
-                dataFile.setFileType("csv");
+                dataFile.setFileType(1);
                 dataFile.setFilePath("/opt/usr/data");
                 dataFile.setResourceName("resourceName_" + extID);
                 dataFile.setIndustry("金融行业");
@@ -315,6 +318,9 @@ public class MockData {
             task.setUsedMemory(1000000L);
             task.setUsedBandwidth(1000000L);
             task.setStatus(TaskState.TaskState_Succeed.ordinal());
+            task.setStatusDesc("success");
+            task.setRemarks("test task");
+            task.setTaskSign("307836313933366136636234373038333932376438666565613834646631383965363730303334383037646264313266383661376661353364613434396235313334353530633138373365373732316336633066366636373063656164616538363066373434386537656336633739663232393163333737343934663732313664613162");
 
             taskList.add(task);
             //taskService.insert(task);
@@ -378,15 +384,33 @@ public class MockData {
 
                 //每个任务的metaData，都授权给任务的参与者，包括发起者，其它数据提供者，算力提供者
                 MetaDataAuth metaDataAuth = new MetaDataAuth();
-                metaDataAuth.setMetaDataId(taskMetaData.getMetaDataId());
                 metaDataAuth.setMetaDataAuthId(UUID.randomUUID().toString());
-                metaDataAuth.setStatus(1);//审核通过
-                metaDataAuth.setApplyAt(LocalDateTime.now(ZoneOffset.UTC));
-                metaDataAuth.setUserIdentityId(task.getOwnerIdentityId());
                 metaDataAuth.setUserId(task.getUserId());
-                metaDataAuth.setUserType(1);
-                metaDataAuth.setAuthType(2);  //2: 按照次数来使用
-                metaDataAuth.setTimes(100);
+                metaDataAuth.setUserType(UserType.User_ETH_VALUE);
+                metaDataAuth.setMetaDataId(taskMetaData.getMetaDataId());
+                metaDataAuth.setAuthType(MetadataUsageType.Usage_Times_VALUE);
+                metaDataAuth.setUserIdentityId(task.getOwnerIdentityId());
+                metaDataAuth.setDfsDataId(taskMetaData.getMetaDataId());
+                metaDataAuth.setDfsDataStatus(DataStatus.DataStatus_Normal_VALUE);
+                metaDataAuth.setApplyAt(LocalDateTime.now());
+                metaDataAuth.setAuditAt(LocalDateTime.now());
+                metaDataAuth.setStatus(AuditMetadataOption.Audit_Passed_VALUE);
+                metaDataAuth.setAuditDesc("audit suggestion");
+
+                String sign = "b3d49c3804d7e71487b24744f11a968baa9dce99a8706f8c87dcaf482b9437d66e0115719cc9668d3b6472f6a629766dc0bb9625ffb698dc0b48496e996833a61b";
+                byte[] bytes = HexUtils.fromHexString(sign);
+
+                metaDataAuth.setAuthSign(sign);
+                metaDataAuth.setAuthStatus(MetadataAuthorityState.MAState_Released_VALUE);
+
+                if(metaDataAuth.getAuthType() == MetadataUsageType.Usage_Period.ordinal()){
+                    metaDataAuth.setStartAt(LocalDateTime.now());
+                    metaDataAuth.setEndAt(LocalDateTime.now());
+                    metaDataAuth.setExpired(false);
+                } else if (metaDataAuth.getAuthType() == MetadataUsageType.Usage_Times.ordinal()){
+                    metaDataAuth.setTimes(1000);
+                    metaDataAuth.setUsedTimes(10);
+                }
                 metaDataAuthList.add(metaDataAuth);
             }
 

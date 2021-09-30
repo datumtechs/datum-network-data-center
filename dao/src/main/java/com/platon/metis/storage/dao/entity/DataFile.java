@@ -13,7 +13,7 @@ public class DataFile {
 
     private String filePath;
 
-    private String fileType;
+    private Integer fileType;
 
     private String resourceName;
 
@@ -36,6 +36,9 @@ public class DataFile {
     private Integer status;
 
     private LocalDateTime updateAt;
+
+    private Integer dfsDataStatus;
+    private String dfsDataId;
 
     public String getOriginId() {
         return originId;
@@ -69,11 +72,11 @@ public class DataFile {
         this.filePath = filePath;
     }
 
-    public String getFileType() {
+    public Integer getFileType() {
         return fileType;
     }
 
-    public void setFileType(String fileType) {
+    public void setFileType(Integer fileType) {
         this.fileType = fileType;
     }
 
@@ -171,5 +174,21 @@ public class DataFile {
 
     public void setUpdateAt(LocalDateTime updateAt) {
         this.updateAt = updateAt;
+    }
+
+    public Integer getDfsDataStatus() {
+        return dfsDataStatus;
+    }
+
+    public void setDfsDataStatus(Integer dfsDataStatus) {
+        this.dfsDataStatus = dfsDataStatus;
+    }
+
+    public String getDfsDataId() {
+        return dfsDataId;
+    }
+
+    public void setDfsDataId(String dfsDataId) {
+        this.dfsDataId = dfsDataId;
     }
 }

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -46,7 +47,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         dataFile.setMetaDataId(request.getMetadata().getDataId());
         dataFile.setFileName(request.getMetadata().getTableName());
         dataFile.setFilePath(request.getMetadata().getFilePath());
-        dataFile.setFileType(request.getMetadata().getFileType().name());
+        dataFile.setFileType(request.getMetadata().getFileType().getNumber());
         dataFile.setIdentityId(request.getMetadata().getIdentityId());
         dataFile.setHasTitle(request.getMetadata().getHasTitle());
         dataFile.setResourceName(request.getMetadata().getTableName());
@@ -57,6 +58,10 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         dataFile.setPublishedAt(LocalDateTime.now(ZoneOffset.UTC));
         dataFile.setPublished(true);
         dataFile.setStatus(request.getMetadata().getState().ordinal());
+        dataFile.setIndustry(request.getMetadata().getIndustry());
+        dataFile.setDfsDataId(request.getMetadata().getDataId());
+        dataFile.setDfsDataStatus(request.getMetadata().getDataStatus().getNumber());
+
 
         List<MetaDataColumn> metaDataColumnList = request.getMetadata().getMetadataColumnsList().stream().map(column -> {
             MetaDataColumn metaDataColumn = new MetaDataColumn();
@@ -121,24 +126,27 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
 
         List<DataFile> dataFileList = metaDataService.syncDataFile(lastUpdateAt);
 
-        List<MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
+        ListMetadataResponse response;
 
-        List<MetadataPB> metadataList = mtadataPBList.parallelStream().map(metadataPB -> {
-            String metaDataId = metadataPB.getMetadataId();
+        if(CollectionUtils.isEmpty(dataFileList)) {
+            response = ListMetadataResponse.newBuilder().build();
+        }else{
 
-            List<MetaDataColumn> metaDataColumnList = metaDataService.listMetaDataColumn(metaDataId);
-            List<MetadataColumn> metaDataColumnDetailList = metaDataColumnList.parallelStream().map(column ->{
-                return this.convertorService.toProtoMetaDataColumnDetail(column);
-            }).collect(Collectors.toList());
+            List<MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
 
-            return MetadataPB.newBuilder()
-                    .setIdentityId(metadataPB.getIdentityId())
-                    .addAllMetadataColumns(metaDataColumnDetailList)
-                    .build();
+             mtadataPBList.parallelStream().forEach(metadataPB -> {
+                String metaDataId = metadataPB.getMetadataId();
 
-        }).collect(Collectors.toList());
+                List<MetaDataColumn> metaDataColumnList = metaDataService.listMetaDataColumn(metaDataId);
+                List<MetadataColumn> metaDataColumnDetailList = metaDataColumnList.parallelStream().map(column ->{
+                    return this.convertorService.toProtoMetaDataColumnDetail(column);
+                }).collect(Collectors.toList());
 
-        ListMetadataResponse response = ListMetadataResponse.newBuilder().addAllMetadata(metadataList).build();
+                metadataPB.toBuilder().addAllMetadataColumns(metaDataColumnDetailList);
+
+            });
+            response = ListMetadataResponse.newBuilder().addAllMetadata(mtadataPBList).build();
+        }
 
         log.debug("listMetadata, response:{}", response);
 
