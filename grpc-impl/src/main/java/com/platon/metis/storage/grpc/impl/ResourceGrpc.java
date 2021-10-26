@@ -155,6 +155,8 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
                     .setUsedProcessor(ValueUtils.intValue(powerServer.getUsedCore()))
                     .setUsedMem(ValueUtils.longValue(powerServer.getUsedMemory()))
                     .setUsedBandwidth(ValueUtils.longValue(powerServer.getUsedBandwidth()))
+                    .setPublishAt(powerServer.getPublishedAt()==null?0:powerServer.getPublishedAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+                    .setUpdateAt(powerServer.getUpdateAt()==null?0:powerServer.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                     .build();
         }).collect(Collectors.toList());
 

@@ -1,6 +1,7 @@
 package com.platon.metis.storage.service.impl;
 
 import com.google.protobuf.ByteString;
+import com.platon.metis.storage.common.exception.MetaDataNotFound;
 import com.platon.metis.storage.common.exception.OrgNotFound;
 import com.platon.metis.storage.common.exception.TaskMetaDataNotFound;
 import com.platon.metis.storage.common.util.ValueUtils;
@@ -72,8 +73,28 @@ public class ConvertorServiceImpl implements ConvertorService {
 
 
     private com.platon.metis.storage.grpc.lib.types.TaskDataSupplier toProtoDataSupplier(TaskMetaData taskMetaData) {
+
+        //一个meta data id 属于一个data_file，也属于确定的组织
+        OrgInfo orgInfo = orgInfoService.findByPK(taskMetaData.getIdentityId());
+        if (orgInfo == null) {
+            log.error("task (taskId: {}) data (metadataId: {}) provider identity id: {} not found.", taskMetaData.getTaskId(), taskMetaData.getMetaDataId(), taskMetaData.getIdentityId());
+            throw new OrgNotFound();
+        }
+
+
         //meta data column的全集
         List<MetaDataColumn> metaDataColumnList = metaDataService.listMetaDataColumn(taskMetaData.getMetaDataId());
+        if(metaDataColumnList==null || metaDataColumnList.size()==0){
+            log.warn("there's no task medata columns.");
+            return com.platon.metis.storage.grpc.lib.types.TaskDataSupplier.newBuilder()
+                    .setMetadataId(taskMetaData.getMetaDataId())
+                    .setMetadataName("")
+                    .setOrganization(this.toProtoTaskOrganization(orgInfo, taskMetaData.getPartyId()))
+                    .setKeyColumn(MetadataColumn.newBuilder())   //主键列
+                    .addAllSelectedColumns(new ArrayList<>())    //参与计算列
+                    .build();
+        }
+
         Map<Integer, MetaDataColumn> columnMap = metaDataColumnList.stream().collect(Collectors.toMap(MetaDataColumn::getColumnIdx, obj -> obj));
 
         //把任务所用meta data column子集的参数补齐
@@ -84,13 +105,12 @@ public class ConvertorServiceImpl implements ConvertorService {
                     return toProtoMetadataColumn(column);
                 }).collect(Collectors.toList());
 
-        //一个meta data id 属于一个data_file，也属于确定的组织
-        OrgInfo orgInfo = orgInfoService.findByPK(taskMetaData.getIdentityId());
-        if (orgInfo == null) {
-            log.error("task (taskId: {}) data (metadataId: {}) provider identity id: {} not found.", taskMetaData.getTaskId(), taskMetaData.getMetaDataId(), taskMetaData.getIdentityId());
-            throw new OrgNotFound();
-        }
+
         DataFile dataFile = metaDataService.findByMetaDataId(taskMetaData.getMetaDataId());
+        if(dataFile==null){
+            log.error("metadata not found, metadataId:{}", taskMetaData.getMetaDataId());
+            throw new MetaDataNotFound();
+        }
 
         return com.platon.metis.storage.grpc.lib.types.TaskDataSupplier.newBuilder()
                 .setMetadataId(dataFile.getMetaDataId())
@@ -175,6 +195,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setContent(taskEvent.getEventContent())
                 .setCreateAt(taskEvent.getEventAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .setIdentityId(taskEvent.getIdentityId())
+                .setPartyId(taskEvent.getPartyId())
                 .build();
     }
 
@@ -253,6 +274,8 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setIndustry(dataFile.getIndustry())
                 .setDataStatus(DataStatus.forNumber(dataFile.getDfsDataStatus()))
                 .setDataId(dataFile.getDfsDataId())
+                .setPublishAt(dataFile.getPublishedAt()==null?0:dataFile.getPublishedAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setUpdateAt(dataFile.getUpdateAt()==null?0:dataFile.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .addAllMetadataColumns(metaDataColumnDetailList)
                 .build();
     }
@@ -302,7 +325,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                                 .setEndAt(metaDataAuth.getEndAt()==null?0:metaDataAuth.getEndAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                                 .build())
                 )
-                .setAuditOption(AuditMetadataOption.forNumber(metaDataAuth.getStatus()))
+                .setAuditOption(AuditMetadataOption.forNumber(metaDataAuth.getAuditOption()))
                 .setAuditSuggestion(StringUtils.trimToEmpty(metaDataAuth.getAuditDesc()))
                 .setUsedQuo(MetadataUsedQuo.newBuilder().setUsageType(MetadataUsageType.forNumber(metaDataAuth.getAuthType()))
                         .setExpire(metaDataAuth.getExpired())

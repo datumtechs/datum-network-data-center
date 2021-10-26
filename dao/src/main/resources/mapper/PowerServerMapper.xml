@@ -117,12 +117,12 @@
   <select id ="listPowerSummaryGroupByOrgId" resultMap="OrgPowerTaskSummaryResultMap">
     select o.identity_id, o.org_name, a.core, a.memory, a.bandwidth, ifnull(a.used_core,0) as used_core, ifnull(a.used_memory,0) as used_memory, ifnull(a.used_bandwidth,0) as used_bandwidth, ifnull(b.power_task_count,0) as power_task_count
     from org_info o
-    left join (
+           join (
       select identity_id, sum(core) as core, sum(memory) as memory, sum(bandwidth) as bandwidth, sum(used_core) as used_core, sum(used_memory) as used_memory, sum(used_bandwidth) as used_bandwidth
       from power_server
       group by identity_id
     ) a on o.identity_id = a.identity_id
-    left join (
+           left join (
       select identity_id, count(task_id) as power_task_count
       from task_power_provider
       group by identity_id

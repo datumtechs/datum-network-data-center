@@ -29,6 +29,8 @@ message MetadataPB {
   bool                        has_title = 16;                 // 元数据对应原始文件是否有标题行 (true: 包含; false: 不包含)
   repeated MetadataColumn     metadata_columns = 17;          // 元数据对应原始文件对外暴露的列描述列表
   string                      industry = 18;                  // 元数据所属的行业
+  uint64                      publish_at = 19;                // 元数据发布时间, 由数据中心确定，（UTC毫秒数）
+  uint64                      update_at = 20;                 // 元数据修改时间, 由数据中心确定，（UTC毫秒数，修改操作一般就是撤消）
 }
 
 // 元数据中的列描述
@@ -55,6 +57,8 @@ message MetadataAuthorityPB {
   uint64                                      audit_at = 11;             // 审核授权申请的时间 (单位: ms)
   api.protobuf.MetadataAuthorityState         state = 12;               // 数据授权信息的状态 (0: 未知; 1: 还未发布的数据授权; 2: 已发布的数据授权; 3: 已撤销的数据授权 <失效前主动撤回的>; 4: 已经失效的数据授权 <过期or达到使用上限的>)
   bytes                                       sign = 13;
+  uint64                                      publish_at = 14;          // 数据发布时间
+  uint64                                      update_at = 15;           // 数据更新时间
 }
 
 // =============================== For API =========================
@@ -72,6 +76,8 @@ message MetadataSummary {
   bool                          has_title = 10;             // 源文件是否包含标题 (true: 包含; false: 不包含)
   string                        industry = 11;              // 元数据所属行业
   api.protobuf.MetadataState    state = 12;                 // 元数据的状态 (0: 未知; 1: 还未发布的新表; 2: 已发布的表; 3: 已撤销的表)
+  uint64                        publish_at = 13;            // 数据发布时间
+  uint64                        update_at = 14;             // 数据更新时间
 }
 
 // 元数据的详情信息

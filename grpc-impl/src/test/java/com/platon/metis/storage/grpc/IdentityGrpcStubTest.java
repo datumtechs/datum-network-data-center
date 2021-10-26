@@ -109,7 +109,7 @@ public class IdentityGrpcStubTest {
     public void SaveMetadataAuthority() throws DecoderException {
         log.info("start to test SaveMetadataAuthority()...");
 
-        String signStr = "0xb3d49c3804d7e71487b24744f11a968baa9dce99a8706f8c87dcaf482b9437d66e0115719cc9668d3b6472f6a629766dc0bb9625ffb698dc0b48496e996833a61b";
+        String signStr = "b3d49c3804d7e71487b24744f11a968baa9dce99a8706f8c87dcaf482b9437d66e0115719cc9668d3b6472f6a629766dc0bb9625ffb698dc0b48496e996833a61b";
         byte[] bytes = Hex.decodeHex(signStr);
         ByteString sign = ByteString.copyFromUtf8(signStr);
         sign = ByteString.EMPTY;

@@ -32,6 +32,8 @@ message ResourcePB {
   uint64 used_bandwidth = 12;                     // 算力已使用带宽数 (单位: bps)
   uint64 total_disk = 13;                         // 算力总磁盘容量 (单位: byte)
   uint64 used_disk = 14;                          // 算力已使用磁盘容量 (单位: byte)
+  uint64 publish_at = 16;                         // 算力发布时间, 由数据中心确定，（UTC毫秒数）
+  uint64 update_at = 17;                          // 算力修改时间, 由数据中心确定，（UTC毫秒数，修改操作一般就是撤消）
 }
 
 // 单个组织中的单台服务的算力信息

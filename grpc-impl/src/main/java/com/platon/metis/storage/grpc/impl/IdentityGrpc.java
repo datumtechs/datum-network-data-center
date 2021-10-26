@@ -172,7 +172,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
         if(metadataAuthorityPB.getAuditAt()>0) {
             metaDataAuth.setAuditAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(metadataAuthorityPB.getAuditAt()), ZoneOffset.UTC));
         }
-        metaDataAuth.setStatus(metadataAuthorityPB.getAuditOption().getNumber());
+        metaDataAuth.setAuditOption(metadataAuthorityPB.getAuditOption().getNumber());
         metaDataAuth.setAuditDesc(metadataAuthorityPB.getAuditSuggestion());
 
         metaDataAuth.setAuthSign(Hex.encodeHexString(metadataAuthorityPB.getSign().toByteArray()));

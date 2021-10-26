@@ -146,7 +146,8 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
                 taskMetaDataList.add(taskMetaData);
 
                 if(CollectionUtils.isEmpty(dataSupplier.getSelectedColumnsList())) {
-                    throw new TaskMetaDataNotFound();
+                    log.warn("there's no task metadata column.");
+                    //throw new TaskMetaDataNotFound();
                 }else {
                     for (MetadataColumn selectedColumn : dataSupplier.getSelectedColumnsList()) {
                         TaskMetaDataColumn taskMetaDataColumn = new TaskMetaDataColumn();
@@ -216,6 +217,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
                 taskEvent.setEventAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getCreateAt()), ZoneOffset.UTC));
                 taskEvent.setEventType(event.getType());
                 taskEvent.setIdentityId(event.getIdentityId());
+                taskEvent.setPartyId(event.getPartyId());
                 taskEvent.setEventContent(event.getContent());
                 taskEventList.add(taskEvent);
             }

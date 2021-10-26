@@ -103,7 +103,7 @@ public class TaskServiceGrpcStubTest {
         LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-08 08:49:24",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         ListTaskByIdentityRequest request = ListTaskByIdentityRequest.newBuilder()
-                .setIdentityId("identity_a3876b82060f4eafbca7257692f1b285")
+                .setIdentityId("identity_b2b2e609a81542558bef5b755b9aaa5c")
                 .setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000)
                 .build();
         ListTaskResponse response = taskServiceBlockingStub.listTaskByIdentity(request);

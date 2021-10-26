@@ -110,7 +110,7 @@ public class MockData {
                 dataFile.setHasTitle(true);
                 dataFile.setPublished(true);
                 dataFile.setPublishedAt(randomDay());
-                dataFile.setStatus(DataStatus.DataStatus_Normal.ordinal());
+                dataFile.setStatus(MetadataState.MetadataState_Released.getNumber());
                 dataFile.setRemarks("dataFileRemarks_" + extID);
                 dataFileList.add(dataFile);
 
@@ -169,6 +169,7 @@ public class MockData {
                 powerServer.setBandwidth((long) j * 1000000);
                 powerServer.setPublished(true);
                 powerServer.setPublishedAt(randomDay());
+                powerServer.setStatus(PowerState.PowerState_Released_VALUE);
                 powerServerList.add(powerServer);
             }
         }
@@ -394,7 +395,7 @@ public class MockData {
                 metaDataAuth.setDfsDataStatus(DataStatus.DataStatus_Normal_VALUE);
                 metaDataAuth.setApplyAt(LocalDateTime.now());
                 metaDataAuth.setAuditAt(LocalDateTime.now());
-                metaDataAuth.setStatus(AuditMetadataOption.Audit_Passed_VALUE);
+                metaDataAuth.setAuditOption(AuditMetadataOption.Audit_Passed_VALUE);
                 metaDataAuth.setAuditDesc("audit suggestion");
 
                 String sign = "b3d49c3804d7e71487b24744f11a968baa9dce99a8706f8c87dcaf482b9437d66e0115719cc9668d3b6472f6a629766dc0bb9625ffb698dc0b48496e996833a61b";
@@ -487,6 +488,7 @@ public class MockData {
                 TaskEvent event = new TaskEvent();
                 event.setTaskId("taskId_" + taskId);
                 event.setIdentityId(identityId);
+                event.setPartyId(StringUtils.replace(identityId,"identity_", "partyId_"));
                 event.setEventAt(LocalDateTime.now(ZoneOffset.UTC));
                 event.setEventType("eventType");
                 event.setEventContent("eventContent_" + taskId + "_" + identityId);
@@ -507,7 +509,7 @@ public class MockData {
     }
 
     private LocalDateTime randomDay(){
-        int gaps = 60;
+        int gaps = 360;
         LocalDateTime start = LocalDateTime.now(ZoneOffset.UTC).minusDays(gaps);
         Duration duration = Duration.between(start, LocalDateTime.now(ZoneOffset.UTC));
         long days = duration.toDays(); //相差的天数

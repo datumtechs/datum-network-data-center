@@ -12,7 +12,7 @@
     <artifactId>storage-grpc-lib</artifactId>
     <packaging>jar</packaging>
     <properties>
-        <jar.finalName>${parent.artifactId}-${project.artifactId}-${project.version}</jar.finalName>
+        <jar.finalName>${project.parent.artifactId}-${project.artifactId}-${project.version}</jar.finalName>
     </properties>
     <dependencies>
         <dependency>

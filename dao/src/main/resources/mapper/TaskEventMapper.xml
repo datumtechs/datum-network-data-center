@@ -6,11 +6,12 @@
     <result column="task_id" jdbcType="VARCHAR" property="taskId" />
     <result column="event_type" jdbcType="VARCHAR" property="eventType" />
     <result column="identity_id" jdbcType="VARCHAR" property="identityId" />
+    <result column="party_id" jdbcType="VARCHAR" property="partyId" />
     <result column="event_at" jdbcType="TIMESTAMP" property="eventAt" />
     <result column="event_content" jdbcType="VARCHAR" property="eventContent" />
   </resultMap>
   <sql id="Base_Column_List">
-    ID, task_id, event_type, identity_id, event_at, event_content
+    ID, task_id, event_type, identity_id, party_id, event_at, event_content
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -24,10 +25,10 @@
   </delete>
   <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.TaskEvent">
     insert into task_event (ID, task_id, event_type, 
-      identity_id, event_at, event_content
+      identity_id, party_id, event_at, event_content
       )
     values (#{id,jdbcType=BIGINT}, #{taskId,jdbcType=VARCHAR}, #{eventType,jdbcType=VARCHAR}, 
-      #{identityId,jdbcType=VARCHAR}, #{eventAt,jdbcType=TIMESTAMP}, #{eventContent,jdbcType=VARCHAR}
+      #{identityId,jdbcType=VARCHAR}, #{partyId,jdbcType=VARCHAR}, #{eventAt,jdbcType=TIMESTAMP}, #{eventContent,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.TaskEvent">
@@ -44,6 +45,9 @@
       </if>
       <if test="identityId != null">
         identity_id,
+      </if>
+      <if test="partyId != null">
+        party_id,
       </if>
       <if test="eventAt != null">
         event_at,
@@ -85,6 +89,9 @@
       <if test="identityId != null">
         identity_id = #{identityId,jdbcType=VARCHAR},
       </if>
+      <if test="partyId != null">
+        party_id = #{partyId,jdbcType=VARCHAR},
+      </if>
       <if test="eventAt != null">
         event_at = #{eventAt,jdbcType=TIMESTAMP},
       </if>
@@ -99,6 +106,7 @@
     set task_id = #{taskId,jdbcType=VARCHAR},
       event_type = #{eventType,jdbcType=VARCHAR},
       identity_id = #{identityId,jdbcType=VARCHAR},
+      party_id = #{partyId,jdbcType=VARCHAR},
       event_at = #{eventAt,jdbcType=TIMESTAMP},
       event_content = #{eventContent,jdbcType=VARCHAR}
     where ID = #{id,jdbcType=BIGINT}
@@ -115,12 +123,12 @@
 
   <insert id="insertBatch">
     insert into task_event (ID, task_id, event_type,
-      identity_id, event_at, event_content
+      identity_id, party_id, event_at, event_content
       )
     values
     <foreach collection ="list" item="item" separator =",">
     (#{item.id,jdbcType=BIGINT}, #{item.taskId,jdbcType=VARCHAR}, #{item.eventType,jdbcType=VARCHAR},
-      #{item.identityId,jdbcType=VARCHAR}, #{item.eventAt,jdbcType=TIMESTAMP}, #{item.eventContent,jdbcType=VARCHAR}
+      #{item.identityId,jdbcType=VARCHAR},  #{item.partyId,jdbcType=VARCHAR}, #{item.eventAt,jdbcType=TIMESTAMP}, #{item.eventContent,jdbcType=VARCHAR}
       )
     </foreach>
   </insert>

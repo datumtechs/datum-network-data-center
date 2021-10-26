@@ -1,5 +1,6 @@
 package com.platon.metis.storage.grpc.impl;
 
+import com.platon.metis.storage.common.exception.MetaDataNotFound;
 import com.platon.metis.storage.dao.entity.DataFile;
 import com.platon.metis.storage.dao.entity.MetaDataColumn;
 import com.platon.metis.storage.grpc.lib.api.*;
@@ -173,7 +174,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         if(dataFile != null) {
             metadataPB = convertorService.toProtoMetadataPB(dataFile);
         }else{
-            metadataPB = MetadataPB.getDefaultInstance();
+            throw new MetaDataNotFound();
         }
 
         FindMetadataByIdResponse response = FindMetadataByIdResponse.newBuilder().setMetadata(metadataPB).build();

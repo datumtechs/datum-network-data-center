@@ -10,6 +10,7 @@ public class TaskEvent {
     private String eventType;
 
     private String identityId;
+    private String partyId;
 
     private LocalDateTime eventAt;
 
@@ -45,6 +46,14 @@ public class TaskEvent {
 
     public void setIdentityId(String identityId) {
         this.identityId = identityId;
+    }
+
+    public String getPartyId() {
+        return partyId;
+    }
+
+    public void setPartyId(String partyId) {
+        this.partyId = partyId;
     }
 
     public LocalDateTime getEventAt() {

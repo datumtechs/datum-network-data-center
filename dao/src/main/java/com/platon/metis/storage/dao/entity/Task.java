@@ -2,7 +2,7 @@ package com.platon.metis.storage.dao.entity;
 
 import java.time.LocalDateTime;
 
-public class Task {
+public class Task extends BaseDomain{
     private String id;
 
     private String taskName;

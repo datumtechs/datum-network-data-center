@@ -107,8 +107,8 @@ CREATE TABLE meta_data_auth(
     times             INT DEFAULT 0 COMMENT '授权次数(auth_type=2时)',
     expired           BOOLEAN DEFAULT FALSE COMMENT '是否已过期 (当 usage_type 为 1 时才需要的字段)',
     used_times        INT DEFAULT 0 COMMENT '已经使用的次数 (当 usage_type 为 2 时才需要的字段)',
-    `status`          INT DEFAULT 0 COMMENT '申请状态，0：等待审核中；1：审核通过；2：审核拒绝',
     apply_at          DATETIME NOT NULL COMMENT '授权申请时间',
+    audit_option      INT DEFAULT 0 COMMENT '审核结果，0：等待审核中；1：审核通过；2：审核拒绝',
     audit_desc        VARCHAR(256) DEFAULT '' COMMENT '审核意见 (允许""字符)',
     audit_at          DATETIME COMMENT '授权审核时间',
     auth_sign         VARCHAR(1024) COMMENT '授权签名hex',
@@ -212,117 +212,12 @@ CREATE TABLE task_event (
     task_id VARCHAR(200) NOT NULL comment '任务ID,hash',
     event_type VARCHAR(20) NOT NULL COMMENT '事件类型',
     identity_id VARCHAR(200) NOT NULL COMMENT '产生事件的组织身份ID',
+    party_id VARCHAR(200) NOT NULL COMMENT '产生事件的partyId (单个组织可以担任任务的多个party, 区分是哪一方产生的event)',
     event_at DATETIME NOT NULL COMMENT '产生事件的时间',
     event_content VARCHAR(512) NOT NULL COMMENT '事件内容',
     PRIMARY KEY (ID)
 ) comment '任务事件';
 
-
--- 算力增长统计表
-DROP TABLE IF EXISTS power_change_history;
-CREATE TABLE power_change_history (
-    id VARCHAR(200) NOT NULL comment 'power_server.ID,hash',
-    memory BIGINT  NOT NULL DEFAULT 0 COMMENT '计算服务内存, 字节，如果可用->不可用，则为负数',
-    core INT NOT NULL DEFAULT 0 COMMENT '计算服务core',
-    bandwidth BIGINT  NOT NULL DEFAULT 0 COMMENT '计算服务带宽, bps',
-    trend VARCHAR(10) NOT NULL COMMENT 'increased:增长的/reduced:减少的',
-    update_at DATE NOT NULL comment '修改日期',
-	INDEX (update_at)
-) comment '算力增长统计表';
-
--- 数据增长统计表
-DROP TABLE IF EXISTS data_file_change_history;
-CREATE TABLE data_file_change_history (
-    origin_id VARCHAR(200) NOT NULL comment 'data_file.origin_ID,hash',
-    size BIGINT  NOT NULL DEFAULT 0 COMMENT '文件大小(字节)，如果release->revoke，则为负数',
-    status int COMMENT '数据的状态',
-    trend VARCHAR(10) NOT NULL COMMENT 'increased:增长的/reduced:减少的',
-    update_at DATE NOT NULL comment '修改日期',
-	INDEX (update_at)
-) comment '数据增长统计表';
-
----------------------------------------------
-
--- 统计 org 提供算力的任务累积数量
--- DELIMITER $$
--- drop trigger if exists task_power_provider_insert_trigger $$
--- CREATE trigger task_power_provider_insert_trigger AFTER INSERT ON task_power_provider FOR EACH Row
--- begin
---     update org_info
---     set accumulative_power_task_count  = ifnull(accumulative_power_task_count,0) + 1
---     where identity_id = NEW.identity_id;
--- end
--- $$
--- DELIMITER ;
-
--- 统计 org 提供数据的任务累积数量
--- DELIMITER $$
--- drop trigger if exists task_meta_data_insert_trigger $$
--- CREATE trigger task_meta_data_insert_trigger AFTER INSERT ON task_meta_data FOR EACH Row
--- begin
---     update org_info
---     set accumulative_data_task_count  = ifnull(accumulative_data_task_count,0) + 1
---     where identity_id = NEW.identity_id;
--- end
--- $$
--- DELIMITER ;
-
--- 统计 org 提供的数据文件的累积数量
--- 统计 data_file数量, data_file_size总数
-DELIMITER $$
-drop trigger if exists data_file_insert_trigger $$
-CREATE trigger data_file_insert_trigger AFTER INSERT ON data_file FOR EACH Row
-begin
-    insert into data_file_change_history (origin_id, size, status, trend, update_at)
-    values (NEW.origin_id, NEW.size, NEW.status, 'increased', NEW.published_at);
-
-    update org_info
-    set accumulative_data_file_count  = ifnull(accumulative_data_file_count,0) + 1
-    where identity_id = NEW.identity_id;
-end
-$$
-DELIMITER ;
-
--- 统计 power_server 数量
--- 统计 org 提供的算力的累积数量
--- published_at是为了造假数据用，生产环境应该是：NEW.update_at
-DELIMITER $$
-drop trigger if exists power_server_insert_trigger $$
-CREATE trigger power_server_insert_trigger AFTER INSERT ON power_server FOR EACH Row
-begin
-    insert into power_change_history (id, memory, core, bandwidth, trend, update_at)
-        values (NEW.id, NEW.memory, NEW.core, NEW.bandwidth, 'increased', NEW.published_at);
-end
-$$
-DELIMITER ;
-
-DELIMITER $$
-drop trigger if exists power_server_delete_trigger $$
-drop trigger if exists power_server_update_trigger $$
-CREATE trigger power_server_update_trigger AFTER UPDATE ON power_server FOR EACH Row
-begin
-    IF OLD.status=2 AND NEW.status=3 THEN -- 从发布变成撤销
-        insert into power_change_history (id, memory, core, bandwidth, trend, update_at)
-        values (OLD.id, 0-OLD.memory, 0-OLD.core, 0-OLD.bandwidth, 'reduced', CURRENT_DATE());
-    END IF;
-end
-$$
-DELIMITER ;
-
-DELIMITER $$
-drop trigger if exists data_file_update_trigger $$
-CREATE trigger data_file_update_trigger AFTER UPDATE ON data_file FOR EACH Row
-begin
-    IF OLD.status=2 AND NEW.status=3 THEN -- 从发布变成撤销
-        insert into data_file_change_history (origin_id, size, status, trend, update_at)
-        values (NEW.origin_id, 0-OLD.size, 3, 'reduced', CURRENT_DATE());
-    ELSEIF OLD.status=3 AND NEW.status=2 THEN -- 从撤销变成发布
-        insert into data_file_change_history (origin_id, size, status, trend, update_at)
-        values (OLD.origin_id, OLD.size, 2, 'increased', CURRENT_DATE());
-    END IF;
-end
-$$
-DELIMITER ;
 
 
 -- 创建首页统计 view
@@ -393,64 +288,6 @@ from
 	from power_server p
 ) as power;
 
--- 首页算力走势统计 view
-create or replace view v_power_trend_stats as
-SELECT
-	a1.update_at, a1.daily_memory, a1.daily_core, a1.daily_bandwidth,
-	sum( a2.daily_memory ) total_memory, sum( a2.daily_core ) total_core , sum( a2.daily_bandwidth ) total_bandwidth
-FROM
-(
-	SELECT update_at, sum( memory) as daily_memory , sum(core) as daily_core, sum(bandwidth) as daily_bandwidth
-	FROM power_change_history
-	GROUP BY update_at
-) a1
-LEFT JOIN
-(
-	SELECT update_at, sum( memory) as daily_memory , sum(core) as daily_core, sum(bandwidth) as daily_bandwidth
-	FROM power_change_history
-	GROUP BY update_at
-) a2 ON a1.update_at >= a2.update_at
-GROUP BY a1.update_at
-ORDER BY a1.update_at;
-
--- create or replace view v_power_trend_stats as
--- SELECT t.*, (@i:=@i+t.dailyMemory) as totalMemory, (@j:=@j+t.dailyCore) as totalCore, (@k:=@k+t.dailyBandwidth) as totalBandwidth
--- FROM
--- (
--- 	SELECT update_at, sum( memory) as dailyMemory , sum(core) as dailyCore, sum(bandwidth) as dailyBandwidth
--- 	FROM power_change_history
--- 	GROUP BY update_at
--- ) t, (select @i := 0, @j :=0, @k :=0) temp;
-
--- 首页数据量走势统计 view
-create or replace view v_data_file_trend_stats as
-SELECT
-	a1.update_at, a1.daily_size,
-	sum( a2.daily_size ) total_size
-FROM
-(
-	SELECT update_at, sum(size) as daily_size
-    FROM data_file_change_history
-    GROUP BY update_at
-) a1
-LEFT JOIN
-(
-	SELECT update_at, sum(size) as daily_size
-    FROM data_file_change_history
-    GROUP BY update_at
-) a2 ON a1.update_at >= a2.update_at
-GROUP BY a1.update_at
-ORDER BY a1.update_at;
-
--- create or replace view v_data_file_trend_stats as
--- SELECT t.*, (@i:=@i+t.dailySize) as totalSize
--- FROM
--- (
---     SELECT update_at, sum(size) as dailySize
---     FROM data_file_change_history
---     GROUP BY update_at
--- ) t, (select @i := 0) temp;
-
 -- 组织参与任务数统计 view （统计组织在任务中的角色是：发起人， 算法提供方，算力提供者，数据提供者，结果消费者）
 create or replace view v_org_daily_task_stats as
 select tmp.identity_id, count(tmp.task_id) as task_count, date(t.create_at) as task_date
@@ -487,4 +324,90 @@ from
 
     ) tmp, task t
 where tmp.task_id = t.id
-group by tmp.identity_id, task_date
+group by tmp.identity_id, task_date;
+
+
+-- 创建元数据月统计视图
+CREATE OR REPLACE VIEW v_data_file_stats_monthly as
+SELECT a.stats_time, a.month_size, SUM(b.month_size) AS accu_size
+FROM (
+         SELECT DATE_FORMAT(df.published_at, '%Y-%m')  as stats_time, sum(df.size) as month_size
+         FROM data_file df
+         WHERE df.status=2
+         GROUP BY DATE_FORMAT(df.published_at, '%Y-%m')
+         ORDER BY DATE_FORMAT(df.published_at, '%Y-%m')
+     ) a
+         JOIN (
+    SELECT DATE_FORMAT(df.published_at, '%Y-%m')  as stats_time, sum(df.size) as month_size
+    FROM data_file df
+    WHERE df.status=2
+    GROUP BY DATE_FORMAT(df.published_at, '%Y-%m')
+    ORDER BY DATE_FORMAT(df.published_at, '%Y-%m')
+) b
+              ON a.stats_time >= b.stats_time
+GROUP BY a.stats_time
+ORDER BY a.stats_time;
+
+-- 创建元数据日统计视图
+CREATE OR REPLACE VIEW v_data_file_stats_daily as
+SELECT a.stats_time, a.day_size, SUM(b.day_size) AS accu_size
+FROM (
+         SELECT DATE(df.published_at) as stats_time, sum(df.size) as day_size
+    FROM data_file df
+WHERE df.status=2
+GROUP BY DATE(df.published_at)
+ORDER BY DATE(df.published_at)
+    ) a
+    JOIN (
+SELECT DATE(df.published_at) as stats_time, sum(df.size) as day_size
+FROM data_file df
+WHERE df.status=2
+GROUP BY DATE(df.published_at)
+ORDER BY DATE(df.published_at)
+    ) b
+ON a.stats_time >= b.stats_time
+GROUP BY a.stats_time
+ORDER BY a.stats_time;
+
+-- 创建算力月统计视图
+CREATE OR REPLACE VIEW v_power_stats_monthly as
+SELECT a.stats_time, a.month_core, a.month_memory, a.month_bandwidth, SUM(b.month_core) AS accu_core, SUM(b.month_memory) AS accu_memory, SUM(b.month_bandwidth) AS accu_bandwidth
+FROM (
+    SELECT DATE_FORMAT(ps.published_at, '%Y-%m')  as stats_time, sum(ps.core) as month_core, sum(ps.memory) as month_memory, sum(ps.bandwidth) as month_bandwidth
+    FROM power_server ps
+    WHERE ps.status=2 or ps.status=3
+    GROUP BY DATE_FORMAT(ps.published_at, '%Y-%m')
+    ORDER BY DATE_FORMAT(ps.published_at, '%Y-%m')
+) a
+JOIN (
+    SELECT DATE_FORMAT(ps.published_at, '%Y-%m')  as stats_time, sum(ps.core) as month_core, sum(ps.memory) as month_memory, sum(ps.bandwidth) as month_bandwidth
+    FROM power_server ps
+    WHERE ps.status=2 or ps.status=3
+    GROUP BY DATE_FORMAT(ps.published_at, '%Y-%m')
+    ORDER BY DATE_FORMAT(ps.published_at, '%Y-%m')
+) b
+ON a.stats_time >= b.stats_time
+GROUP BY a.stats_time
+ORDER BY a.stats_time;
+
+
+-- 创建算力日统计视图
+CREATE OR REPLACE VIEW v_power_stats_daily as
+SELECT a.stats_time, a.day_core, a.day_memory, a.day_bandwidth, SUM(b.day_core) AS accu_core, SUM(b.day_memory) AS accu_memory, SUM(b.day_bandwidth) AS accu_bandwidth
+FROM (
+    SELECT DATE(ps.published_at)  as stats_time, sum(ps.core) as day_core, sum(ps.memory) as day_memory, sum(ps.bandwidth) as day_bandwidth
+    FROM power_server ps
+    WHERE ps.status=2 or ps.status=3
+    GROUP BY DATE(ps.published_at)
+    ORDER BY DATE(ps.published_at)
+) a
+JOIN (
+    SELECT DATE(ps.published_at)  as stats_time, sum(ps.core) as day_core, sum(ps.memory) as day_memory, sum(ps.bandwidth) as day_bandwidth
+    FROM power_server ps
+    WHERE ps.status=2 or ps.status=3
+    GROUP BY DATE(ps.published_at)
+    ORDER BY DATE(ps.published_at)
+) b
+ON a.stats_time >= b.stats_time
+GROUP BY a.stats_time
+ORDER BY a.stats_time;

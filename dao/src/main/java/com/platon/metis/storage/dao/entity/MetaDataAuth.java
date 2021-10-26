@@ -29,7 +29,7 @@ public class MetaDataAuth {
 
     private Integer usedTimes;
 
-    private Integer status;
+    private Integer auditOption;
 
     private LocalDateTime applyAt;
 
@@ -147,12 +147,12 @@ public class MetaDataAuth {
         this.usedTimes = usedTimes;
     }
 
-    public Integer getStatus() {
-        return status;
+    public Integer getAuditOption() {
+        return auditOption;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
+    public void setAuditOption(Integer auditOption) {
+        this.auditOption = auditOption;
     }
 
     public LocalDateTime getApplyAt() {

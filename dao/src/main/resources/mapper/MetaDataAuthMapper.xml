@@ -15,8 +15,8 @@
     <result column="times" jdbcType="INTEGER" property="times" />
     <result column="expired" jdbcType="BIT" property="expired" />
     <result column="used_times" jdbcType="INTEGER" property="usedTimes" />
-    <result column="status" jdbcType="INTEGER" property="status" />
     <result column="apply_at" jdbcType="TIMESTAMP" property="applyAt" />
+    <result column="audit_option" jdbcType="INTEGER" property="auditOption" />
     <result column="audit_desc" jdbcType="VARCHAR" property="auditDesc" />
     <result column="audit_at" jdbcType="TIMESTAMP" property="auditAt" />
     <result column="auth_status" jdbcType="INTEGER" property="authStatus" />
@@ -25,7 +25,7 @@
   </resultMap>
   <sql id="Base_Column_List">
     meta_data_auth_id, user_identity_id, user_id, user_type, meta_data_id, dfs_data_status,
-    dfs_data_id, auth_type, start_at, end_at, times, expired, used_times, status, apply_at,
+    dfs_data_id, auth_type, start_at, end_at, times, expired, used_times, apply_at, audit_option,
     audit_desc, audit_at, auth_status, auth_sign, update_at
   </sql>
 
@@ -44,14 +44,14 @@
                                 user_type, meta_data_id, dfs_data_status,
                                 dfs_data_id, auth_type, start_at,
                                 end_at, times, expired,
-                                used_times, status, apply_at,
+                                used_times, apply_at, audit_option,
                                 audit_desc, audit_at, auth_status,
                                 auth_sign)
     values (#{metaDataAuthId,jdbcType=VARCHAR}, #{userIdentityId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR},
             #{userType,jdbcType=INTEGER}, #{metaDataId,jdbcType=VARCHAR}, #{dfsDataStatus,jdbcType=INTEGER},
             #{dfsDataId,jdbcType=VARCHAR}, #{authType,jdbcType=INTEGER}, #{startAt,jdbcType=TIMESTAMP},
             #{endAt,jdbcType=TIMESTAMP}, #{times,jdbcType=INTEGER}, #{expired,jdbcType=BIT},
-            #{usedTimes,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{applyAt,jdbcType=TIMESTAMP},
+            #{usedTimes,jdbcType=INTEGER}, #{applyAt,jdbcType=TIMESTAMP}, #{auditOption,jdbcType=INTEGER},
             #{auditDesc,jdbcType=VARCHAR}, #{auditAt,jdbcType=TIMESTAMP}, #{authStatus,jdbcType=INTEGER},
             #{authSign,jdbcType=VARCHAR})
   </insert>
@@ -61,7 +61,7 @@
     user_type, meta_data_id, dfs_data_status,
     dfs_data_id, auth_type, start_at,
     end_at, times, expired,
-    used_times, status, apply_at,
+    used_times, apply_at, audit_option,
     audit_desc, audit_at, auth_status,
     auth_sign)
     values
@@ -70,8 +70,8 @@
       #{item.userType,jdbcType=INTEGER}, #{item.metaDataId,jdbcType=VARCHAR}, #{item.dfsDataStatus,jdbcType=INTEGER},
       #{item.dfsDataId,jdbcType=VARCHAR}, #{item.authType,jdbcType=INTEGER}, #{item.startAt,jdbcType=TIMESTAMP},
       #{item.endAt,jdbcType=TIMESTAMP}, #{item.times,jdbcType=INTEGER}, #{item.expired,jdbcType=BIT},
-      #{item.usedTimes,jdbcType=INTEGER}, #{item.status,jdbcType=INTEGER}, #{item.applyAt,jdbcType=TIMESTAMP},
-      #{item.auditDesc,jdbcType=VARCHAR}, #{item.auditAt,jdbcType=TIMESTAMP}, #{item.authStatus,jdbcType=INTEGER},
+      #{item.usedTimes,jdbcType=INTEGER}, #{item.applyAt,jdbcType=TIMESTAMP}, #{item.auditOption,jdbcType=INTEGER},
+        #{item.auditDesc,jdbcType=VARCHAR}, #{item.auditAt,jdbcType=TIMESTAMP}, #{item.authStatus,jdbcType=INTEGER},
       #{item.authSign,jdbcType=VARCHAR})
     </foreach>
   </insert>
@@ -117,11 +117,11 @@
             <if test="usedTimes != null">
                 used_times,
             </if>
-            <if test="status != null">
-                status,
-            </if>
             <if test="applyAt != null">
                 apply_at,
+            </if>
+            <if test="auditOption != null">
+                audit_option,
             </if>
             <if test="auditDesc != null">
                 audit_desc,
@@ -176,11 +176,11 @@
             <if test="usedTimes != null">
                 #{usedTimes,jdbcType=INTEGER},
             </if>
-            <if test="status != null">
-                #{status,jdbcType=INTEGER},
-            </if>
             <if test="applyAt != null">
                 #{applyAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="auditOption != null">
+                #{auditOption},
             </if>
             <if test="auditDesc != null">
                 #{auditDesc,jdbcType=VARCHAR},
@@ -235,11 +235,11 @@
             <if test="usedTimes != null">
                 used_times = #{usedTimes,jdbcType=INTEGER},
             </if>
-            <if test="status != null">
-                status = #{status,jdbcType=INTEGER},
-            </if>
             <if test="applyAt != null">
                 apply_at = #{applyAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="auditOption != null">
+                audit_option = #{auditOption,jdbcType=INTEGER},
             </if>
             <if test="auditDesc != null">
                 audit_desc = #{auditDesc,jdbcType=VARCHAR},
@@ -271,8 +271,8 @@
         times = #{times,jdbcType=INTEGER},
         expired = #{expired,jdbcType=BIT},
         used_times = #{usedTimes,jdbcType=INTEGER},
-        status = #{status,jdbcType=INTEGER},
         apply_at = #{applyAt,jdbcType=TIMESTAMP},
+        audit_option = #{auditOption,jdbcType=INTEGER},
         audit_desc = #{auditDesc,jdbcType=VARCHAR},
         audit_at = #{auditAt,jdbcType=TIMESTAMP},
         auth_status = #{authStatus,jdbcType=INTEGER},

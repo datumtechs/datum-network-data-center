@@ -109,28 +109,43 @@
     order by update_at
   </select>
 
-
   <select id="listTaskByIdentityId" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select DISTINCT t.*
+    select t.*
     from task t
-    where t.owner_identity_id = #{identityId,jdbcType=VARCHAR}
-       or (select 1
-           from (
-                  select tmd.task_id
-                  from task_meta_data tmd
-                  where tmd.identity_id = #{identityId,jdbcType=VARCHAR}
-                  union
-                  select tpp.task_id
-                  from task_power_provider tpp
-                  where tpp.identity_id = #{identityId,jdbcType=VARCHAR}
-                  union
-                  select DISTINCT tsc.task_id
-                  from task_result_consumer tsc
-                  where tsc.consumer_identity_id = #{identityId,jdbcType=VARCHAR}
-                ) otherTask
-           where t.id = otherTask.task_id
-    )
-    order by t.create_at
+    join (
+      select tmp.task_id
+      from (
+        select tk.owner_identity_id as identity_id, tk.id as task_id, true taskSponsor, false as powerProvider, false as dataProvider, false as resultConsumer, false algoProvider
+        from task tk
+        WHERE tk.owner_identity_id = #{identityId,jdbcType=VARCHAR}
+
+        union
+
+        select tap.identity_id, tap.task_id, false taskSponsor, false as powerProvider, false as dataProvider, false as resultConsumer, true algoProvider
+        from task_algo_provider tap
+        WHERE tap.identity_id = #{identityId,jdbcType=VARCHAR}
+
+        union
+
+        select tpp.identity_id, tpp.task_id, false taskSponsor, true as powerProvider, false as dataProvider, false as resultConsumer, false algoProvider
+        from task_power_provider tpp
+        WHERE tpp.identity_id= #{identityId,jdbcType=VARCHAR}
+
+        union
+
+        select tmd.identity_id, tmd.task_id, false taskSponsor, false as powerProvider, true as dataProvider, false as resultConsumer, false algoProvider
+        from task_meta_data tmd
+        WHERE tmd.identity_id= #{identityId,jdbcType=VARCHAR}
+
+        union
+
+        select DISTINCT trc.consumer_identity_id as identity_id, trc.task_id, false taskSponsor, false as powerProvider, false as dataProvider, true as resultConsumer, false algoProvider
+        from task_result_consumer trc
+        WHERE trc.consumer_identity_id = #{identityId,jdbcType=VARCHAR}
+
+      ) tmp
+      group by tmp.task_id
+    ) temp on t.id = temp.task_id
   </select>
 
 </mapper>
