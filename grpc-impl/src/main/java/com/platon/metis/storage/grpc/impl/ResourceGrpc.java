@@ -148,6 +148,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
             return ResourcePB.newBuilder()
                     .setDataId(powerServer.getId())
                     .setIdentityId(powerServer.getIdentityId())
+                    .setNodeName((String)powerServer.getField("orgName"))
                     .setState(PowerState.forNumber(powerServer.getStatus()))
                     .setTotalProcessor(ValueUtils.intValue(powerServer.getCore()))
                     .setTotalMem(ValueUtils.longValue(powerServer.getUsedMemory()))

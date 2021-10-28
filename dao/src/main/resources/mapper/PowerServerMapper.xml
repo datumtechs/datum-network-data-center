@@ -89,12 +89,16 @@
     where id = #{id,jdbcType=VARCHAR}
   </update>
 
-  <select id="syncPowerServer" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from power_server
-    where update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
-    order by update_at
+  <resultMap id="BaseResultMap_With_orgName" type="com.platon.metis.storage.dao.entity.PowerServer" extends="BaseResultMap">
+    <result column="org_name" property="dynamicFields.orgName" jdbcType="VARCHAR"/>
+  </resultMap>
+
+  <select id="syncPowerServer" resultMap="BaseResultMap_With_orgName">
+    select ps.*, o.org_name
+    from power_server ps
+    left join org_info o on ps.identity_id = o.identity_id
+    where ps.update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
+    order by ps.update_at
   </select>
 
 

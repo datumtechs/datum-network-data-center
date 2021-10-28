@@ -2,7 +2,7 @@ package com.platon.metis.storage.dao.entity;
 
 import java.time.LocalDateTime;
 
-public class PowerServer {
+public class PowerServer extends BaseDomain{
     private String id;
 
     private String identityId;
