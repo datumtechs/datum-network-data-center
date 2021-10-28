@@ -29,7 +29,7 @@ public class TaskServiceGrpcStubTest {
         TaskPB taskPB = TaskPB.newBuilder()
                 .setTaskId("taskId")
                 .setUser("userId")
-                .setUserType(UserType.User_LAT)
+                .setUserType(UserType.User_3)
                 .setTaskName("taskName")
                 .setCreateAt(1623852296000L)
                 .setEndAt(1623852296000L)

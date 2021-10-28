@@ -387,7 +387,7 @@ public class MockData {
                 MetaDataAuth metaDataAuth = new MetaDataAuth();
                 metaDataAuth.setMetaDataAuthId(UUID.randomUUID().toString());
                 metaDataAuth.setUserId(task.getUserId());
-                metaDataAuth.setUserType(UserType.User_ETH_VALUE);
+                metaDataAuth.setUserType(UserType.User_1_VALUE);
                 metaDataAuth.setMetaDataId(taskMetaData.getMetaDataId());
                 metaDataAuth.setAuthType(MetadataUsageType.Usage_Times_VALUE);
                 metaDataAuth.setUserIdentityId(task.getOwnerIdentityId());
