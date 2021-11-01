@@ -52,8 +52,8 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         dataFile.setIdentityId(request.getMetadata().getIdentityId());
         dataFile.setHasTitle(request.getMetadata().getHasTitle());
         dataFile.setResourceName(request.getMetadata().getTableName());
-        dataFile.setSize((long)request.getMetadata().getSize());
-        dataFile.setRows((long)request.getMetadata().getRows());
+        dataFile.setSize(request.getMetadata().getSize());
+        dataFile.setRows(request.getMetadata().getRows());
         dataFile.setColumns(request.getMetadata().getColumns());
         dataFile.setRemarks(request.getMetadata().getDesc());
         dataFile.setPublishedAt(LocalDateTime.now(ZoneOffset.UTC));

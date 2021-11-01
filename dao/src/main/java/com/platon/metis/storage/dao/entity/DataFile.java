@@ -21,7 +21,7 @@ public class DataFile {
 
     private Long size;
 
-    private Long rows;
+    private Integer rows;
 
     private Integer columns;
 
@@ -104,11 +104,11 @@ public class DataFile {
         this.size = size;
     }
 
-    public Long getRows() {
+    public Integer getRows() {
         return rows;
     }
 
-    public void setRows(Long rows) {
+    public void setRows(Integer rows) {
         this.rows = rows;
     }
 

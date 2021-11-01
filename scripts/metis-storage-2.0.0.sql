@@ -79,7 +79,7 @@ CREATE TABLE data_file (
     resource_name VARCHAR(100) NOT NULL COMMENT '资源名称',
     industry VARCHAR(100)  COMMENT '行业名称',
     size BIGINT NOT NULL DEFAULT 0 COMMENT '文件大小(字节)',
-    `rows` BIGINT NOT NULL DEFAULT 0  COMMENT '数据行数(不算title)',
+    `rows` INT NOT NULL DEFAULT 0  COMMENT '数据行数(不算title)',
     columns INT NOT NULL DEFAULT 0  COMMENT '数据列数',
     published BOOLEAN NOT NULL DEFAULT false comment '是否公开发布的，true/false',
     published_at DATETIME NOT NULL DEFAULT NOW() comment '发布时间',

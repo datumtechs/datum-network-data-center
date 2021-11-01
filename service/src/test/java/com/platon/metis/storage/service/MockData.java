@@ -105,7 +105,7 @@ public class MockData {
                 dataFile.setResourceName("resourceName_" + extID);
                 dataFile.setIndustry("金融行业");
                 dataFile.setSize(209715200L);
-                dataFile.setRows(100000000L);
+                dataFile.setRows(100000000);
                 dataFile.setColumns(eachDataFileColumns);
                 dataFile.setHasTitle(true);
                 dataFile.setPublished(true);
@@ -254,7 +254,7 @@ public class MockData {
                 dataFile.setResourceName("resourceName_" + extID);
                 dataFile.setIndustry("金融行业");
                 dataFile.setSize(1024*1024 * RandomUtils.nextLong(10, 10000));
-                dataFile.setRows(RandomUtils.nextLong(10000, 1000000));
+                dataFile.setRows(RandomUtils.nextInt(10000, 1000000));
                 dataFile.setColumns(eachDataFileColumns);
                 dataFile.setHasTitle(true);
                 dataFile.setPublished(true);
