@@ -22,33 +22,6 @@ CREATE TABLE org_info (
     PRIMARY KEY (identity_id)
 ) comment '组织信息';
 
-DROP TABLE IF EXISTS schedule_server;
-CREATE TABLE schedule_server (
-    id VARCHAR(200) NOT NULL COMMENT '调度服务主机ID,hash',
-    identity_id VARCHAR(200) NOT NULL COMMENT '组织身份ID',
-	internal_ip VARCHAR(100) NOT NULL COMMENT '调度服务节点的内网 ip',
-	internal_port VARCHAR(10) NOT NULL COMMENT '调度服务节点的内网 port',
-    status  VARCHAR(20) NOT NULL COMMENT '节点状态，enabled:可用; disabled:不可用',
-	PRIMARY KEY (id),
-	UNIQUE KEY (identity_id)
-) comment '调度服务';
-
-/*DROP TABLE IF EXISTS data_server;
-CREATE TABLE data_server (
-    id VARCHAR(128) NOT NULL comment '数据服务主机ID,hash',
-    identity_id VARCHAR(128) NOT NULL COMMENT '组织身份ID',
-    server_name VARCHAR(100) NOT NULL COMMENT '数据服务名称',
-	internal_ip VARCHAR(100)  COMMENT '数据服务的内网 ip',
-	internal_port VARCHAR(10) COMMENT '数据服务的内网 port',
-	external_ip VARCHAR(100) COMMENT '数据服务的外网 ip',
-	external_port VARCHAR(10)  COMMENT '数据服务的内网 port用',
-    remarks VARCHAR(100) COMMENT '备注信息',
-    published BOOLEAN NOT NULL COMMENT '是否发布，true/false',
-    published_at DATETIME NOT NULL DEFAULT NOW() comment '发布时间',
-    status  VARCHAR(20) NOT NULL COMMENT '数据服务主机状态，enabled:可用; disabled:不可用',
-    PRIMARY KEY (id),
-	UNIQUE KEY (identity_id, server_name)
-) comment '数据服务信息';*/
 
 DROP TABLE IF EXISTS power_server;
 CREATE TABLE power_server (
@@ -61,7 +34,7 @@ CREATE TABLE power_server (
     used_core INT DEFAULT 0 COMMENT '使用的core',
     used_bandwidth BIGINT DEFAULT 0 COMMENT '使用的带宽, bps',
     published BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否发布，true/false',
-    published_at DATETIME NOT NULL DEFAULT NOW() comment '发布时间',
+    published_at(3) DATETIME NOT NULL DEFAULT NOW() comment '发布时间，精确到毫秒',
     status int COMMENT '算力的状态 (0: 未知; 1: 还未发布的算力; 2: 已发布的算力; 3: 已撤销的算力)',
     update_at DATETIME NOT NULL comment '(状态)修改时间',
     PRIMARY KEY (id)
@@ -82,7 +55,7 @@ CREATE TABLE data_file (
     `rows` INT NOT NULL DEFAULT 0  COMMENT '数据行数(不算title)',
     columns INT NOT NULL DEFAULT 0  COMMENT '数据列数',
     published BOOLEAN NOT NULL DEFAULT false comment '是否公开发布的，true/false',
-    published_at DATETIME NOT NULL DEFAULT NOW() comment '发布时间',
+    published_at DATETIME(3) NOT NULL DEFAULT NOW() comment '发布时间，精确到毫秒',
     has_title BOOLEAN NOT NULL DEFAULT false comment '是否带标题',
     remarks VARCHAR(100) COMMENT '数据描述',
     status int COMMENT '元数据的状态 (0: 未知; 1: 还未发布的新表; 2: 已发布的表; 3: 已撤销的表)',
@@ -107,10 +80,10 @@ CREATE TABLE meta_data_auth(
     times             INT DEFAULT 0 COMMENT '授权次数(auth_type=2时)',
     expired           BOOLEAN DEFAULT FALSE COMMENT '是否已过期 (当 usage_type 为 1 时才需要的字段)',
     used_times        INT DEFAULT 0 COMMENT '已经使用的次数 (当 usage_type 为 2 时才需要的字段)',
-    apply_at          DATETIME NOT NULL COMMENT '授权申请时间',
+    apply_at          DATETIME(3) NOT NULL COMMENT '授权申请时间，精确到毫秒',
     audit_option      INT DEFAULT 0 COMMENT '审核结果，0：等待审核中；1：审核通过；2：审核拒绝',
     audit_desc        VARCHAR(256) DEFAULT '' COMMENT '审核意见 (允许""字符)',
-    audit_at          DATETIME COMMENT '授权审核时间',
+    audit_at          DATETIME(3) COMMENT '授权审核时间，精确到毫秒',
     auth_sign         VARCHAR(1024) COMMENT '授权签名hex',
     auth_status       INT DEFAULT 0 COMMENT '数据授权信息的状态 (0: 未知; 1: 还未发布的数据授权; 2: 已发布的数据授权; 3: 已撤销的数据授权 <失效前主动撤回的>; 4: 已经失效的数据授权 <过期or达到使用上限的>)',
     update_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  COMMENT '修改时间',
@@ -141,9 +114,9 @@ CREATE TABLE task (
     required_duration BIGINT NOT NULL DEFAULT 0 COMMENT '需要的时间, milli seconds',
     owner_identity_id VARCHAR(200) NOT NULL COMMENT '任务创建者组织身份ID',
     owner_party_id VARCHAR(200) NOT NULL COMMENT '任务参与方在本次任务中的唯一识别ID',
-    create_at DATETIME NOT NULL COMMENT '任务创建时间',
-    start_at DATETIME COMMENT '任务开始执行时间',
-    end_at DATETIME COMMENT '任务结束时间',
+    create_at DATETIME(3) NOT NULL COMMENT '任务创建时间，精确到毫秒',
+    start_at DATETIME(3) COMMENT '任务开始执行时间，精确到毫秒',
+    end_at DATETIME(3) COMMENT '任务结束时间，精确到毫秒',
     used_memory BIGINT NOT NULL DEFAULT 0 COMMENT '使用的内存, 字节',
     used_core INT NOT NULL DEFAULT 0 COMMENT '使用的core',
     used_bandwidth BIGINT NOT NULL DEFAULT 0 COMMENT '使用的带宽, bps',
@@ -213,7 +186,7 @@ CREATE TABLE task_event (
     event_type VARCHAR(20) NOT NULL COMMENT '事件类型',
     identity_id VARCHAR(200) NOT NULL COMMENT '产生事件的组织身份ID',
     party_id VARCHAR(200) NOT NULL COMMENT '产生事件的partyId (单个组织可以担任任务的多个party, 区分是哪一方产生的event)',
-    event_at DATETIME NOT NULL COMMENT '产生事件的时间',
+    event_at DATETIME(3) NOT NULL COMMENT '产生事件的时间，精确到毫秒',
     event_content VARCHAR(512) NOT NULL COMMENT '事件内容',
     PRIMARY KEY (ID)
 ) comment '任务事件';
