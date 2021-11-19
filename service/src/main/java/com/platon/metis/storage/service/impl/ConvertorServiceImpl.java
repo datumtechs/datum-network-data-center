@@ -39,7 +39,6 @@ public class ConvertorServiceImpl implements ConvertorService {
     @Autowired
     private TaskMetaDataColumnService taskMetaDataColumnService;
 
-
     @Autowired
     private TaskAlgoProviderService taskAlgoProviderService;
 
@@ -53,6 +52,10 @@ public class ConvertorServiceImpl implements ConvertorService {
     private TaskResultConsumerService taskResultConsumerService;
     @Autowired
     private TaskEventService taskEventService;
+
+    @Autowired
+    private PowerServerService powerServerService;
+
     /**
      * 对同一个任务的数据提供者进行分类，以便过滤出任务使用的metaData钟的column idx list
      *
@@ -138,14 +141,21 @@ public class ConvertorServiceImpl implements ConvertorService {
         }
         return taskPowerProviderList.parallelStream().map(taskPowerProvider -> {
 
+
             OrgInfo orgInfo = orgInfoService.findByPK(taskPowerProvider.getIdentityId());
             if (orgInfo == null) {
                 log.error("task (taskId: {}) power provider identity id: {} not found.", taskPowerProvider.getTaskId(), taskPowerProvider.getIdentityId());
                 throw new OrgNotFound();
             }
+
+
+            PowerServer powerServer = powerServerService.sumPowerByOrgId(taskPowerProvider.getIdentityId());
             return com.platon.metis.storage.grpc.lib.types.TaskPowerSupplier.newBuilder()
                     .setOrganization(this.toProtoTaskOrganization(orgInfo, taskPowerProvider.getPartyId()))
                     .setResourceUsedOverview(ResourceUsageOverview.newBuilder()
+                            .setTotalProcessor(ValueUtils.intValue(powerServer.getCore()))
+                            .setTotalMem(ValueUtils.longValue(powerServer.getMemory()))
+                            .setTotalBandwidth(ValueUtils.longValue(powerServer.getBandwidth()))
                             .setUsedProcessor(ValueUtils.intValue(taskPowerProvider.getUsedCore()))
                             .setUsedMem(ValueUtils.longValue(taskPowerProvider.getUsedMemory()))
                             .setUsedBandwidth(ValueUtils.longValue(taskPowerProvider.getUsedBandwidth())))
