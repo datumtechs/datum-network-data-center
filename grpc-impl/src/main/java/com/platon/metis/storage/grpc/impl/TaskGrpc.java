@@ -103,9 +103,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         task.setRequiredMemory(request.getTask().getOperationCost().getMemory());
         task.setRequiredDuration(request.getTask().getOperationCost().getDuration());
 
-        task.setUsedBandwidth(request.getTask().getOperationCost().getBandwidth());
-        task.setUsedCore(request.getTask().getOperationCost().getProcessor());
-        task.setUsedMemory(request.getTask().getOperationCost().getMemory());
+
 
         //创建时间
         task.setCreateAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getTask().getCreateAt()), ZoneOffset.UTC));
@@ -118,7 +116,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         task.setStatus(request.getTask().getState().ordinal());
         task.setStatusDesc(request.getTask().getReason());
 
-        taskService.insert(task);
+
 
         //==算法提供者
         TaskAlgoProvider taskAlgoProvider = new TaskAlgoProvider();
@@ -177,6 +175,9 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
 
         //==任务的算力提供者
+        long usedMemory = 0;
+        long usedBandwidth = 0;
+        int usedCore = 0;
         if(!CollectionUtils.isEmpty(request.getTask().getPowerSuppliersList())) {
             List<TaskPowerProvider> taskPowerProviderList = new ArrayList<>();
             for (TaskPowerSupplier powerSupplier : request.getTask().getPowerSuppliersList()) {
@@ -188,9 +189,21 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
                 powerProvider.setUsedMemory(powerSupplier.getResourceUsedOverview().getUsedMem());
                 powerProvider.setUsedBandwidth(powerSupplier.getResourceUsedOverview().getUsedBandwidth());
                 taskPowerProviderList.add(powerProvider);
+
+                //计算任务使用的资源
+                usedCore += powerProvider.getUsedCore() == null ? 0 : powerProvider.getUsedCore();
+                usedMemory += powerProvider.getUsedMemory() == null ? 0 : powerProvider.getUsedMemory();
+                usedBandwidth += powerProvider.getUsedBandwidth() == null ? 0 : powerProvider.getUsedBandwidth();
             }
             taskPowerProviderService.insert(taskPowerProviderList);
         }
+
+        //计算任务使用的资源
+        task.setUsedBandwidth(request.getTask().getOperationCost().getBandwidth());
+        task.setUsedCore(request.getTask().getOperationCost().getProcessor());
+        task.setUsedMemory(request.getTask().getOperationCost().getMemory());
+        taskService.insert(task);
+
 
         //==任务结果接收者
         if(CollectionUtils.isEmpty(request.getTask().getReceiversList())) {

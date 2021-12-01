@@ -87,7 +87,8 @@ CREATE TABLE meta_data_auth(
     auth_sign         VARCHAR(1024) COMMENT '授权签名hex',
     auth_status       INT DEFAULT 0 COMMENT '数据授权信息的状态 (0: 未知; 1: 还未发布的数据授权; 2: 已发布的数据授权; 3: 已撤销的数据授权 <失效前主动撤回的>; 4: 已经失效的数据授权 <过期or达到使用上限的>)',
     update_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  COMMENT '修改时间',
-    PRIMARY KEY (meta_data_auth_id)
+    PRIMARY KEY (meta_data_auth_id),
+    INDEX (`update_at`)
 ) comment '元数据文件授权信息';
 
 DROP TABLE IF EXISTS meta_data_column;

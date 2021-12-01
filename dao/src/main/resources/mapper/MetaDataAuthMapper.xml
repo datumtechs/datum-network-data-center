@@ -298,5 +298,7 @@
         AND update_at <![CDATA[ > ]]> #{lastUpdateAt,jdbcType=TIMESTAMP}
       </if>
     </where>
+    order by update_at
+    limit 0, 10
   </select>
 </mapper>
