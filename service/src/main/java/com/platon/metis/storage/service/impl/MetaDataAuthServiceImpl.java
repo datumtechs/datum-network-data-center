@@ -39,8 +39,8 @@ public class MetaDataAuthServiceImpl implements MetaDataAuthService {
     }
 
     @Override
-    public List<MetaDataAuth> syncMetaDataAuth(String identityId, LocalDateTime lastUpdateAt) {
-        return metaDataAuthMapper.syncMetaDataAuth(identityId, lastUpdateAt);
+    public List<MetaDataAuth> syncMetaDataAuth(String identityId, LocalDateTime lastUpdateAt, long limit) {
+        return metaDataAuthMapper.syncMetaDataAuth(identityId, lastUpdateAt, limit);
     }
 
     @Override

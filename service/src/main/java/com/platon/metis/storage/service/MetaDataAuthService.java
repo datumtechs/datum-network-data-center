@@ -14,7 +14,7 @@ public interface MetaDataAuthService {
 
     int updateSelective(MetaDataAuth metaDataAuth);
 
-    List<MetaDataAuth> syncMetaDataAuth(String identityId, LocalDateTime lastUpdateAt);
+    List<MetaDataAuth> syncMetaDataAuth(String identityId, LocalDateTime lastUpdateAt, long limit);
 
     MetaDataAuth findByPK(String metaDataAuthId);
 }

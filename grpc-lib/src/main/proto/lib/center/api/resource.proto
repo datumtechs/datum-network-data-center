@@ -79,7 +79,8 @@ message ListPowerRequest {
 
 message ListPowerResponse {
   repeated types.ResourcePB powers  = 1;
-  uint64 last_updated               = 2;
+  //有最后一条记录中获取
+  //uint64 last_updated               = 2;
 }
 
 message SyncPowerRequest {
@@ -109,7 +110,8 @@ service ResourceService {
   // 查看指定组织的总算力摘要
   rpc GetPowerSummaryByIdentityId (GetPowerSummaryByIdentityRequest) returns (PowerSummaryResponse);
 
-  // 查看各个组织的总算力摘要列表
+  // 查看各个组织的总算力摘要列表，
+  // 因为这接口的返回值，是个统计数据，ListPowerSummaryRequest中的参数暂时没有意义
   rpc ListPowerSummary (ListPowerSummaryRequest) returns (ListPowerSummaryResponse);
 
 }

@@ -15,9 +15,9 @@ public interface TaskMapper {
 
     int updateByPrimaryKey(Task record);
 
-    List<Task> syncTask(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt);
+    List<Task> syncTask(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt, @Param("limit") long limit);
 
     void insertBatch(List<Task> taskList);
 
-    List<Task> listTaskByIdentityId(String identityId);
+    List<Task> listTaskByIdentityId(@Param("identityId") String identityId, @Param("lastUpdatedAt") LocalDateTime lastUpdatedAt, @Param("limit") long limit);
 }

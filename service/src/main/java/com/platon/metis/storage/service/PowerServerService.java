@@ -16,7 +16,7 @@ public interface PowerServerService {
 
     int updateStatus(String powerId, int status);
 
-    List<PowerServer> syncPowerServer(LocalDateTime lastUpdatedAt);
+    List<PowerServer> syncPowerServer(LocalDateTime lastUpdatedAt, long limit);
 
     /**
      * 只包含 各项 的sum

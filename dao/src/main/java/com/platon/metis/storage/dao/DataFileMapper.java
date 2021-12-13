@@ -19,11 +19,11 @@ public interface DataFileMapper {
 
     int updateByPrimaryKey(DataFile record);
 
-    List<DataFile> listDataFile(@Param("status") int status);
+    List<DataFile> listDataFile(@Param("status") int status, @Param("lastUpdatedAt") LocalDateTime lastUpdatedAt,@Param("limit") long limit);
 
     void insertBatch(List<DataFile> dataFileList);
 
-    List<DataFile> syncDataFile(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt);
+    List<DataFile> syncDataFile(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt,@Param("limit") long limit);
 
     void updateStatus(@Param("metaDataId")String metaDataId, @Param("status")int status);
 }

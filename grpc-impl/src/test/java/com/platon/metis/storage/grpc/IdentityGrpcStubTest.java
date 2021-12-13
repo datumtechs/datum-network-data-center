@@ -63,10 +63,12 @@ public class IdentityGrpcStubTest {
     public void getIdentityList() {
         log.info("start to test getIdentityList()...");
 
-        LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-16 08:49:24",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime lastUpdated = LocalDateTime.parse("1970-01-01 00:00:00",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        ListIdentityRequest request = ListIdentityRequest.newBuilder()
-                .setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000)
+        ListIdentityRequest request = ListIdentityRequest
+                .newBuilder()
+                .setLastUpdated(lastUpdated.toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setPageSize(Long.MAX_VALUE)
                 .build();
         ListIdentityResponse response = identityServiceBlockingStub.listIdentity(request);
 
@@ -205,11 +207,14 @@ public class IdentityGrpcStubTest {
 
     @Test
     public void listMetadataAuthority() {
-        LocalDateTime lastUpdated = LocalDateTime.parse("2021-08-28 08:45:37",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime lastUpdated = LocalDateTime.parse("1970-01-01 00:00:00",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        ListMetadataAuthorityRequest request =ListMetadataAuthorityRequest.newBuilder()
+        ListMetadataAuthorityRequest request =ListMetadataAuthorityRequest
+                .newBuilder()
                 .setIdentityId("identity_a3876b82060f4eafbca7257692f1b285")
-                .setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000).build();
+                .setLastUpdated(lastUpdated.toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setPageSize(Long.MAX_VALUE)
+                .build();
 
         ListMetadataAuthorityResponse response = identityServiceBlockingStub.listMetadataAuthority(request);
 

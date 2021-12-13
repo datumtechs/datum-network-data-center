@@ -92,16 +92,13 @@
     join data_file d on o.identity_id = d.identity_id and d.meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </select>
 
-  <select id="syncOrgInfo" parameterType="java.time.LocalDateTime" resultMap="BaseResultMap">
+  <select id="syncOrgInfo" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from org_info
-    <where>
-      <if test="lastUpdatedAt != null">
-        AND update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
-      </if>
-    </where>
-    order by org_name
+    where update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
+    order by update_at
+    limit 0, #{limit,jdbcType=BIGINT}
   </select>
 
 </mapper>

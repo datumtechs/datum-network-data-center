@@ -288,7 +288,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
             lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
         }
 
-        List<Task> taskList = taskService.syncTask(lastUpdateAt);
+        List<Task> taskList = taskService.syncTask(lastUpdateAt, request.getPageSize());
 
         List<com.platon.metis.storage.grpc.lib.types.TaskPB> grpcTaskList = convertorService.toTaskPB(taskList);
 
@@ -306,7 +306,12 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
                                    io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListTaskResponse> responseObserver) {
         log.debug("listTaskByIdentity, request:{}", request);
 
-        List<Task> taskList = taskService.listTaskByIdentityId(request.getIdentityId());
+        LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
+        if (request.getLastUpdated() > 0) {
+            lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
+        }
+
+        List<Task> taskList = taskService.listTaskByIdentityId(request.getIdentityId(), lastUpdateAt, request.getPageSize());
 
         List<com.platon.metis.storage.grpc.lib.types.TaskPB> grpcTaskList = convertorService.toTaskPB(taskList);
 

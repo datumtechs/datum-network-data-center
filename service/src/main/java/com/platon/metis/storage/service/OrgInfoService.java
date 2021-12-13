@@ -13,7 +13,7 @@ public interface OrgInfoService {
 
     OrgInfo findByMetaDataId(String metaDataId);
 
-    List<OrgInfo> syncOrgInfo(LocalDateTime lastUpdatedAt);
+    List<OrgInfo> syncOrgInfo(LocalDateTime lastUpdatedAt, long limit);
 
     int deleteByPK(String identityId);
 

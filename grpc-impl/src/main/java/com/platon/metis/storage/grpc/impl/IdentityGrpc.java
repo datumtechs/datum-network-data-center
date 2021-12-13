@@ -55,7 +55,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
             lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
         }
 
-        List<OrgInfo> orgInfoList = orgInfoService.syncOrgInfo(lastUpdateAt);
+        List<OrgInfo> orgInfoList = orgInfoService.syncOrgInfo(lastUpdateAt, request.getPageSize());
         List<Organization> organizationList = orgInfoList.parallelStream().map(orgInfo -> {
             return this.convertorService.toProtoOrganization(orgInfo);
         }).collect(Collectors.toList());
@@ -257,7 +257,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
             lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
         }
         String identityId = request.getIdentityId();
-        List<MetaDataAuth> metaDataAuthList = metaDataAuthService.syncMetaDataAuth(identityId, lastUpdateAt);
+        List<MetaDataAuth> metaDataAuthList = metaDataAuthService.syncMetaDataAuth(identityId, lastUpdateAt, request.getPageSize());
 
 
         ListMetadataAuthorityResponse response ;

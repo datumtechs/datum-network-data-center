@@ -93,13 +93,18 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * 查看全部元数据摘要列表 (不包含 列字段描述)，状态为可用
      * </pre>
      */
-    public void listMetadataSummary(com.google.protobuf.Empty request,
+    public void listMetadataSummary(ListMetadataSummaryRequest request,
                                        io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataSummaryResponse> responseObserver) {
         log.debug("listMetadataSummary, request:{}", request);
 
-        List<DataFile> dataFileList = metaDataService.listDataFile(MetadataState.MetadataState_Released.ordinal());
+        LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
+        if (request.getLastUpdated() > 0) {
+            lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
+        }
 
-        List<MetadataSummaryOwner> metaDataSummaryOwnerList = convertorService.toProtoMetaDataSummaryOwner(dataFileList);
+        List<DataFile> dataFileList = metaDataService.listDataFile(MetadataState.MetadataState_Released.ordinal(), lastUpdateAt, request.getPageSize());
+
+        List<MetadataSummaryOwner> metaDataSummaryOwnerList = convertorService.toProtoMetaDataSummaryWithOwner(dataFileList);
 
         ListMetadataSummaryResponse response = ListMetadataSummaryResponse.newBuilder()
                 .addAllMetadataSummaries(metaDataSummaryOwnerList)
@@ -125,7 +130,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
             lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
         }
 
-        List<DataFile> dataFileList = metaDataService.syncDataFile(lastUpdateAt);
+        List<DataFile> dataFileList = metaDataService.syncDataFile(lastUpdateAt, request.getPageSize());
 
         ListMetadataResponse response;
 

@@ -25,9 +25,9 @@ public interface ConvertorService {
 
     com.platon.metis.storage.grpc.lib.types.MetadataColumn toProtoMetaDataColumnDetail(MetaDataColumn metaDataColumn);
 
-    com.platon.metis.storage.grpc.lib.api.MetadataSummaryOwner toProtoMetaDataSummaryOwner(DataFile dataFile);
+    com.platon.metis.storage.grpc.lib.api.MetadataSummaryOwner toProtoMetaDataSummaryWithOwner(DataFile dataFile);
 
-    List<MetadataSummaryOwner> toProtoMetaDataSummaryOwner(List<DataFile> dataFileList);
+    List<MetadataSummaryOwner> toProtoMetaDataSummaryWithOwner(List<DataFile> dataFileList);
 
 
     com.platon.metis.storage.grpc.lib.types.MetadataPB toProtoMetadataPB(DataFile dataFile);

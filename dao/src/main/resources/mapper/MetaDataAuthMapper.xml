@@ -299,6 +299,6 @@
       </if>
     </where>
     order by update_at
-    limit 0, 10
+    limit 0, #{limit,jdbcType=BIGINT}
   </select>
 </mapper>

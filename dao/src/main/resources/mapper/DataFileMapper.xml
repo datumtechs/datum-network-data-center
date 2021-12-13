@@ -269,20 +269,22 @@
     where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </update>
 
-  <select id="listDataFile" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="listDataFile"  resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from data_file
-    where status = #{status,jdbcType=INTEGER}
-    order by identity_id, resource_name
+    where status = #{status,jdbcType=INTEGER} and update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
+    order by update_at
+    limit 0, #{limit,jdbcType=BIGINT}
   </select>
 
-  <select id="syncDataFile" parameterType="java.time.LocalDateTime" resultMap="BaseResultMap">
+  <select id="syncDataFile" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from data_file
     where update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
     order by update_at
+    limit 0, #{limit,jdbcType=BIGINT}
   </select>
 
   <update id="updateStatus">

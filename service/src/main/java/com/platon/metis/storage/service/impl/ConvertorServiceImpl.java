@@ -221,7 +221,7 @@ public class ConvertorServiceImpl implements ConvertorService {
     }
 
     @Override
-    public MetadataSummaryOwner toProtoMetaDataSummaryOwner(DataFile dataFile) {
+    public MetadataSummaryOwner toProtoMetaDataSummaryWithOwner(DataFile dataFile) {
         OrgInfo orgInfo = orgInfoService.findByPK(dataFile.getIdentityId());
         if (orgInfo == null) {
             log.error("identity not found. identityId:={}", dataFile.getIdentityId());
@@ -237,19 +237,20 @@ public class ConvertorServiceImpl implements ConvertorService {
                         .setFilePath(dataFile.getFilePath())
                         .setFileType(OriginFileType.forNumber(dataFile.getFileType()))
                         .setHasTitle(dataFile.getHasTitle())
-                        .setSize(dataFile.getSize().intValue())
-                        .setRows(dataFile.getRows().intValue())
+                        .setSize(dataFile.getSize())
+                        .setRows(dataFile.getRows())
                         .setColumns(dataFile.getColumns())
                         .setDesc(StringUtils.trimToEmpty(dataFile.getRemarks()))
                         .setState(MetadataState.forNumber(dataFile.getStatus()))
+                        .setUpdateAt(dataFile.getUpdateAt()==null?0:dataFile.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                         .build())
                 .build();
     }
 
     @Override
-    public List<MetadataSummaryOwner> toProtoMetaDataSummaryOwner(List<DataFile> dataFileList) {
+    public List<MetadataSummaryOwner> toProtoMetaDataSummaryWithOwner(List<DataFile> dataFileList) {
         return dataFileList.parallelStream().map(dataFile -> {
-            return this.toProtoMetaDataSummaryOwner(dataFile);
+            return this.toProtoMetaDataSummaryWithOwner(dataFile);
         }).filter(item -> item != null).collect(Collectors.toList());
     }
 

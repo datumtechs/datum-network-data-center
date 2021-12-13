@@ -40,8 +40,8 @@ public class OrgInfoServiceImpl implements OrgInfoService {
     }
 
     @Override
-    public List<OrgInfo> syncOrgInfo(LocalDateTime lastUpdatedAt) {
-        return orgInfoMapper.syncOrgInfo(lastUpdatedAt);
+    public List<OrgInfo> syncOrgInfo(LocalDateTime lastUpdatedAt, long limit) {
+        return orgInfoMapper.syncOrgInfo(lastUpdatedAt, limit);
     }
 
     @Override

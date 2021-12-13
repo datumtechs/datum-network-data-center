@@ -20,7 +20,7 @@ public interface OrgInfoMapper {
 
     OrgInfo findByMetaDataId(String metaDataId);
 
-    List<OrgInfo> syncOrgInfo(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt);
+    List<OrgInfo> syncOrgInfo(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt, @Param("limit")long limit);
 
     int insertBatch(List<OrgInfo> orgInfoList);
 }

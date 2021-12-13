@@ -40,8 +40,8 @@ public class PowerServerServiceImpl implements PowerServerService {
     }
 
     @Override
-    public List<PowerServer> syncPowerServer(LocalDateTime lastUpdatedAt) {
-        return powerServerMapper.syncPowerServer(lastUpdatedAt);
+    public List<PowerServer> syncPowerServer(LocalDateTime lastUpdatedAt, long limit) {
+        return powerServerMapper.syncPowerServer(lastUpdatedAt, limit);
     }
 
     @Override

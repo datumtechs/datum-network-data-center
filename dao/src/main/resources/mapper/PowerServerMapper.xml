@@ -99,6 +99,7 @@
     left join org_info o on ps.identity_id = o.identity_id
     where ps.update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
     order by ps.update_at
+    limit 0, #{limit,jdbcType=BIGINT}
   </select>
 
 

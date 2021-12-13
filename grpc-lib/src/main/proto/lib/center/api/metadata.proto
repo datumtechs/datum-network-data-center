@@ -61,7 +61,8 @@ message ListMetadataRequest {
 
 message ListMetadataResponse {
   repeated types.MetadataPB metadata    = 1;
-  uint64            last_updated = 2;
+  //有最后一条记录中获取
+  // uint64            last_updated = 2;
 }
 
 message FindMetadataByIdRequest {

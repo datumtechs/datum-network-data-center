@@ -18,7 +18,7 @@ public interface PowerServerMapper {
 
     int updateByPrimaryKey(PowerServer record);
 
-    List<PowerServer> syncPowerServer(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt);
+    List<PowerServer> syncPowerServer(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt, @Param("limit") long limit);
 
     /**
      * 只包含 各项 的sum

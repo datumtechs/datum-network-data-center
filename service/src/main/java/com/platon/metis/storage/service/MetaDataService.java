@@ -14,8 +14,8 @@ public interface MetaDataService {
 
     void insertMetaData(DataFile dataFile, List<MetaDataColumn> metaDataColumnList);
 
-    List<DataFile> listDataFile(int status);
-    List<DataFile> syncDataFile(LocalDateTime lastUpdatedAt);
+    List<DataFile> listDataFile(int status, LocalDateTime lastUpdatedAt, long limit);
+    List<DataFile> syncDataFile(LocalDateTime lastUpdatedAt, long limit);
     void insertDataFile(List<DataFile> dataFileList);
     void insertMetaDataColumn(List<MetaDataColumn> metaDataColumnList);
     void updateStatus(String metaDataId, int status);

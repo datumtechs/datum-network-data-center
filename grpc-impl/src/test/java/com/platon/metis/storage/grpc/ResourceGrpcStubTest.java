@@ -72,11 +72,13 @@ public class ResourceGrpcStubTest {
         log.info("start to test listPower()...");
 
         log.info("start to test getMetadataList()...");
-        LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-16 09:00:57",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime lastUpdated = LocalDateTime.parse("1970-01-01 00:00:00",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
 
-        ListPowerRequest request = ListPowerRequest.newBuilder()
-                .setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000)
+        ListPowerRequest request = ListPowerRequest
+                .newBuilder()
+                .setLastUpdated(lastUpdated.toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setPageSize(Long.MAX_VALUE)
                 .build();
         ListPowerResponse response = resourceServiceBlockingStub.listPower(request);
 
@@ -97,7 +99,14 @@ public class ResourceGrpcStubTest {
     @Test
     public void listPowerSummary() {
         log.info("start to test listPowerSummary()...");
-        com.google.protobuf.Empty request = com.google.protobuf.Empty.getDefaultInstance();
+
+        LocalDateTime lastUpdated = LocalDateTime.parse("1970-01-01 00:00:00",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        ListPowerSummaryRequest request = ListPowerSummaryRequest
+                .newBuilder()
+                .setLastUpdated(lastUpdated.toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setPageSize(Long.MAX_VALUE)
+                .build();
 
         ListPowerSummaryResponse response = resourceServiceBlockingStub.listPowerSummary(request);
 

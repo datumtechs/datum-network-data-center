@@ -22,5 +22,5 @@ public interface MetaDataAuthMapper {
 
     int updateStatus(@Param("metaDataAuthId") String metaDataAuthId, @Param("status") int status);
 
-    List<MetaDataAuth> syncMetaDataAuth(@Param("identityId") String identityId, @Param("lastUpdateAt") LocalDateTime lastUpdateAt);
+    List<MetaDataAuth> syncMetaDataAuth(@Param("identityId") String identityId, @Param("lastUpdateAt") LocalDateTime lastUpdateAt, @Param("limit") long limit);
 }

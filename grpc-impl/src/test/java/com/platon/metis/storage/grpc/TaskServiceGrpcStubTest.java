@@ -89,9 +89,13 @@ public class TaskServiceGrpcStubTest {
     public void listTask() {
         log.info("start to test listTask()...");
 
-        LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-08 08:49:24",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime lastUpdated = LocalDateTime.parse("1970-01-01 00:00:00",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        ListTaskRequest request = ListTaskRequest.newBuilder().setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000).build();
+        ListTaskRequest request = ListTaskRequest
+                .newBuilder()
+                .setLastUpdated(lastUpdated.toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setPageSize(Long.MAX_VALUE)
+                .build();
         ListTaskResponse response = taskServiceBlockingStub.listTask(request);
 
         log.info("listTask(), response.size:{}", response.getTasksList().size());
@@ -100,11 +104,12 @@ public class TaskServiceGrpcStubTest {
     @Test
     public void listTaskByIdentityId() {
         log.info("start to test listTaskByIdentityId()...");
-        LocalDateTime lastUpdated = LocalDateTime.parse("2021-09-08 08:49:24",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime lastUpdated = LocalDateTime.parse("1970-01-01 00:00:00",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         ListTaskByIdentityRequest request = ListTaskByIdentityRequest.newBuilder()
                 .setIdentityId("identity_b2b2e609a81542558bef5b755b9aaa5c")
-                .setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000)
+                .setLastUpdated(lastUpdated.toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setPageSize(Long.MAX_VALUE)
                 .build();
         ListTaskResponse response = taskServiceBlockingStub.listTaskByIdentity(request);
 

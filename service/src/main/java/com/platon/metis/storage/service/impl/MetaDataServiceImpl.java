@@ -31,13 +31,13 @@ public class MetaDataServiceImpl implements MetaDataService {
     }
 
     @Override
-    public List<DataFile> listDataFile(int status) {
-        return dataFileMapper.listDataFile(status);
+    public List<DataFile> listDataFile(int status, LocalDateTime lastUpdatedAt, long limit) {
+        return dataFileMapper.listDataFile(status, lastUpdatedAt, limit);
     }
 
     @Override
-    public List<DataFile> syncDataFile(LocalDateTime lastUpdatedAt) {
-        return dataFileMapper.syncDataFile(lastUpdatedAt);
+    public List<DataFile> syncDataFile(LocalDateTime lastUpdatedAt, long limit) {
+        return dataFileMapper.syncDataFile(lastUpdatedAt, limit);
     }
 
 

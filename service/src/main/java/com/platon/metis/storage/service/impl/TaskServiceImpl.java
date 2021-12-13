@@ -34,12 +34,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Task> syncTask(LocalDateTime lastUpdatedAt) {
-        return taskMapper.syncTask(lastUpdatedAt);
+    public List<Task> syncTask(LocalDateTime lastUpdatedAt, long limit) {
+        return taskMapper.syncTask(lastUpdatedAt, limit);
     }
 
     @Override
-    public List<Task> listTaskByIdentityId(String identityId) {
-        return taskMapper.listTaskByIdentityId(identityId);
+    public List<Task> listTaskByIdentityId(String identityId, LocalDateTime lastUpdatedAt, long limit) {
+        return taskMapper.listTaskByIdentityId(identityId, lastUpdatedAt, limit);
     }
 }

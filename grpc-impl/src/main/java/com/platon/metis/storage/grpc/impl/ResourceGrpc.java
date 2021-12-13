@@ -142,7 +142,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
             lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
         }
 
-        List<PowerServer> powerServerList = powerServerService.syncPowerServer(lastUpdateAt);
+        List<PowerServer> powerServerList = powerServerService.syncPowerServer(lastUpdateAt, request.getPageSize());
 
         List<ResourcePB> powerList = powerServerList.parallelStream().map(powerServer -> {
             return ResourcePB.newBuilder()
@@ -221,12 +221,18 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
     /**
      * <pre>
      * 查看各个节点的总算力摘要列表 (不包含 任务描述)
+     * 因为这接口的返回值，是个统计数据，ListPowerSummaryRequest中的参数暂时没有意义
      * </pre>
      */
-    public void listPowerSummary(com.google.protobuf.Empty request,
+    public void listPowerSummary(ListPowerSummaryRequest request,
                                          io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListPowerSummaryResponse> responseObserver) {
 
         log.debug("getPowerTotalSummaryList, request:{}", request);
+        // 因为这接口的返回值，是个统计数据，ListPowerSummaryRequest中的参数暂时没有意义
+        /*LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
+        if (request.getLastUpdated() > 0) {
+            lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
+        }*/
 
         List<OrgPowerTaskSummary> orgPowerTaskSummaryList = powerServerService.listPowerSummaryGroupByOrgId();
 

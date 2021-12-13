@@ -57,7 +57,14 @@ public class MetaDataGrpcStubTest {
     @Test
     public void listMetaDataSummary() {
         log.info("start to test listMetaDataSummary()...");
-        com.google.protobuf.Empty request = com.google.protobuf.Empty.getDefaultInstance();
+
+        LocalDateTime lastUpdated = LocalDateTime.parse("1970-01-01 00:00:00",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        ListMetadataSummaryRequest request = ListMetadataSummaryRequest
+                .newBuilder()
+                .setLastUpdated(lastUpdated.toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setPageSize(Long.MAX_VALUE)
+                .build();
         ListMetadataSummaryResponse response = metaDataServiceBlockingStub.listMetadataSummary(request);
 
         log.info("listMetaDataSummary(), response:{}", response.getMetadataSummariesList());
@@ -66,10 +73,14 @@ public class MetaDataGrpcStubTest {
     @Test
     public void listMetadata() {
         log.info("start to test listMetadata()...");
-        LocalDateTime lastUpdated = LocalDateTime.parse("2021-08-28 08:45:37",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime lastUpdated = LocalDateTime.parse("1970-01-01 00:00:00",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
 
-        ListMetadataRequest request = ListMetadataRequest.newBuilder().setLastUpdated(lastUpdated.toEpochSecond(ZoneOffset.UTC)*1000).build();
+        ListMetadataRequest request = ListMetadataRequest
+                .newBuilder()
+                .setLastUpdated(lastUpdated.toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setPageSize(Long.MAX_VALUE)
+                .build();
         ListMetadataResponse response = metaDataServiceBlockingStub.listMetadata(request);
 
         log.info("listMetadata(), response:{}", response.getMetadataList());
