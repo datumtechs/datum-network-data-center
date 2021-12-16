@@ -1,15 +1,14 @@
 spring:
-
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
     druid:
-      url: jdbc:mysql://192.168.9.191:3306/metis_storage_eval_146?useSSL=false&useServerPrepStmts=true&rewriteBatchedStatements=true&allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8
+      url: jdbc:mysql://localhost:3306/metis_storage?useSSL=false&useServerPrepStmts=true&rewriteBatchedStatements=true&allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8
       username: platon
       password: platon
-      initial-size: 10
-      max-active: 20
-      min-idle: 10
+      initial-size: 100
+      max-active: 200
+      min-idle: 20
       max-wait: 60000
       connection-init-sqls: set names utf8mb4
       pool-prepared-statements: true
@@ -23,8 +22,6 @@ spring:
       stat-view-servlet:
         enabled: true
         url-pattern: /druid/*
-        #login-username: admin
-        #login-password: admin
       filter:
         stat:
           log-slow-sql: true
@@ -36,13 +33,14 @@ spring:
 
 grpc:
   server:
-    port: 9091
-    in-process-name: grpc-demo-server
+    port: 9090
+    in-process-name: metis-storage-serve
+    max-inbound-message-size: 1073741824
   client:
     #允许客户端在同一应用程序内使用以下配置连接到服务器
     inProcess:
-      address: in-process:grpc-demo-server
-
+      address: in-process:metis-storage-server
+    max-inbound-message-size: 1073741824
 # =============================== conf for logger ===================================
 # 日志配置
 logging:
@@ -62,9 +60,9 @@ logging:
     rollingpolicy:
       # 根据文件大小归档，超过2KB自动归档，次日启动服务时也会自动归档
       file-name-pattern: ./logs/%d{yyyyMMdd}/${spring.application.name}.out.log.%d{yyyy-MM-dd}.%i.gz
-      # 最大日志文件大小(默认为10MB，这里为了测试归档，暂时设置为2KB)
-      max-file-size: 2KB
+      # 最大日志文件大小(默认为10MB)
+      max-file-size: 200MB
       # 要保留的日志备份的总大小(默认为0B)
-      total-size-cap: 1GB
+      # total-size-cap: 1GB
       # 保存存档日志文件的最大天数(默认为7天)
-      max-history: 20
+      # max-history: 20
