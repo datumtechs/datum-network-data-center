@@ -34,7 +34,7 @@ CREATE TABLE power_server (
     used_core INT DEFAULT 0 COMMENT '使用的core',
     used_bandwidth BIGINT DEFAULT 0 COMMENT '使用的带宽, bps',
     published BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否发布，true/false',
-    published_at(3) DATETIME NOT NULL DEFAULT NOW() comment '发布时间，精确到毫秒',
+    published_at DATETIME(3) NOT NULL comment '发布时间，精确到毫秒',
     status int COMMENT '算力的状态 (0: 未知; 1: 还未发布的算力; 2: 已发布的算力; 3: 已撤销的算力)',
     update_at DATETIME NOT NULL comment '(状态)修改时间',
     PRIMARY KEY (id)
@@ -55,7 +55,7 @@ CREATE TABLE data_file (
     `rows` INT NOT NULL DEFAULT 0  COMMENT '数据行数(不算title)',
     columns INT NOT NULL DEFAULT 0  COMMENT '数据列数',
     published BOOLEAN NOT NULL DEFAULT false comment '是否公开发布的，true/false',
-    published_at DATETIME(3) NOT NULL DEFAULT NOW() comment '发布时间，精确到毫秒',
+    published_at DATETIME(3) NOT NULL comment '发布时间，精确到毫秒',
     has_title BOOLEAN NOT NULL DEFAULT false comment '是否带标题',
     remarks VARCHAR(100) COMMENT '数据描述',
     status int COMMENT '元数据的状态 (0: 未知; 1: 还未发布的新表; 2: 已发布的表; 3: 已撤销的表)',
