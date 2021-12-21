@@ -4,6 +4,7 @@ import com.platon.metis.storage.dao.TaskMetaDataColumnMapper;
 import com.platon.metis.storage.dao.entity.TaskMetaDataColumn;
 import com.platon.metis.storage.service.TaskMetaDataColumnService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,9 @@ public class TaskMetaDataColumnServiceImpl implements TaskMetaDataColumnService 
 
     @Override
     public void insert(List<TaskMetaDataColumn> taskMetaDataColumnList) {
-        taskMetaDataColumnMapper.insertBatch(taskMetaDataColumnList);
+        if(CollectionUtils.isNotEmpty(taskMetaDataColumnList)) {
+            taskMetaDataColumnMapper.insertBatch(taskMetaDataColumnList);
+        }
     }
 
     @Override
