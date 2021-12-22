@@ -40,7 +40,7 @@ grpc:
     #允许客户端在同一应用程序内使用以下配置连接到服务器
     inProcess:
       address: in-process:metis-storage-server
-    max-inbound-message-size: 1073741824
+
 # =============================== conf for logger ===================================
 # 日志配置
 logging:
