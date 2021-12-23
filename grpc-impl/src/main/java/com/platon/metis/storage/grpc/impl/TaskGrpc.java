@@ -60,17 +60,13 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
     @Autowired
     private TaskAlgoProviderService taskAlgoProviderService;
+
     /**
      * <pre>
      * 存储任务
      * </pre>
      */
     @Transactional
-    /**
-     * <pre>
-     * 存储任务
-     * </pre>
-     */
     public void saveTask(SaveTaskRequest request,
                          io.grpc.stub.StreamObserver<SimpleResponse> responseObserver) {
 

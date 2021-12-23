@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
@@ -38,6 +39,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * 保存元数据
      * </pre>
      */
+    @Transactional
     public void saveMetadata(com.platon.metis.storage.grpc.lib.api.SaveMetadataRequest request,
                              io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
 
