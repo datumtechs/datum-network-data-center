@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -47,6 +48,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * 存储资源
      * </pre>
      */
+    @Transactional
     public void publishPower(com.platon.metis.storage.grpc.lib.api.PublishPowerRequest request,
                              io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
 
@@ -82,6 +84,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * 新增，算力同步，实时通知算力的使用情况（组织下的具体的服务器）
      * </pre>
      */
+    @Transactional
     public void syncPower(com.platon.metis.storage.grpc.lib.api.SyncPowerRequest request,
                           io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
 
@@ -110,6 +113,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * 撤销资源
      * </pre>
      */
+    @Transactional
     public void revokePower(com.platon.metis.storage.grpc.lib.api.RevokePowerRequest request,
                             io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
 
