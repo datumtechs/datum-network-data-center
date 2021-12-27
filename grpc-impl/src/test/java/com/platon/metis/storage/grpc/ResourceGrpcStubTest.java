@@ -102,11 +102,7 @@ public class ResourceGrpcStubTest {
 
         LocalDateTime lastUpdated = LocalDateTime.parse("1970-01-01 00:00:00",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        ListPowerSummaryRequest request = ListPowerSummaryRequest
-                .newBuilder()
-                .setLastUpdated(lastUpdated.toInstant(ZoneOffset.UTC).toEpochMilli())
-                .setPageSize(Long.MAX_VALUE)
-                .build();
+        com.google.protobuf.Empty request = com.google.protobuf.Empty.newBuilder().build();
 
         ListPowerSummaryResponse response = resourceServiceBlockingStub.listPowerSummary(request);
 

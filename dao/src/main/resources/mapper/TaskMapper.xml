@@ -105,8 +105,8 @@
     select
     <include refid="Base_Column_List" />
     from task
-    where update_at > #{lastUpdatedAt,jdbcType=TIMESTAMP}
-    order by update_at
+    where end_at > #{lastUpdatedAt,jdbcType=TIMESTAMP}
+    order by end_at
     limit 0, #{limit,jdbcType=BIGINT}
   </select>
 
@@ -149,6 +149,17 @@
     ) temp on t.id = temp.task_id and t.update_at > #{lastUpdatedAt,jdbcType=TIMESTAMP}
     order by t.update_at
     limit 0, #{limit,jdbcType=BIGINT}
+  </select>
+
+
+  <select id="listTaskByTaskIds" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from task
+    where id in
+    <foreach collection="taskIdList" item="taskId" index="index"  open="(" separator="," close=")">
+      #{taskId}
+    </foreach>
   </select>
 
 </mapper>

@@ -79,17 +79,10 @@ message ListPowerRequest {
 
 message ListPowerResponse {
   repeated types.ResourcePB powers  = 1;
-  //有最后一条记录中获取
-  //uint64 last_updated               = 2;
 }
 
 message SyncPowerRequest {
   types.LocalResourcePB power = 1;
-}
-
-message ListPowerSummaryRequest {
-  uint64 last_updated = 1;  //utc毫秒数
-  uint64 page_size = 2; // 单次批量数据的返回条数
 }
 
 // 资源（算力）接口定义
@@ -110,8 +103,7 @@ service ResourceService {
   // 查看指定组织的总算力摘要
   rpc GetPowerSummaryByIdentityId (GetPowerSummaryByIdentityRequest) returns (PowerSummaryResponse);
 
-  // 查看各个组织的总算力摘要列表，
-  // 因为这接口的返回值，是个统计数据，ListPowerSummaryRequest中的参数暂时没有意义
-  rpc ListPowerSummary (ListPowerSummaryRequest) returns (ListPowerSummaryResponse);
+  // 查看各个组织的总算力摘要列表 (这个是聚合的摘要, 即: 每个组织的总算力, 所以不需要分页)
+  rpc ListPowerSummary (google.protobuf.Empty) returns (ListPowerSummaryResponse);
 
 }

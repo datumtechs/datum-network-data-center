@@ -11,6 +11,8 @@ CREATE TABLE org_info (
 	identity_type VARCHAR(100) NOT NULL COMMENT '身份认证标识的类型 (ca 或者 did)',
     org_name VARCHAR(100) COMMENT '组织身份名称',
     node_id VARCHAR(200) NOT NULL COMMENT '组织节点ID',
+    image_url varchar(256) COMMENT '组织机构图像url',
+    profile  varchar(256) COMMENT '组织机构简介',
     status int NOT NULL DEFAULT 1 COMMENT '状态,1:Normal;2:NonNormal',
 --     accumulative_core INT DEFAULT 0 COMMENT '组织算力累积的core数量',
 --     accumulative_memory BIGINT DEFAULT 0 COMMENT '组织算力累积的内存数量, 字节',
@@ -126,8 +128,9 @@ CREATE TABLE task (
     status_desc VARCHAR(255) COMMENT '任务状态说明',
     remarks VARCHAR(255) COMMENT '任务描述',
     task_sign VARCHAR(1024) COMMENT '任务签名',
-    update_at         DATETIME     NOT NULL COMMENT '(状态)修改时间',
-    PRIMARY KEY (ID)
+    update_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  COMMENT '修改时间',
+    PRIMARY KEY (ID),
+    INDEX (end_at)
 ) comment '任务';
 
 DROP TABLE IF EXISTS task_algo_provider;

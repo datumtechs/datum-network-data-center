@@ -87,7 +87,7 @@ public class IdentityGrpcStubTest {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                return s.toUpperCase();}).collect(Collectors.toList());
+                    return s.toUpperCase();}).collect(Collectors.toList());
             //assertTrue(Iterables.elementsEqual(expected, upperList));
             assertEquals(expected, upperList);
          }

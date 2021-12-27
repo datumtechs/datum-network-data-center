@@ -20,4 +20,6 @@ public interface TaskMapper {
     void insertBatch(List<Task> taskList);
 
     List<Task> listTaskByIdentityId(@Param("identityId") String identityId, @Param("lastUpdatedAt") LocalDateTime lastUpdatedAt, @Param("limit") long limit);
+
+    List<Task> listTaskByTaskIds(@Param("taskIdList")List<String> taskIdList);
 }

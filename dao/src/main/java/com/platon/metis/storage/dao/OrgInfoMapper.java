@@ -13,8 +13,6 @@ public interface OrgInfoMapper {
 
     OrgInfo selectByPrimaryKey(String identityId);
 
-    int updateByPrimaryKeySelective(OrgInfo record);
-
     int updateByPrimaryKey(OrgInfo record);
     int updateStatus(@Param("identityId") String identityId, @Param("status") int status);
 

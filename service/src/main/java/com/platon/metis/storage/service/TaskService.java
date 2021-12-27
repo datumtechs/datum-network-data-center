@@ -13,4 +13,5 @@ public interface TaskService {
     List<Task> syncTask(LocalDateTime lastUpdatedAt, long limit);
     List<Task> listTaskByIdentityId(String identityId, LocalDateTime lastUpdatedAt, long limit);
 
+    List<Task> listTaskByTaskIds(List<String> taskIdList);
 }

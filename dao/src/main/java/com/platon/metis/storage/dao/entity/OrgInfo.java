@@ -10,6 +10,8 @@ public class OrgInfo {
     private String nodeId;
 
     private String orgName;
+    private String imageUrl;
+    private String profile;
 
     private Integer status;
 
@@ -63,6 +65,22 @@ public class OrgInfo {
 
     public void setAccumulativeDataFileCount(Integer accumulativeDataFileCount) {
         this.accumulativeDataFileCount = accumulativeDataFileCount;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
     }
 
     public LocalDateTime getUpdateAt() {

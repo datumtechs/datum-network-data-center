@@ -60,17 +60,13 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
     @Autowired
     private TaskAlgoProviderService taskAlgoProviderService;
+
     /**
      * <pre>
      * 存储任务
      * </pre>
      */
     @Transactional
-    /**
-     * <pre>
-     * 存储任务
-     * </pre>
-     */
     public void saveTask(SaveTaskRequest request,
                          io.grpc.stub.StreamObserver<SimpleResponse> responseObserver) {
 
@@ -322,6 +318,28 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         responseObserver.onNext(response);
         responseObserver.onCompleted();
 
+    }
+
+    /**
+     * <pre>
+     * 根据任务Ids查询任务列表 (v3.0)
+     * </pre>
+     */
+    public void listTaskByTaskIds(com.platon.metis.storage.grpc.lib.api.ListTaskByTaskIdsRequest request,
+                                  io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListTaskResponse> responseObserver) {
+
+        log.debug("listTaskByTaskIds, request:{}", request);
+
+        List<Task> taskList =  taskService.listTaskByTaskIds(request.getTaskIdsList());
+
+        List<com.platon.metis.storage.grpc.lib.types.TaskPB> grpcTaskList = convertorService.toTaskPB(taskList);
+
+        ListTaskResponse response = ListTaskResponse.newBuilder().addAllTasks(grpcTaskList).build();
+
+        log.debug("listTaskByTaskIds, response:{}", response);
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
     }
 
     /**

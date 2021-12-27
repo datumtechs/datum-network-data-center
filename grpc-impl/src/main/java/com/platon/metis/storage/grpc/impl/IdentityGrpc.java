@@ -19,6 +19,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -74,6 +75,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
      * 存储身份信息（节点用于申请接入网络的基本信息，详细的存于本地）
      * </pre>
      */
+    @Transactional
     public void saveIdentity(com.platon.metis.storage.grpc.lib.api.SaveIdentityRequest request,
                              io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
 
@@ -87,7 +89,9 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
             orgInfo.setNodeId(request.getMember().getNodeId());
             orgInfo.setOrgName(request.getMember().getNodeName());
             orgInfo.setIdentityType(request.getCredential());
-            orgInfo.setStatus(CommonStatus.CommonStatus_Normal.ordinal());
+            orgInfo.setStatus(CommonStatus.CommonStatus_Normal.getNumber());
+            orgInfo.setImageUrl(request.getMember().getImageUrl());
+            orgInfo.setProfile(request.getMember().getDetails());
             orgInfoService.insert(orgInfo);
         }else{
 
@@ -95,7 +99,9 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
             orgInfo.setNodeId(request.getMember().getNodeId());
             orgInfo.setOrgName(request.getMember().getNodeName());
             orgInfo.setIdentityType(request.getCredential());
-            orgInfo.setStatus(CommonStatus.CommonStatus_Normal.ordinal());
+            orgInfo.setStatus(CommonStatus.CommonStatus_Normal.getNumber());
+            orgInfo.setImageUrl(request.getMember().getImageUrl());
+            orgInfo.setProfile(request.getMember().getDetails());
             orgInfoService.update(orgInfo);
         }
 
@@ -114,6 +120,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
      * 注销准入网络
      * </pre>
      */
+    @Transactional
     public void revokeIdentity(com.platon.metis.storage.grpc.lib.api.RevokeIdentityRequest request,
                                    io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
 
@@ -137,6 +144,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
      * 存储元数据鉴权申请记录
      * </pre>
      */
+    @Transactional
     public void saveMetadataAuthority(com.platon.metis.storage.grpc.lib.api.MetadataAuthorityRequest request,
                                       io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
         log.debug("saveMetadataAuthority, request:{}", request);
@@ -223,6 +231,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
      * 1、授权后，可以将审核结果绑定到原有申请记录之上
      * </pre>
      */
+    @Transactional
     public void updateMetadataAuthority(com.platon.metis.storage.grpc.lib.api.MetadataAuthorityRequest request,
                                        io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
 

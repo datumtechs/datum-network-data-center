@@ -42,4 +42,9 @@ public class TaskServiceImpl implements TaskService {
     public List<Task> listTaskByIdentityId(String identityId, LocalDateTime lastUpdatedAt, long limit) {
         return taskMapper.listTaskByIdentityId(identityId, lastUpdatedAt, limit);
     }
+
+    @Override
+    public List<Task> listTaskByTaskIds(List<String> taskIdList) {
+        return taskMapper.listTaskByTaskIds(taskIdList);
+    }
 }

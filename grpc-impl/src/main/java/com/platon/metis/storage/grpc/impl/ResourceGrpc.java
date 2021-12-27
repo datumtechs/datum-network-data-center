@@ -13,11 +13,11 @@ import com.platon.metis.storage.grpc.lib.types.ResourceUsageOverview;
 import com.platon.metis.storage.service.ConvertorService;
 import com.platon.metis.storage.service.OrgInfoService;
 import com.platon.metis.storage.service.PowerServerService;
-import com.platon.metis.storage.service.TaskPowerProviderService;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -39,14 +39,12 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
     @Autowired
     private ConvertorService convertorService;
 
-    @Autowired
-    private TaskPowerProviderService taskPowerProviderService;
-
     /**
      * <pre>
      * 存储资源
      * </pre>
      */
+    @Transactional
     public void publishPower(com.platon.metis.storage.grpc.lib.api.PublishPowerRequest request,
                              io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
 
@@ -82,6 +80,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * 新增，算力同步，实时通知算力的使用情况（组织下的具体的服务器）
      * </pre>
      */
+    @Transactional
     public void syncPower(com.platon.metis.storage.grpc.lib.api.SyncPowerRequest request,
                           io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
 
@@ -110,6 +109,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * 撤销资源
      * </pre>
      */
+    @Transactional
     public void revokePower(com.platon.metis.storage.grpc.lib.api.RevokePowerRequest request,
                             io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
 
@@ -218,21 +218,19 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
+
+
     /**
      * <pre>
-     * 查看各个节点的总算力摘要列表 (不包含 任务描述)
+     * 查看各个节点的总算力摘要列表 (不包含 任务描述)(这个是聚合的摘要, 即: 每个组织的总算力, 所以不需要分页
+     *
      * 因为这接口的返回值，是个统计数据，ListPowerSummaryRequest中的参数暂时没有意义
      * </pre>
      */
-    public void listPowerSummary(ListPowerSummaryRequest request,
+    public void listPowerSummary(com.google.protobuf.Empty request,
                                          io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListPowerSummaryResponse> responseObserver) {
 
         log.debug("getPowerTotalSummaryList, request:{}", request);
-        // 因为这接口的返回值，是个统计数据，ListPowerSummaryRequest中的参数暂时没有意义
-        /*LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
-        if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
-        }*/
 
         List<OrgPowerTaskSummary> orgPowerTaskSummaryList = powerServerService.listPowerSummaryGroupByOrgId();
 
