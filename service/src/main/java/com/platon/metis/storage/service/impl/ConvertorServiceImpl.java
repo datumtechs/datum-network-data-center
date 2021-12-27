@@ -69,7 +69,7 @@ public class ConvertorServiceImpl implements ConvertorService {
             taskDataSupplierList.add(taskDataSupplier);
         }
         return taskDataSupplierList;*/
-        return taskMetaDataList.parallelStream().map(taskMetaData -> {
+        return taskMetaDataList.stream().map(taskMetaData -> {
             return toProtoDataSupplier(taskMetaData);
         }).collect(Collectors.toList());
     }
@@ -139,7 +139,7 @@ public class ConvertorServiceImpl implements ConvertorService {
         if (CollectionUtils.isEmpty(taskPowerProviderList)) {
             return new ArrayList<>();
         }
-        return taskPowerProviderList.parallelStream().map(taskPowerProvider -> {
+        return taskPowerProviderList.stream().map(taskPowerProvider -> {
 
 
             OrgInfo orgInfo = orgInfoService.findByPK(taskPowerProvider.getIdentityId());
@@ -164,7 +164,7 @@ public class ConvertorServiceImpl implements ConvertorService {
     }
 
     public List<com.platon.metis.storage.grpc.lib.common.TaskOrganization> toProtoResultReceiver(List<TaskResultConsumer> taskResultConsumerList) {
-        return taskResultConsumerList.parallelStream().map(item -> {
+        return taskResultConsumerList.stream().map(item -> {
             OrgInfo consumer = orgInfoService.findByPK(item.getConsumerIdentityId());
             return this.toProtoTaskOrganization(consumer, item.getConsumerPartyId());
         }).collect(Collectors.toList());
@@ -193,7 +193,7 @@ public class ConvertorServiceImpl implements ConvertorService {
 
 
     public List<com.platon.metis.storage.grpc.lib.types.TaskEvent> toProtoTaskEvent(List<com.platon.metis.storage.dao.entity.TaskEvent> taskEventList) {
-        return taskEventList.parallelStream().map(taskEvent -> {
+        return taskEventList.stream().map(taskEvent -> {
             return toProtoTaskEvent(taskEvent);
         }).collect(Collectors.toList());
     }
@@ -248,7 +248,7 @@ public class ConvertorServiceImpl implements ConvertorService {
 
     @Override
     public List<MetadataSummaryOwner> toProtoMetaDataSummaryOwner(List<DataFile> dataFileList) {
-        return dataFileList.parallelStream().map(dataFile -> {
+        return dataFileList.stream().map(dataFile -> {
             return this.toProtoMetaDataSummaryOwner(dataFile);
         }).filter(item -> item != null).collect(Collectors.toList());
     }
@@ -262,7 +262,7 @@ public class ConvertorServiceImpl implements ConvertorService {
         }
 
         List<MetaDataColumn> metaDataColumnList = metaDataService.listMetaDataColumn(dataFile.getMetaDataId());
-        List<MetadataColumn> metaDataColumnDetailList = metaDataColumnList.parallelStream().map(column -> {
+        List<MetadataColumn> metaDataColumnDetailList = metaDataColumnList.stream().map(column -> {
             return toProtoMetaDataColumnDetail(column);
         }).collect(Collectors.toList());
 
@@ -292,7 +292,7 @@ public class ConvertorServiceImpl implements ConvertorService {
 
     @Override
     public List<MetadataPB> toProtoMetadataPB(List<DataFile> dataFileList) {
-        return dataFileList.parallelStream().map(dataFile -> {
+        return dataFileList.stream().map(dataFile -> {
             return this.toProtoMetadataPB(dataFile);
         }).filter(item -> item != null).collect(Collectors.toList());
     }
@@ -353,7 +353,7 @@ public class ConvertorServiceImpl implements ConvertorService {
     @Override
     public List<com.platon.metis.storage.grpc.lib.types.TaskPB> toTaskPB(List<Task> taskList) {
         List<com.platon.metis.storage.grpc.lib.types.TaskPB> grpcTaskList =
-                taskList.parallelStream().map(task -> {
+                taskList.stream().map(task -> {
                     return toTaskPB(task);
                 }).collect(Collectors.toList());
         return grpcTaskList;
