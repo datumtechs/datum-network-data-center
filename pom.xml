@@ -6,7 +6,7 @@
     <groupId>com.platon.metis</groupId>
     <artifactId>metis-storage</artifactId>
     <packaging>pom</packaging>
-    <version>2.0-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
     <modules>
         <module>grpc-lib</module>
         <module>common</module>

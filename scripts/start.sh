@@ -1,8 +1,8 @@
 #!/bin/bash
 PROFILE=$1
-ps -ef|grep -v grep|grep metis-storage-2.0-SNAPSHOT|grep active=$PROFILE|awk '{print $2}'|xargs kill -9;
+ps -ef|grep -v grep|grep metis-storage-0.3.0-SNAPSHOT|grep active=$PROFILE|awk '{print $2}'|xargs kill -9;
 # nohup java JAVA_OPTS=-Xmx1024m -Xms512m -Xmn512m -Xss256k -XX:PermSize=256M -XX:MaxPermSize=256m -XX:MaxTenuringThreshold=0 -XX:+UseParallelGC -XX:ParallelGCThreads=20 -XX:+UsePara
-llelOldGC -jar metis-storage-2.0-SNAPSHOT.jar --spring.profiles.active=$PROFILE > /dev/null 2>&1 &
+llelOldGC -jar metis-storage-0.3.0-SNAPSHOT.jar --spring.profiles.active=$PROFILE > /dev/null 2>&1 &
 
 nohup java \
 -server \
@@ -23,8 +23,8 @@ nohup java \
 -Xloggc:.logs/gc.log \
 -XX:CMSInitiatingOccupancyFraction=75 \
 -XX:+UseCMSInitiatingOccupancyOnly \
--jar metis-storage-2.0-SNAPSHOT.jar --spring.profiles.active=$PROFILE > /dev/null 2>&1 &
+-jar metis-storage-0.3.0-SNAPSHOT.jar --spring.profiles.active=$PROFILE > /dev/null 2>&1 &
 
 
 echo 'Agent Process List:'
-ps -elf|grep metis-storage-2.0-SNAPSHOT
+ps -elf|grep metis-storage-0.3.0-SNAPSHOT
