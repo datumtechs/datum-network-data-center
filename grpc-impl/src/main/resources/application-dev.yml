@@ -3,7 +3,7 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
     druid:
-      url: jdbc:mysql://192.168.9.192:3306/metis_storage_0.3.0?useSSL=false&useServerPrepStmts=true&rewriteBatchedStatements=true&allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8
+      url: jdbc:mysql://192.168.9.192:3306/dev_metis_storage_0.3.0?useSSL=false&useServerPrepStmts=true&rewriteBatchedStatements=true&allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8
       username: root
       password: 6qY7CBQo7p!
       initial-size: 100
@@ -34,7 +34,7 @@ spring:
 grpc:
   server:
     port: 9090
-    in-process-name: metis-storage-serve
+    in-process-name: metis-storage-server
     max-inbound-message-size: 1073741824
   client:
     #允许客户端在同一应用程序内使用以下配置连接到服务器
