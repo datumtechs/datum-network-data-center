@@ -87,6 +87,23 @@ public class MetaDataGrpcStubTest {
     }
 
     @Test
+    public void listMetadataByIdentityId() {
+        log.info("start to test listMetadataByIdentityId()...");
+        LocalDateTime lastUpdated = LocalDateTime.parse("1970-01-01 00:00:00",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+
+        ListMetadataByIdentityIdRequest request = ListMetadataByIdentityIdRequest
+                .newBuilder()
+                .setIdentityId("adkaa")
+                .setLastUpdated(lastUpdated.toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setPageSize(Long.MAX_VALUE)
+                .build();
+        ListMetadataResponse response = metaDataServiceBlockingStub.listMetadataByIdentityId(request);
+
+        log.info("listMetadataByIdentityId(), response:{}", response.getMetadataList());
+    }
+
+    @Test
     public void findMetadataById() {
         log.info("start to test findMetadataById()...");
         FindMetadataByIdRequest request = FindMetadataByIdRequest.newBuilder().setMetadataId("test_meta_data_2").build();

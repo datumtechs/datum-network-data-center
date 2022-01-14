@@ -287,6 +287,16 @@
     limit 0, #{limit,jdbcType=BIGINT}
   </select>
 
+  <select id="syncDataFileByIdentityId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from data_file
+    where  identity_id = #{identityId,jdbcType=VARCHAR} and update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
+    order by update_at
+    limit 0, #{limit,jdbcType=BIGINT}
+  </select>
+
+
   <update id="updateStatus">
     update data_file
     set status = #{status,jdbcType=INTEGER}, published = false, update_at = CURRENT_TIMESTAMP()

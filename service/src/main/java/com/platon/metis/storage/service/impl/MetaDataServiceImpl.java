@@ -40,6 +40,11 @@ public class MetaDataServiceImpl implements MetaDataService {
         return dataFileMapper.syncDataFile(lastUpdatedAt, limit);
     }
 
+    @Override
+    public List<DataFile> syncDataFileByIdentityId(String identityId, LocalDateTime lastUpdatedAt, long limit) {
+        return dataFileMapper.syncDataFileByIdentityId(identityId, lastUpdatedAt, limit);
+    }
+
 
     @Override
     public void insertDataFile(List<DataFile> dataFileList) {

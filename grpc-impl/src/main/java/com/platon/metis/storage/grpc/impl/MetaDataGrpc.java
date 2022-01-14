@@ -163,6 +163,52 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         responseObserver.onCompleted();
     }
 
+
+    /**
+     * <pre>
+     * 新增：对应identityId的元数据详细列表（用于将数据同步给管理台，考虑checkpoint同步点位）
+     * </pre>
+     */
+    public void listMetadataByIdentityId(com.platon.metis.storage.grpc.lib.api.ListMetadataByIdentityIdRequest request,
+                                         io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataResponse> responseObserver) {
+        log.debug("listMetadataByIdentityId, request:{}", request);
+
+        LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
+        if (request.getLastUpdated() > 0) {
+            lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
+        }
+
+        List<DataFile> dataFileList = metaDataService.syncDataFileByIdentityId(request.getIdentityId(), lastUpdateAt, request.getPageSize());
+
+        ListMetadataResponse response;
+
+        if(CollectionUtils.isEmpty(dataFileList)) {
+            response = ListMetadataResponse.newBuilder().build();
+        }else{
+
+            List<MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
+
+            mtadataPBList.parallelStream().forEach(metadataPB -> {
+                String metaDataId = metadataPB.getMetadataId();
+
+                List<MetaDataColumn> metaDataColumnList = metaDataService.listMetaDataColumn(metaDataId);
+                List<MetadataColumn> metaDataColumnDetailList = metaDataColumnList.parallelStream().map(column ->{
+                    return this.convertorService.toProtoMetaDataColumnDetail(column);
+                }).collect(Collectors.toList());
+
+                metadataPB.toBuilder().addAllMetadataColumns(metaDataColumnDetailList);
+
+            });
+            response = ListMetadataResponse.newBuilder().addAllMetadata(mtadataPBList).build();
+        }
+
+        log.debug("listMetadataByIdentityId, response:{}", response);
+
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
     /**
      * <pre>
      * 新增，根据元数据ID查询元数据详情

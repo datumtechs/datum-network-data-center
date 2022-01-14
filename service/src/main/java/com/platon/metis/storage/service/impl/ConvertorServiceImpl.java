@@ -179,8 +179,8 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setNodeId(orgInfo.getNodeId())
                 .setNodeName(orgInfo.getOrgName())
                 .setStatus(CommonStatus.forNumber(orgInfo.getStatus()))
-                .setImageUrl(orgInfo.getImageUrl())
-                .setDetails(orgInfo.getProfile())
+                .setImageUrl(StringUtils.trimToEmpty(orgInfo.getImageUrl()))
+                .setDetails(StringUtils.trimToEmpty(orgInfo.getProfile()))
                 .build();
     }
 

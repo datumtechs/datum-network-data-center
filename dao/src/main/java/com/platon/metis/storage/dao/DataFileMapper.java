@@ -24,6 +24,6 @@ public interface DataFileMapper {
     void insertBatch(List<DataFile> dataFileList);
 
     List<DataFile> syncDataFile(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt,@Param("limit") long limit);
-
+    List<DataFile> syncDataFileByIdentityId(@Param("identityId") String identityId, @Param("lastUpdatedAt") LocalDateTime lastUpdatedAt,@Param("limit") long limit);
     void updateStatus(@Param("metaDataId")String metaDataId, @Param("status")int status);
 }
