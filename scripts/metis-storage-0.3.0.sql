@@ -61,7 +61,7 @@ CREATE TABLE data_file (
     has_title BOOLEAN NOT NULL DEFAULT false comment '是否带标题',
     remarks VARCHAR(100) COMMENT '数据描述',
     status int COMMENT '元数据的状态 (0: 未知; 1: 还未发布的新表; 2: 已发布的表; 3: 已撤销的表)',
-    update_at DATETIME NOT NULL comment '(状态)修改时间',
+    update_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '(状态)修改时间',
     dfs_data_status int COMMENT '元数据在分布式存储环境中的状态 (0: DataStatus_Unknown ; DataStatus_Normal = 1; DataStatus_Deleted = 2)',
     dfs_data_id  VARCHAR(200) COMMENT '元数据在分布式存储环境中的ID',
 	PRIMARY KEY (meta_data_id)

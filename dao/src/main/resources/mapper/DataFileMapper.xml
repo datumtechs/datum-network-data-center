@@ -34,7 +34,7 @@
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     update data_file
-    set status = 3, published = false, update_at = CURRENT_TIMESTAMP()
+    set status = 3, published = false
     where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </delete>
   <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.DataFile">
@@ -42,13 +42,13 @@
       file_path, file_type, resource_name, industry,
       `size`, `rows`, columns,
       published, published_at, has_title, 
-      remarks, status, update_at, dfs_data_status, dfs_data_id
+      remarks, status, dfs_data_status, dfs_data_id
       )
     values ( #{metaDataId,jdbcType=VARCHAR}, #{originId,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR},
       #{filePath,jdbcType=VARCHAR}, #{fileType,jdbcType=INTEGER}, #{resourceName,jdbcType=VARCHAR}, #{industry,jdbcType=VARCHAR},
       #{size,jdbcType=BIGINT}, #{rows,jdbcType=BIGINT}, #{columns,jdbcType=INTEGER},
       #{published,jdbcType=BIT}, #{publishedAt,jdbcType=TIMESTAMP}, #{hasTitle,jdbcType=BIT}, 
-      #{remarks,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, CURRENT_TIMESTAMP(), #{dfsDataStatus,jdbcType=INTEGER}, #{dfsDataId,jdbcType=VARCHAR}
+      #{remarks,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{dfsDataStatus,jdbcType=INTEGER}, #{dfsDataId,jdbcType=VARCHAR}
       )
   </insert>
 
@@ -57,7 +57,7 @@
       file_path, file_type, resource_name, industry,
       `size`, `rows`, columns,
       published, published_at, has_title,
-      remarks, status, update_at, dfs_data_status, dfs_data_id
+      remarks, status, dfs_data_status, dfs_data_id
       )
     values
     <foreach collection ="list" item="item" separator =",">
@@ -65,7 +65,7 @@
       #{item.filePath,jdbcType=VARCHAR}, #{item.fileType,jdbcType=INTEGER}, #{item.resourceName,jdbcType=VARCHAR}, #{item.industry,jdbcType=VARCHAR},
       #{item.size,jdbcType=BIGINT}, #{item.rows,jdbcType=BIGINT}, #{item.columns,jdbcType=INTEGER},
       #{item.published,jdbcType=BIT}, #{item.publishedAt,jdbcType=TIMESTAMP}, #{item.hasTitle,jdbcType=BIT},
-      #{item.remarks,jdbcType=VARCHAR}, #{item.status,jdbcType=INTEGER}, CURRENT_TIMESTAMP(), #{item.dfsDataStatus,jdbcType=INTEGER}, #{item.dfsDataId,jdbcType=VARCHAR}
+      #{item.remarks,jdbcType=VARCHAR}, #{item.status,jdbcType=INTEGER}, #{item.dfsDataStatus,jdbcType=INTEGER}, #{item.dfsDataId,jdbcType=VARCHAR}
       )
     </foreach>
   </insert>
@@ -128,7 +128,6 @@
       <if test="dfsDataId != null">
         dfs_data_id,
       </if>
-      update_at
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="metaDataId != null">
@@ -185,7 +184,6 @@
       <if test="dfsDataId != null">
         #{dfsDataId},
       </if>
-      CURRENT_TIMESTAMP()
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.platon.metis.storage.dao.entity.DataFile">
@@ -242,7 +240,6 @@
       <if test="dfsDataId != null">
         dfs_data_id = #{dfsDataId},
       </if>
-      update_at
     </set>
     where meta_data_id = #{meta_data_id,jdbcType=VARCHAR}
   </update>
@@ -264,8 +261,7 @@
       remarks = #{remarks,jdbcType=VARCHAR},
       status = #{status,jdbcType=INTEGER},
       dfs_data_status = #{dfsDataStatus,jdbcType=INTEGER},
-      dfs_data_id = #{dfsDataId},
-      update_at = CURRENT_TIMESTAMP()
+      dfs_data_id = #{dfsDataId}
     where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </update>
 
@@ -299,7 +295,7 @@
 
   <update id="updateStatus">
     update data_file
-    set status = #{status,jdbcType=INTEGER}, published = false, update_at = CURRENT_TIMESTAMP()
+    set status = #{status,jdbcType=INTEGER}, published = false
     where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </update>
 </mapper>
