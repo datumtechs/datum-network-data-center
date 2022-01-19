@@ -45,8 +45,6 @@ public class Task extends BaseDomain{
 
     private String taskSign;
 
-    private LocalDateTime updateAt;
-
     public String getId() {
         return id;
     }
@@ -205,14 +203,6 @@ public class Task extends BaseDomain{
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
-    }
-
-    public LocalDateTime getUpdateAt() {
-        return updateAt;
-    }
-
-    public void setUpdateAt(LocalDateTime updateAt) {
-        this.updateAt = updateAt;
     }
 
     public String getTaskSign() {

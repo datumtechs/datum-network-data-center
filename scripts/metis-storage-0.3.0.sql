@@ -127,8 +127,7 @@ CREATE TABLE task (
     status int COMMENT '任务状态, 0:未知;1:等待中;2:计算中,3:失败;4:成功',
     status_desc VARCHAR(255) COMMENT '任务状态说明',
     remarks VARCHAR(255) COMMENT '任务描述',
-    task_sign VARCHAR(1024) COMMENT '任务签名',
-    update_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  COMMENT '修改时间',
+    task_sign VARCHAR(1024) COMMENT '任务签名'
     PRIMARY KEY (ID),
     INDEX (end_at)
 ) comment '任务';
