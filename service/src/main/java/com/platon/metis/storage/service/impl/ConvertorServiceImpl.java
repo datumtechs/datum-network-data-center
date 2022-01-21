@@ -350,6 +350,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setAuditAt(metaDataAuth.getAuditAt() == null ? 0 : metaDataAuth.getAuditAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .setState(MetadataAuthorityState.forNumber(metaDataAuth.getAuthStatus()))
                 .setSign(sign)
+                .setUpdateAt(metaDataAuth.getUpdateAt() == null ? 0 : metaDataAuth.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .build();
     }
 
