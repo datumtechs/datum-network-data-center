@@ -270,7 +270,7 @@
     <include refid="Base_Column_List" />
     from data_file
     where status = #{status,jdbcType=INTEGER} and update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
-    order by update_at
+    order by update_at, meta_data_id
     limit 0, #{limit,jdbcType=BIGINT}
   </select>
 
@@ -279,7 +279,7 @@
     <include refid="Base_Column_List" />
     from data_file
     where update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
-    order by update_at
+    order by update_at, meta_data_id
     limit 0, #{limit,jdbcType=BIGINT}
   </select>
 
@@ -288,7 +288,7 @@
     <include refid="Base_Column_List" />
     from data_file
     where  identity_id = #{identityId,jdbcType=VARCHAR} and update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
-    order by update_at
+    order by update_at, meta_data_id
     limit 0, #{limit,jdbcType=BIGINT}
   </select>
 

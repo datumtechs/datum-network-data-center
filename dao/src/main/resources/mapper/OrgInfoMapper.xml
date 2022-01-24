@@ -24,32 +24,32 @@
   </select>
   <update id="deleteByPrimaryKey" parameterType="java.lang.String">
     update org_info
-    set status = 'disabled', update_at = CURRENT_TIMESTAMP()
+    set status = 'disabled'
     where identity_id = #{identityId,jdbcType=VARCHAR}
   </update>
   <update id="updateStatus">
     update org_info
-    set status = #{status,jdbcType=INTEGER}, update_at = CURRENT_TIMESTAMP()
+    set status = #{status,jdbcType=INTEGER}
     where identity_id = #{identityId,jdbcType=VARCHAR}
   </update>
 
   <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.OrgInfo">
     insert into org_info (identity_id, identity_type, node_id, org_name, status, image_url, profile,
-      accumulative_data_file_count, update_at
+      accumulative_data_file_count
       )
     values (#{identityId,jdbcType=VARCHAR}, #{identityType,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{orgName,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{imageUrl,jdbcType=VARCHAR}, #{profile,jdbcType=VARCHAR},
-       #{accumulativeDataFileCount,jdbcType=INTEGER}, CURRENT_TIMESTAMP()
+       #{accumulativeDataFileCount,jdbcType=INTEGER}
       )
   </insert>
 
   <insert id="insertBatch" >
     insert into org_info (identity_id, identity_type, node_id, org_name, status, image_url, profile,
-      accumulative_data_file_count, update_at
+      accumulative_data_file_count
       )
     values
     <foreach collection ="list" item="item" separator =",">
       (#{item.identityId,jdbcType=VARCHAR}, #{item.identityType,jdbcType=VARCHAR}, #{item.nodeId,jdbcType=VARCHAR}, #{item.orgName,jdbcType=VARCHAR}, #{item.status,jdbcType=INTEGER}, #{item.imageUrl,jdbcType=VARCHAR}, #{item.profile,jdbcType=VARCHAR},
-        #{item.accumulativeDataFileCount,jdbcType=INTEGER}, CURRENT_TIMESTAMP()
+        #{item.accumulativeDataFileCount,jdbcType=INTEGER}
         )
     </foreach>
   </insert>
@@ -62,8 +62,7 @@
       status = #{status,jdbcType=INTEGER},
       image_url = #{imageUrl,jdbcType=INTEGER},
       profile = #{profile,jdbcType=INTEGER},
-      accumulative_data_file_count = #{accumulativeDataFileCount,jdbcType=INTEGER},
-      update_at = CURRENT_TIMESTAMP()
+      accumulative_data_file_count = #{accumulativeDataFileCount,jdbcType=INTEGER}
     where identity_id = #{identityId,jdbcType=VARCHAR}
   </update>
 
@@ -79,7 +78,7 @@
     <include refid="Base_Column_List" />
     from org_info
     where update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
-    order by update_at
+    order by update_at, identity_id
     limit 0, #{limit,jdbcType=BIGINT}
   </select>
 

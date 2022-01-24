@@ -280,12 +280,6 @@
     where meta_data_auth_id = #{metaDataAuthId,jdbcType=VARCHAR}
   </update>
 
-  <update id="updateStatus">
-    update meta_data_auth
-    set status = #{status,jdbcType=INTEGER}, audit_at = CURRENT_TIMESTAMP(), update_at = CURRENT_TIMESTAMP()
-    where meta_data_auth_id = #{metaDataAuthId,jdbcType=VARCHAR}
-  </update>
-
   <select id="syncMetaDataAuth" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -298,7 +292,7 @@
         AND update_at <![CDATA[ > ]]> #{lastUpdateAt,jdbcType=TIMESTAMP}
       </if>
     </where>
-    order by update_at
+    order by update_at, meta_data_auth_id
     limit 0, #{limit,jdbcType=BIGINT}
   </select>
 </mapper>

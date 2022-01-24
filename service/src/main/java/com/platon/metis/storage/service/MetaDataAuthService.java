@@ -10,8 +10,6 @@ public interface MetaDataAuthService {
 
     void insert(List<MetaDataAuth> metaDataAuthList);
 
-    int updateStatus(String metaDataAuthId, int status);
-
     int updateSelective(MetaDataAuth metaDataAuth);
 
     List<MetaDataAuth> syncMetaDataAuth(String identityId, LocalDateTime lastUpdateAt, long limit);

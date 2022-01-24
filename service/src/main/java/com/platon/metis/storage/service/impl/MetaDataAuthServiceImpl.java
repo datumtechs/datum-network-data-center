@@ -28,12 +28,6 @@ public class MetaDataAuthServiceImpl implements MetaDataAuthService {
     }
 
     @Override
-    public int updateStatus(String metaDataAuthId, int status) {
-        return metaDataAuthMapper.updateStatus(metaDataAuthId, status);
-    }
-
-
-    @Override
     public int updateSelective(MetaDataAuth metaDataAuth) {
         return metaDataAuthMapper.updateByPrimaryKeySelective(metaDataAuth);
     }

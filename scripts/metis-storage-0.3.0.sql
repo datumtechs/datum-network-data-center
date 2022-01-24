@@ -20,8 +20,9 @@ CREATE TABLE org_info (
 --     accumulative_power_task_count INT DEFAULT 0 COMMENT '组织作为算力提供方参与的任务累积数量',
 --     accumulative_data_task_count INT DEFAULT 0 COMMENT '组织作为数据提供方参与的任务累积数量',
     accumulative_data_file_count INT DEFAULT 0 COMMENT '组织的文件累积数量',
-    update_at DATETIME NOT NULL comment '(状态)修改时间',
-    PRIMARY KEY (identity_id)
+    update_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) comment '(状态)修改时间',
+    PRIMARY KEY (identity_id),
+    INDEX(update_at)
 ) comment '组织信息';
 
 
@@ -38,8 +39,9 @@ CREATE TABLE power_server (
     published BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否发布，true/false',
     published_at DATETIME(3) NOT NULL comment '发布时间，精确到毫秒',
     status int COMMENT '算力的状态 (0: 未知; 1: 还未发布的算力; 2: 已发布的算力; 3: 已撤销的算力)',
-    update_at DATETIME NOT NULL comment '(状态)修改时间',
-    PRIMARY KEY (id)
+    update_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) comment '(状态)修改时间',
+    PRIMARY KEY (id),
+    INDEX(update_at)
 ) comment '计算服务信息';
 
 
@@ -61,10 +63,11 @@ CREATE TABLE data_file (
     has_title BOOLEAN NOT NULL DEFAULT false comment '是否带标题',
     remarks VARCHAR(100) COMMENT '数据描述',
     status int COMMENT '元数据的状态 (0: 未知; 1: 还未发布的新表; 2: 已发布的表; 3: 已撤销的表)',
-    update_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '(状态)修改时间',
+    update_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) comment '(状态)修改时间',
     dfs_data_status int COMMENT '元数据在分布式存储环境中的状态 (0: DataStatus_Unknown ; DataStatus_Normal = 1; DataStatus_Deleted = 2)',
     dfs_data_id  VARCHAR(200) COMMENT '元数据在分布式存储环境中的ID',
-	PRIMARY KEY (meta_data_id)
+	PRIMARY KEY (meta_data_id),
+    INDEX(update_at)
 ) comment '数据文件信息';
 
 DROP TABLE IF EXISTS  meta_data_auth;
@@ -88,7 +91,7 @@ CREATE TABLE meta_data_auth(
     audit_at          DATETIME(3) COMMENT '授权审核时间，精确到毫秒',
     auth_sign         VARCHAR(1024) COMMENT '授权签名hex',
     auth_status       INT DEFAULT 0 COMMENT '数据授权信息的状态 (0: 未知; 1: 还未发布的数据授权; 2: 已发布的数据授权; 3: 已撤销的数据授权 <失效前主动撤回的>; 4: 已经失效的数据授权 <过期or达到使用上限的>)',
-    update_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  COMMENT '修改时间',
+    update_at         TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)  COMMENT '修改时间',
     PRIMARY KEY (meta_data_auth_id),
     INDEX (`update_at`)
 ) comment '元数据文件授权信息';
@@ -127,7 +130,7 @@ CREATE TABLE task (
     status int COMMENT '任务状态, 0:未知;1:等待中;2:计算中,3:失败;4:成功',
     status_desc VARCHAR(255) COMMENT '任务状态说明',
     remarks VARCHAR(255) COMMENT '任务描述',
-    task_sign VARCHAR(1024) COMMENT '任务签名'
+    task_sign VARCHAR(1024) COMMENT '任务签名',
     PRIMARY KEY (ID),
     INDEX (end_at)
 ) comment '任务';

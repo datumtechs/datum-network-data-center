@@ -33,24 +33,24 @@
     insert into power_server (id, identity_id, memory,
       core, bandwidth, used_memory, 
       used_core, used_bandwidth, published, 
-      published_at, status, update_at)
+      published_at, status)
     values (#{id,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{memory,jdbcType=BIGINT},
       #{core,jdbcType=INTEGER}, #{bandwidth,jdbcType=BIGINT}, #{usedMemory,jdbcType=BIGINT}, 
       #{usedCore,jdbcType=INTEGER}, #{usedBandwidth,jdbcType=BIGINT}, #{published,jdbcType=BIT}, 
-      #{publishedAt,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER}, CURRENT_TIMESTAMP())
+      #{publishedAt,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER})
   </insert>
 
   <insert id="insertBatch" >
     insert into power_server (id, identity_id, memory,
       core, bandwidth, used_memory,
       used_core, used_bandwidth, published,
-      published_at, status, update_at)
+      published_at, status)
     values
     <foreach collection ="list" item="item" separator =",">
       (#{item.id,jdbcType=VARCHAR}, #{item.identityId,jdbcType=VARCHAR}, #{item.memory,jdbcType=BIGINT},
         #{item.core,jdbcType=INTEGER}, #{item.bandwidth,jdbcType=BIGINT}, #{item.usedMemory,jdbcType=BIGINT},
         #{item.usedCore,jdbcType=INTEGER}, #{item.usedBandwidth,jdbcType=BIGINT}, #{item.published,jdbcType=BIT},
-        #{item.publishedAt,jdbcType=TIMESTAMP}, #{item.status,jdbcType=INTEGER}, CURRENT_TIMESTAMP())
+        #{item.publishedAt,jdbcType=TIMESTAMP}, #{item.status,jdbcType=INTEGER})
     </foreach>
   </insert>
 
@@ -84,7 +84,6 @@
       <if test="publishedAt != null">
         published_at = #{publishedAt,jdbcType=TIMESTAMP},
       </if>
-      update_at = CURRENT_TIMESTAMP()
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -98,7 +97,7 @@
     from power_server ps
     left join org_info o on ps.identity_id = o.identity_id
     where ps.update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
-    order by ps.update_at
+    order by ps.update_at, ps.id
     limit 0, #{limit,jdbcType=BIGINT}
   </select>
 
@@ -153,7 +152,7 @@
 
   <update id="updateStatus">
     update power_server
-    set status = #{status,jdbcType=INTEGER}, update_at = CURRENT_TIMESTAMP()
+    set status = #{status,jdbcType=INTEGER}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
