@@ -101,7 +101,7 @@
     limit 0, #{limit,jdbcType=BIGINT}
   </select>
 
-
+  <!-- 算力提供方，即使算力被撤消了，也要返回-->
   <select id="countPowerByOrgId" parameterType="java.lang.String" resultMap="BaseResultMap">
     select sum(core) as core, sum(memory) as memory, sum(bandwidth) as bandwidth, sum(used_core) as used_core, sum(used_memory) as used_memory, sum(used_bandwidth) as used_bandwidth
     from power_server
@@ -124,6 +124,7 @@
     join (
       select identity_id, sum(core) as core, sum(memory) as memory, sum(bandwidth) as bandwidth, sum(used_core) as used_core, sum(used_memory) as used_memory, sum(used_bandwidth) as used_bandwidth
       from power_server
+      where status=2 and (core  <![CDATA[ > ]]> 0 or memory  <![CDATA[ > ]]> 0 or bandwidth  <![CDATA[ > ]]> 0)
       group by identity_id
     ) a on o.identity_id = a.identity_id
     left join (
@@ -139,6 +140,7 @@
     left join (
       select identity_id, sum(core) as core, sum(memory) as memory, sum(bandwidth) as bandwidth, sum(used_core) as used_core, sum(used_memory) as used_memory, sum(used_bandwidth) as used_bandwidth
       from power_server
+      where status=2
       group by identity_id
     ) a on o.identity_id = a.identity_id
     left join (

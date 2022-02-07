@@ -148,7 +148,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                 throw new OrgNotFound();
             }
 
-
+            //算力提供方，即使算力被撤消了，也要返回
             PowerServer powerServer = powerServerService.sumPowerByOrgId(taskPowerProvider.getIdentityId());
             return com.platon.metis.storage.grpc.lib.types.TaskPowerSupplier.newBuilder()
                     .setOrganization(this.toProtoTaskOrganization(orgInfo, taskPowerProvider.getPartyId()))
@@ -418,7 +418,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setAlgoSupplier(toProtoTaskOrganization(taskAlgoProviderOrgInfo, taskAlgoProvider.getPartyId()))
                 .setOperationCost(com.platon.metis.storage.grpc.lib.common.TaskResourceCostDeclare.newBuilder().setProcessor(task.getRequiredCore()).setMemory(task.getRequiredMemory()).setBandwidth(task.getRequiredBandwidth()).setDuration(task.getRequiredDuration()).build())
                 .addAllDataSuppliers(toProtoDataSupplier(taskMetaDataList))
-                .addAllPowerSuppliers(toProtoPowerSupplier(taskPowerProviderList))
+                .addAllPowerSuppliers(toProtoPowerSupplier(taskPowerProviderList))  //算力提供方，即使算力被撤消了，也要返回
                 .addAllReceivers(toProtoResultReceiver(taskResultConsumerList))
                 .addAllTaskEvents(toProtoTaskEvent(taskEventList))
                 .setUser(task.getUserId())
