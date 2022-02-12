@@ -92,6 +92,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
             orgInfo.setStatus(CommonStatus.CommonStatus_Normal.getNumber());
             orgInfo.setImageUrl(request.getMember().getImageUrl());
             orgInfo.setProfile(request.getMember().getDetails());
+            orgInfo.setAccumulativeDataFileCount(0);
             orgInfoService.insert(orgInfo);
         }else{
 
