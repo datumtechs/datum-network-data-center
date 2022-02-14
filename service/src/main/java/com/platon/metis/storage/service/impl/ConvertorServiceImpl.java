@@ -181,6 +181,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setStatus(CommonStatus.forNumber(orgInfo.getStatus()))
                 .setImageUrl(StringUtils.trimToEmpty(orgInfo.getImageUrl()))
                 .setDetails(StringUtils.trimToEmpty(orgInfo.getProfile()))
+                .setUpdateAt(orgInfo.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .build();
     }
 
