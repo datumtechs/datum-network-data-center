@@ -214,7 +214,7 @@ from
 (
     select count(oi.identity_id) as power_org_count
     from org_info oi
-    where EXISTS (select 1 from power_server ps where oi.identity_id = ps.identity_id)
+    where EXISTS (select 1 from power_server ps where oi.identity_id = ps.identity_id and ps.status in (2, 3))
     and status = 1
 
 ) powerOrg,
