@@ -132,6 +132,7 @@
       from task_power_provider
       group by identity_id
     ) b on o.identity_id = b.identity_id
+    where o.`status` = 1
   </select>
 
   <select id ="getPowerSummaryByOrgId" resultMap="OrgPowerTaskSummaryResultMap">
