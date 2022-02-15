@@ -264,7 +264,8 @@ from
 -- 总算力
 (
     select ifnull(sum(p.core),0) as total_core, ifnull(sum(p.memory),0) as total_memory, ifnull(sum(p.bandwidth),0) as total_bandwidth
-	from power_server p
+	from power_server p inner join org_info o on p.identity_id = o.identity_id
+	where o.`status` = 1 and p.`status` in (2, 3)
 ) as power;
 
 -- 组织参与任务数统计 view （统计组织在任务中的角色是：发起人， 算法提供方，算力提供者，数据提供者，结果消费者）
