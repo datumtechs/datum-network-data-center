@@ -1,8 +1,8 @@
-drop database if exists `dev_metis_storage_0.3.0`;
+drop database if exists `metis_storage`;
 
-CREATE DATABASE `dev_metis_storage_0.3.0` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE `metis_storage` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE `dev_metis_storage_0.3.0`;
+USE `metis_storage`;
 
 -- 组织计算资源的使用率是动态的，当有任务正在计算时才有意义。
 DROP TABLE IF EXISTS org_info;

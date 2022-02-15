@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+
+	<id>dist</id>
+
+	<formats>
+		<format>tar</format>
+	</formats>
+
+	<includeBaseDirectory>true</includeBaseDirectory>
+
+	<files>
+		<file>
+			<source>${basedir}/target/${project.build.finalName}.jar</source>
+			<outputDirectory>/</outputDirectory>
+		</file>
+		<file>
+			<source>${basedir}/scripts/jasypt.properties</source>
+			<outputDirectory>/</outputDirectory>
+		</file>
+		<file>
+			<source>${basedir}/scripts/jasypt-1.9.2.jar</source>
+			<outputDirectory>/lib</outputDirectory>
+		</file>
+		<file>
+			<source>${basedir}/scripts/manage.sh</source>
+			<fileMode>0755</fileMode>
+			<outputDirectory>/</outputDirectory>
+		</file>
+		<file>
+			<source>${basedir}/scripts/application-prod.yml</source>
+			<outputDirectory>/</outputDirectory>
+		</file>
+		<file>
+			<source>${basedir}/scripts/metis-storage-0.3.0.sql</source>
+			<outputDirectory>/sql</outputDirectory>
+		</file>
+	</files>
+</assembly>

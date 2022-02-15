@@ -10,3 +10,7 @@ mybatis:
   mapper-locations: classpath:/mapper/**/*.xml
   type-aliases-package: com.platon.metis.storage.dao.entity
 
+
+jasypt:
+  encryptor:
+    password: ${JASYPT_ENCRYPTOR_PASSWORD:}
