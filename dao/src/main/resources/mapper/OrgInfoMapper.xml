@@ -7,8 +7,8 @@
     <result column="node_id" jdbcType="VARCHAR" property="nodeId" />
     <result column="org_name" jdbcType="VARCHAR" property="orgName" />
     <result column="status" jdbcType="INTEGER" property="status" />
-    <result column="image_url" jdbcType="INTEGER" property="imageUrl" />
-    <result column="profile" jdbcType="INTEGER" property="profile" />
+    <result column="image_url" jdbcType="VARCHAR" property="imageUrl" />
+    <result column="profile" jdbcType="VARCHAR" property="profile" />
     <result column="accumulative_data_file_count" jdbcType="INTEGER" property="accumulativeDataFileCount" />
     <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
   </resultMap>
@@ -17,7 +17,7 @@
     accumulative_data_file_count, update_at
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from org_info
     where identity_id = #{identityId,jdbcType=VARCHAR}
