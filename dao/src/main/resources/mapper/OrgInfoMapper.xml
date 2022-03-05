@@ -13,7 +13,7 @@
     <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
   </resultMap>
   <sql id="Base_Column_List">
-    identity_id, identity_type, node_id, org_name, status, image_url, profile
+    identity_id, identity_type, node_id, org_name, status, image_url, profile,
     accumulative_data_file_count, update_at
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
@@ -60,8 +60,8 @@
       node_id = #{nodeId,jdbcType=VARCHAR},
       org_name = #{orgName,jdbcType=VARCHAR},
       status = #{status,jdbcType=INTEGER},
-      image_url = #{imageUrl,jdbcType=INTEGER},
-      profile = #{profile,jdbcType=INTEGER},
+      image_url = #{imageUrl,jdbcType=VARCHAR},
+      profile = #{profile,jdbcType=VARCHAR},
       accumulative_data_file_count = #{accumulativeDataFileCount,jdbcType=INTEGER}
     where identity_id = #{identityId,jdbcType=VARCHAR}
   </update>
