@@ -1,24 +1,22 @@
 package com.platon.metis.storage.service;
 
-import com.platon.metis.storage.dao.entity.DataFile;
-import com.platon.metis.storage.dao.entity.MetaDataColumn;
+import com.platon.metis.storage.dao.entity.MetaData;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface MetaDataService {
 
-    DataFile findByMetaDataId(String metaDataId);
-
-    List<MetaDataColumn> listMetaDataColumn(String metaDataId);
-
-    void insertMetaData(DataFile dataFile, List<MetaDataColumn> metaDataColumnList);
-
-    List<DataFile> listDataFile(int status, LocalDateTime lastUpdatedAt, long limit);
-    List<DataFile> syncDataFile(LocalDateTime lastUpdatedAt, long limit);
-    List<DataFile> syncDataFileByIdentityId(String identityId, LocalDateTime lastUpdatedAt, long limit);
-
-    void insertDataFile(List<DataFile> dataFileList);
-    void insertMetaDataColumn(List<MetaDataColumn> metaDataColumnList);
+    MetaData findByMetaDataId(String metaDataId);
+    void insertMetaData(MetaData dataFile);
+    List<MetaData> listDataFile(int status, LocalDateTime lastUpdatedAt, long limit);
+    List<MetaData> syncDataFile(LocalDateTime lastUpdatedAt, long limit);
+    List<MetaData> syncDataFileByIdentityId(String identityId, LocalDateTime lastUpdatedAt, long limit);
+    void insertDataFile(List<MetaData> dataFileList);
     void updateStatus(String metaDataId, int status);
+
+    /**
+     * v0.4.0支持绑定合约地址
+     */
+    void update(MetaData metaData);
 }

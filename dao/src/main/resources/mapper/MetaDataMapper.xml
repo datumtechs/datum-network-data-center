@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platon.metis.storage.dao.MetaDataMapper">
+  <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.MetaData">
+    <id column="meta_data_id" jdbcType="VARCHAR" property="metaDataId" />
+    <result column="identity_id" jdbcType="VARCHAR" property="identityId" />
+    <result column="data_id" jdbcType="VARCHAR" property="dataId" />
+    <result column="data_status" jdbcType="INTEGER" property="dataStatus" />
+    <result column="meta_data_name" jdbcType="VARCHAR" property="metaDataName" />
+    <result column="meta_data_type" jdbcType="INTEGER" property="metaDataType" />
+    <result column="data_hash" jdbcType="VARCHAR" property="dataHash" />
+    <result column="desc" jdbcType="VARCHAR" property="desc" />
+    <result column="location_type" jdbcType="INTEGER" property="locationType" />
+    <result column="data_type" jdbcType="INTEGER" property="dataType" />
+    <result column="industry" jdbcType="VARCHAR" property="industry" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="publish_at" jdbcType="TIMESTAMP" property="publishAt" />
+    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
+    <result column="nonce" jdbcType="INTEGER" property="nonce" />
+    <result column="allow_expose" jdbcType="INTEGER" property="allowExpose" />
+    <result column="token_address" jdbcType="VARCHAR" property="tokenAddress" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    meta_data_id,identity_id,data_id,data_status,meta_data_name,meta_data_type,data_hash,`desc`,location_type,data_type,
+    industry,`status`,publish_at,update_at,nonce,allow_expose,token_address
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from meta_data
+    where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    update meta_data
+    set status = 3, data_status = 2
+    where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.MetaData">
+    insert into meta_data (meta_data_id,identity_id,data_id,data_status,meta_data_name,meta_data_type,data_hash,`desc`,location_type,data_type,
+                           industry,`status`,publish_at,update_at,nonce,allow_expose,token_address)
+    values (#{metaDataId},#{identityId},#{dataId},#{dataStatus},#{metaDataName},#{metaDataType},#{dataHash},#{desc},#{locationType},#{dataType},
+            #{industry},#{status},#{publishAt},#{updateAt},#{nonce},#{allowExpose},#{tokenAddress})
+  </insert>
+
+  <insert id="insertBatch">
+    insert into meta_data (meta_data_id,identity_id,data_id,data_status,meta_data_name,meta_data_type,data_hash,`desc`,location_type,data_type,
+    industry,`status`,publish_at,update_at,nonce,allow_expose,token_address)
+    values
+    <foreach collection ="list" item="item" separator =",">
+    (#{metaDataId},#{identityId},#{dataId},#{dataStatus},#{metaDataName},#{metaDataType},#{dataHash},#{desc},#{locationType},#{dataType},
+      #{industry},#{status},#{publishAt},#{updateAt},#{nonce},#{allowExpose},#{tokenAddress})
+    </foreach>
+  </insert>
+
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.platon.metis.storage.dao.entity.MetaData">
+    update meta_data
+    <set>
+      <if test="identityId != null">
+        identity_id = #{identityId},
+      </if>
+      <if test="dataId != null">
+        data_id = #{dataId},
+      </if>
+      <if test="dataStatus != null">
+        data_status = #{dataStatus},
+      </if>
+      <if test="metaDataName != null">
+        meta_data_name = #{metaDataName},
+      </if>
+      <if test="metaDataType != null">
+        meta_data_type = #{metaDataType},
+      </if>
+      <if test="dataHash != null">
+        data_hash = #{dataHash},
+      </if>
+      <if test="desc != null">
+        `desc` = #{desc},
+      </if>
+      <if test="locationType != null">
+        location_type = #{locationType},
+      </if>
+      <if test="dataType != null">
+        data_type = #{dataType},
+      </if>
+      <if test="industry != null">
+        industry = #{industry},
+      </if>
+      <if test="status != null">
+        `status` = #{status},
+      </if>
+      <if test="publishAt != null">
+        publish_at = #{publishAt},
+      </if>
+      <if test="updateAt != null">
+        update_at = #{updateAt},
+      </if>
+      <if test="nonce != null">
+        nonce = #{nonce},
+      </if>
+      <if test="allowExpose != null">
+        allow_expose = #{allowExpose},
+      </if>
+      <if test="tokenAddress != null">
+        token_address = #{tokenAddress},
+      </if>
+    </set>
+    where meta_data_id = #{meta_data_id,jdbcType=VARCHAR}
+  </update>
+
+  <select id="listDataFile"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from meta_data
+    where status = #{status,jdbcType=INTEGER} and update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
+    order by update_at, meta_data_id
+    limit 0, #{limit,jdbcType=BIGINT}
+  </select>
+
+  <select id="syncDataFile" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from meta_data
+    where update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
+    order by update_at, meta_data_id
+    limit 0, #{limit,jdbcType=BIGINT}
+  </select>
+
+  <select id="syncDataFileByIdentityId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from meta_data
+    where  identity_id = #{identityId,jdbcType=VARCHAR} and update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
+    order by update_at, meta_data_id
+    limit 0, #{limit,jdbcType=BIGINT}
+  </select>
+
+
+  <update id="updateStatus">
+    update meta_data
+    set status = #{status,jdbcType=INTEGER}
+    where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
+  </update>
+</mapper>

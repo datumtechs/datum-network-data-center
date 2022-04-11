@@ -6,11 +6,13 @@ option go_package = "github.com/RosettaFlow/Carrier-Go/lib/center/api";
 option java_multiple_files = true;
 option java_package = "com.platon.metis.storage.grpc.lib.api";
 
-import "lib/common/base.proto";
+import "lib/types/base.proto";
+//import "lib/types/identitydata.proto";
 import "lib/types/metadata.proto";
+//import "google/protobuf/empty.proto";
 
 message SaveIdentityRequest {
-  api.protobuf.Organization member = 1;
+  types.Organization member = 1;
   // 节点的身份凭证（DID中的凭证信息）
   string credential = 2;
 }
@@ -21,12 +23,12 @@ message RevokeIdentityRequest {
 
 message ListIdentityRequest {
   // 同步时间点，用于进行数据增量拉去
-  uint64 last_updated = 1;
-  uint64 page_size = 2; // 单次批量数据的返回条数
+  uint64 last_updated = 1;  // 从对应updateAt那条记录开始拉
+  uint64 page_size = 2;     // 单次批量数据的返回条数
 }
 
 message ListIdentityResponse {
-  repeated api.protobuf.Organization identities = 1;
+  repeated types.Organization identities = 1;
 }
 
 // 定义：元数据授权申请记录
@@ -34,36 +36,22 @@ message MetadataAuthorityRequest {
   types.MetadataAuthorityPB metadata_authority = 1;
 }
 
-/*message AuditMetadataAuthorityRequest {
-  string                            metadata_auth_id = 1;                  // 元数据授权申请Id
-  api.protobuf.AuditMetadataOption  audit = 2;                              // 审核结果
-}*/
-
-message FindMetadataAuthorityRequest {
-  string metadata_auth_id = 1;  // 授权申请记录ID
-}
-message FindMetadataAuthorityResponse {
-  types.MetadataAuthorityPB metadata_authority= 1;   // 数据授权信息
-}
-
 message ListMetadataAuthorityRequest {
-  string identity_id = 1;       // 组织标识
-  uint64 last_updated = 2;      // 最后同步时间（毫秒级时间戳）
+  string identity_id = 1;   // 组织标识
+  uint64 last_updated = 2;   // 最后同步时间（毫秒级时间戳）
   uint64 page_size = 3; // 单次批量数据的返回条数
 }
 
-/*message MetadataAuthorityDetail {
-  string                            metadata_auth_id = 1;                // 元数据授权申请Id
-  string                            user = 2;                             // 发起任务的用户的信息 (task是属于用户的)
-  api.protobuf.UserType             user_type = 3;                        // 用户类型 (0: 未定义; 1: 第二地址; 2: 测试网地址; 3: 主网地址)
-  types.MetadataAuthority           auth = 4;                             // 元数据使用授权信息
-  api.protobuf.AuditMetadataOption  audit = 5;                            // 审核结果
-  uint64                            apply_at = 6;                         // 发起授权申请的时间 (单位: ms)
-  uint64                            audit_at = 7;                         // 审核授权申请的时间 (单位: ms)
-}*/
-
 message ListMetadataAuthorityResponse {
   repeated types.MetadataAuthorityPB metadata_authorities = 1;          // 数据授权信息列表
+}
+
+message FindMetadataAuthorityRequest {
+  string metadata_auth_id = 1;
+}
+
+message FindMetadataAuthorityResponse {
+  types.MetadataAuthorityPB metadata_authority= 1;
 }
 
 // 身份信息服务
@@ -73,24 +61,23 @@ service IdentityService {
   rpc ListIdentity(ListIdentityRequest) returns (ListIdentityResponse);
 
   // 存储身份信息（节点用于申请接入网络的基本信息，详细的存于本地）
-  rpc SaveIdentity (SaveIdentityRequest) returns (api.protobuf.SimpleResponse);
+  rpc SaveIdentity (SaveIdentityRequest) returns (types.SimpleResponse);
 
   // 注销准入网络
-  rpc RevokeIdentity (RevokeIdentityRequest) returns (api.protobuf.SimpleResponse);
+  rpc RevokeIdentity (RevokeIdentityRequest) returns (types.SimpleResponse);
 
   // v2.0
   // 存储元数据鉴权申请记录
-  rpc SaveMetadataAuthority(MetadataAuthorityRequest) returns (api.protobuf.SimpleResponse);
-
-  // v2.0
-  // 查询元数据鉴权申请记录
-  rpc FindMetadataAuthority(FindMetadataAuthorityRequest) returns (FindMetadataAuthorityResponse);
+  rpc SaveMetadataAuthority(MetadataAuthorityRequest) returns (types.SimpleResponse);
 
   // 数据授权审核，规则：
   // 1、直接进行数据覆盖更新
-  rpc UpdateMetadataAuthority(MetadataAuthorityRequest) returns (api.protobuf.SimpleResponse);
+  rpc UpdateMetadataAuthority(MetadataAuthorityRequest) returns (types.SimpleResponse);
 
   // 获取数据授权申请列表
   // 规则：参数存在时根据条件获取，参数不存在时全量返回
   rpc ListMetadataAuthority(ListMetadataAuthorityRequest) returns (ListMetadataAuthorityResponse);
+
+  // FindMetadataAuthority retrieves data based on the specified ID.
+  rpc FindMetadataAuthority(FindMetadataAuthorityRequest) returns (FindMetadataAuthorityResponse);
 }

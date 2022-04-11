@@ -1,12 +1,9 @@
 package com.platon.metis.storage.grpc.impl;
 
 import com.platon.metis.storage.common.exception.MetaDataNotFound;
-import com.platon.metis.storage.dao.entity.DataFile;
-import com.platon.metis.storage.dao.entity.MetaDataColumn;
+import com.platon.metis.storage.dao.entity.MetaData;
 import com.platon.metis.storage.grpc.lib.api.*;
-import com.platon.metis.storage.grpc.lib.common.MetadataState;
-import com.platon.metis.storage.grpc.lib.common.SimpleResponse;
-import com.platon.metis.storage.grpc.lib.types.MetadataColumn;
+import com.platon.metis.storage.grpc.lib.types.Base;
 import com.platon.metis.storage.grpc.lib.types.MetadataPB;
 import com.platon.metis.storage.service.ConvertorService;
 import com.platon.metis.storage.service.MetaDataService;
@@ -21,7 +18,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @GrpcService
@@ -41,46 +37,31 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      */
     @Transactional
     public void saveMetadata(com.platon.metis.storage.grpc.lib.api.SaveMetadataRequest request,
-                             io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
+                             io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
 
         log.debug("metaDataSave, request:{}", request);
-
-        DataFile dataFile = new DataFile();
-        dataFile.setOriginId(request.getMetadata().getOriginId());
-        dataFile.setMetaDataId(request.getMetadata().getDataId());
-        dataFile.setFileName(request.getMetadata().getTableName());
-        dataFile.setFilePath(request.getMetadata().getFilePath());
-        dataFile.setFileType(request.getMetadata().getFileType().getNumber());
-        dataFile.setIdentityId(request.getMetadata().getIdentityId());
-        dataFile.setHasTitle(request.getMetadata().getHasTitle());
-        dataFile.setResourceName(request.getMetadata().getTableName());
-        dataFile.setSize(request.getMetadata().getSize());
-        dataFile.setRows(request.getMetadata().getRows());
-        dataFile.setColumns(request.getMetadata().getColumns());
-        dataFile.setRemarks(request.getMetadata().getDesc());
-        dataFile.setPublishedAt(LocalDateTime.now(ZoneOffset.UTC));
-        dataFile.setPublished(true);
-        dataFile.setStatus(request.getMetadata().getState().ordinal());
-        dataFile.setIndustry(request.getMetadata().getIndustry());
-        dataFile.setDfsDataId(request.getMetadata().getDataId());
-        dataFile.setDfsDataStatus(request.getMetadata().getDataStatus().getNumber());
-
-
-        List<MetaDataColumn> metaDataColumnList = request.getMetadata().getMetadataColumnsList().stream().map(column -> {
-            MetaDataColumn metaDataColumn = new MetaDataColumn();
-            metaDataColumn.setMetaDataId(request.getMetadata().getDataId());
-            metaDataColumn.setColumnIdx(column.getCIndex());
-            metaDataColumn.setColumnName(column.getCName());
-            metaDataColumn.setColumnType(column.getCType());
-            metaDataColumn.setColumnSize(column.getCSize());
-            metaDataColumn.setRemarks(column.getCComment());
-            metaDataColumn.setPublished(true);
-            return metaDataColumn;
-        }).collect(Collectors.toList());
-
-        metaDataService.insertMetaData(dataFile, metaDataColumnList);
-
-        SimpleResponse response = SimpleResponse.newBuilder()
+        MetadataPB metadata = request.getMetadata();
+        MetaData dataFile = new MetaData();
+        dataFile.setMetaDataId(metadata.getMetadataId());
+        dataFile.setIdentityId(metadata.getOwner().getIdentityId());
+        dataFile.setDataId(metadata.getDataId());
+        dataFile.setDataStatus(metadata.getDataStatus().getNumber());
+        dataFile.setMetaDataName(metadata.getMetadataName());
+        dataFile.setMetaDataType(metadata.getMetadataType().getNumber());
+        dataFile.setDataHash(metadata.getDataHash());
+        dataFile.setDesc(metadata.getDesc());
+        dataFile.setLocationType(metadata.getLocationType().getNumber());
+        dataFile.setDataType(metadata.getDataType().getNumber());
+        dataFile.setIndustry(metadata.getIndustry());
+        dataFile.setStatus(metadata.getState().getNumber());
+        dataFile.setPublishAt(LocalDateTime.now(ZoneOffset.UTC));
+        dataFile.setUpdateAt(LocalDateTime.now(ZoneOffset.UTC));
+        dataFile.setNonce(metadata.getNonce());
+        dataFile.setMetaDataOption(metadata.getMetadataOption());
+        dataFile.setAllowExpose(metadata.getAllowExpose() ? 1 : 0);
+        dataFile.setTokenAddress(metadata.getTokenAddress());
+        metaDataService.insertMetaData(dataFile);
+        Base.SimpleResponse response = Base.SimpleResponse.newBuilder()
                 .setStatus(0)
                 .build();
         log.debug("metaDataSave, response:{}", response);
@@ -96,7 +77,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * </pre>
      */
     public void listMetadataSummary(ListMetadataSummaryRequest request,
-                                       io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataSummaryResponse> responseObserver) {
+                                    io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataSummaryResponse> responseObserver) {
         log.debug("listMetadataSummary, request:{}", request);
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
@@ -104,7 +85,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
             lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
         }
 
-        List<DataFile> dataFileList = metaDataService.listDataFile(MetadataState.MetadataState_Released.ordinal(), lastUpdateAt, request.getPageSize());
+        List<MetaData> dataFileList = metaDataService.listDataFile(Base.MetadataState.MetadataState_Released.ordinal(), lastUpdateAt, request.getPageSize());
 
         List<MetadataSummaryOwner> metaDataSummaryOwnerList = convertorService.toProtoMetaDataSummaryWithOwner(dataFileList);
 
@@ -123,7 +104,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * </pre>
      */
     public void listMetadata(com.platon.metis.storage.grpc.lib.api.ListMetadataRequest request,
-                                io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataResponse> responseObserver) {
+                             io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataResponse> responseObserver) {
 
         log.debug("listMetadata, request:{}", request);
 
@@ -132,27 +113,15 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
             lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
         }
 
-        List<DataFile> dataFileList = metaDataService.syncDataFile(lastUpdateAt, request.getPageSize());
+        //1.从数据库中查询出元数据信息
+        List<MetaData> dataFileList = metaDataService.syncDataFile(lastUpdateAt, request.getPageSize());
 
+        //2.将元数据信息转换成proto接口所需的数据结构
         ListMetadataResponse response;
-
-        if(CollectionUtils.isEmpty(dataFileList)) {
+        if (CollectionUtils.isEmpty(dataFileList)) {
             response = ListMetadataResponse.newBuilder().build();
-        }else{
-
+        } else {
             List<MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
-
-             mtadataPBList.parallelStream().forEach(metadataPB -> {
-                String metaDataId = metadataPB.getMetadataId();
-
-                List<MetaDataColumn> metaDataColumnList = metaDataService.listMetaDataColumn(metaDataId);
-                List<MetadataColumn> metaDataColumnDetailList = metaDataColumnList.parallelStream().map(column ->{
-                    return this.convertorService.toProtoMetaDataColumnDetail(column);
-                }).collect(Collectors.toList());
-
-                metadataPB.toBuilder().addAllMetadataColumns(metaDataColumnDetailList);
-
-            });
             response = ListMetadataResponse.newBuilder().addAllMetadata(mtadataPBList).build();
         }
 
@@ -178,30 +147,17 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
             lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
         }
 
-        List<DataFile> dataFileList = metaDataService.syncDataFileByIdentityId(request.getIdentityId(), lastUpdateAt, request.getPageSize());
+        //1.从数据库中查询出元数据信息
+        List<MetaData> dataFileList = metaDataService.syncDataFileByIdentityId(request.getIdentityId(), lastUpdateAt, request.getPageSize());
 
+        //2.将元数据信息转换成proto接口所需的数据结构
         ListMetadataResponse response;
-
-        if(CollectionUtils.isEmpty(dataFileList)) {
+        if (CollectionUtils.isEmpty(dataFileList)) {
             response = ListMetadataResponse.newBuilder().build();
-        }else{
-
+        } else {
             List<MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
-
-            mtadataPBList.parallelStream().forEach(metadataPB -> {
-                String metaDataId = metadataPB.getMetadataId();
-
-                List<MetaDataColumn> metaDataColumnList = metaDataService.listMetaDataColumn(metaDataId);
-                List<MetadataColumn> metaDataColumnDetailList = metaDataColumnList.parallelStream().map(column ->{
-                    return this.convertorService.toProtoMetaDataColumnDetail(column);
-                }).collect(Collectors.toList());
-
-                metadataPB.toBuilder().addAllMetadataColumns(metaDataColumnDetailList);
-
-            });
             response = ListMetadataResponse.newBuilder().addAllMetadata(mtadataPBList).build();
         }
-
         log.debug("listMetadataByIdentityId, response:{}", response);
 
         // 返回
@@ -215,18 +171,20 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * </pre>
      */
     public void findMetadataById(com.platon.metis.storage.grpc.lib.api.FindMetadataByIdRequest request,
-                                io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.FindMetadataByIdResponse> responseObserver) {
+                                 io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.FindMetadataByIdResponse> responseObserver) {
 
         log.debug("findMetadataById, request:{}", request);
 
         String metaDataId = request.getMetadataId();
         MetadataPB metadataPB = null;
 
-        DataFile dataFile = metaDataService.findByMetaDataId(metaDataId);
+        //1.查询元数据信息
+        MetaData dataFile = metaDataService.findByMetaDataId(metaDataId);
 
-        if(dataFile != null) {
+        //2.将元数据信息转换成proto接口所需的数据结构
+        if (dataFile != null) {
             metadataPB = convertorService.toProtoMetadataPB(dataFile);
-        }else{
+        } else {
             throw new MetaDataNotFound();
         }
 
@@ -245,14 +203,55 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      */
     @Transactional
     public void revokeMetadata(com.platon.metis.storage.grpc.lib.api.RevokeMetadataRequest request,
-                               io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
+                               io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
 
         log.debug("revokeMetaData, request:{}", request);
 
         String metaDataId = request.getMetadataId();
-        metaDataService.updateStatus(metaDataId, MetadataState.MetadataState_Revoked.ordinal());
+        metaDataService.updateStatus(metaDataId, Base.MetadataState.MetadataState_Revoked.ordinal());
 
-        SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+        Base.SimpleResponse response = Base.SimpleResponse.newBuilder().setStatus(0).build();
+
+        log.debug("revokeMetaData, response:{}", response);
+
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    /**
+     * <pre>
+     * 更新已经发布的元数据信息 v 0.4.0 绑定合约地址
+     * </pre>
+     */
+    @Transactional
+    public void updateMetadata(com.platon.metis.storage.grpc.lib.api.UpdateMetadataRequest request,
+                               io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
+
+        log.debug("updateMetadata, request:{}", request);
+
+        MetadataPB metadata = request.getMetadata();
+        MetaData dataFile = new MetaData();
+        dataFile.setMetaDataId(metadata.getMetadataId());
+        dataFile.setIdentityId(metadata.getOwner().getIdentityId());
+        dataFile.setDataId(metadata.getDataId());
+        dataFile.setDataStatus(metadata.getDataStatus().getNumber());
+        dataFile.setMetaDataName(metadata.getMetadataName());
+        dataFile.setMetaDataType(metadata.getMetadataType().getNumber());
+        dataFile.setDataHash(metadata.getDataHash());
+        dataFile.setDesc(metadata.getDesc());
+        dataFile.setLocationType(metadata.getLocationType().getNumber());
+        dataFile.setDataType(metadata.getDataType().getNumber());
+        dataFile.setIndustry(metadata.getIndustry());
+        dataFile.setStatus(metadata.getState().getNumber());
+        dataFile.setNonce(metadata.getNonce());
+        dataFile.setMetaDataOption(metadata.getMetadataOption());
+        dataFile.setAllowExpose(metadata.getAllowExpose() ? 1 : 0);
+        dataFile.setTokenAddress(metadata.getTokenAddress());
+
+        metaDataService.update(dataFile);
+
+        Base.SimpleResponse response = Base.SimpleResponse.newBuilder().setStatus(0).build();
 
         log.debug("revokeMetaData, response:{}", response);
 

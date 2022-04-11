@@ -6,8 +6,7 @@ import com.platon.metis.storage.dao.entity.OrgInfo;
 import com.platon.metis.storage.dao.entity.OrgPowerTaskSummary;
 import com.platon.metis.storage.dao.entity.PowerServer;
 import com.platon.metis.storage.grpc.lib.api.*;
-import com.platon.metis.storage.grpc.lib.common.PowerState;
-import com.platon.metis.storage.grpc.lib.common.SimpleResponse;
+import com.platon.metis.storage.grpc.lib.types.Base;
 import com.platon.metis.storage.grpc.lib.types.ResourcePB;
 import com.platon.metis.storage.grpc.lib.types.ResourceUsageOverview;
 import com.platon.metis.storage.service.ConvertorService;
@@ -46,13 +45,13 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      */
     @Transactional
     public void publishPower(com.platon.metis.storage.grpc.lib.api.PublishPowerRequest request,
-                             io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
+                             io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
 
         log.debug("publishPower, request:{}", request);
 
         PowerServer powerServer = new PowerServer();
         powerServer.setId(request.getPower().getDataId()); //todo:metadata_pb里其实也一样，不过那边加了metadata_id
-        powerServer.setIdentityId(request.getPower().getIdentityId());
+        powerServer.setIdentityId(request.getPower().getOwner().getIdentityId());
 
         powerServer.setCore(request.getPower().getTotalProcessor());
         powerServer.setMemory(request.getPower().getTotalMem());
@@ -60,12 +59,12 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         powerServer.setPublished(true);
         powerServer.setPublishedAt(LocalDateTime.now(ZoneOffset.UTC));
 
-        powerServer.setStatus(PowerState.PowerState_Released.ordinal());
+        powerServer.setStatus(Base.PowerState.PowerState_Released.ordinal());
 
         powerServerService.insert(powerServer);
 
         //接口返回值
-        SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+        Base.SimpleResponse response = Base.SimpleResponse.newBuilder().setStatus(0).build();
 
         log.debug("publishPower, response:{}", response);
 
@@ -82,20 +81,20 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      */
     @Transactional
     public void syncPower(com.platon.metis.storage.grpc.lib.api.SyncPowerRequest request,
-                          io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
+                          io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
 
         log.debug("syncPower, request:{}", request);
 
         PowerServer powerServer = new PowerServer();
         powerServer.setId(request.getPower().getDataId());
-
+        powerServer.setStatus(request.getPower().getStateValue());
         powerServer.setUsedCore(request.getPower().getUsedProcessor());
         powerServer.setUsedMemory(request.getPower().getUsedMem());
         powerServer.setUsedBandwidth(request.getPower().getUsedBandwidth());
         powerServerService.updateByPrimaryKeySelective(powerServer);
 
         //接口返回值
-        SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+        Base.SimpleResponse response = Base.SimpleResponse.newBuilder().setStatus(0).build();
 
         log.debug("syncPower, response:{}", response);
 
@@ -111,14 +110,14 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      */
     @Transactional
     public void revokePower(com.platon.metis.storage.grpc.lib.api.RevokePowerRequest request,
-                            io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.common.SimpleResponse> responseObserver) {
+                            io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
 
         log.debug("revokePower, request:{}", request);
 
-        powerServerService.updateStatus(request.getPowerId(), PowerState.PowerState_Revoked.ordinal());
+        powerServerService.updateStatus(request.getPowerId(), Base.PowerState.PowerState_Revoked.ordinal());
 
         //接口返回值
-        SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+        Base.SimpleResponse response = Base.SimpleResponse.newBuilder().setStatus(0).build();
 
         log.debug("revokePower, response:{}", response);
 
@@ -145,11 +144,15 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         List<PowerServer> powerServerList = powerServerService.syncPowerServer(lastUpdateAt, request.getPageSize());
 
         List<ResourcePB> powerList = powerServerList.parallelStream().map(powerServer -> {
-            return ResourcePB.newBuilder()
-                    .setDataId(powerServer.getId())
+            Base.Organization organization = Base.Organization.newBuilder()
                     .setIdentityId(powerServer.getIdentityId())
                     .setNodeName((String)powerServer.getField("orgName"))
-                    .setState(PowerState.forNumber(powerServer.getStatus()))
+                    .build();
+
+            return ResourcePB.newBuilder()
+                    .setDataId(powerServer.getId())
+                    .setOwner(organization)
+                    .setState(Base.PowerState.forNumber(powerServer.getStatus()))
                     .setTotalProcessor(ValueUtils.intValue(powerServer.getCore()))
                     .setTotalMem(ValueUtils.longValue(powerServer.getMemory()))
                     .setTotalBandwidth(ValueUtils.longValue(powerServer.getBandwidth()))

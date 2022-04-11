@@ -1,12 +1,13 @@
 package com.platon.metis.storage.service.impl;
 
-import com.platon.metis.storage.dao.DataFileMapper;
-import com.platon.metis.storage.dao.MetaDataColumnMapper;
-import com.platon.metis.storage.dao.entity.DataFile;
-import com.platon.metis.storage.dao.entity.MetaDataColumn;
+import com.platon.metis.storage.dao.MetaDataMapper;
+import com.platon.metis.storage.dao.MetaDataOptionPartMapper;
+import com.platon.metis.storage.dao.entity.MetaData;
+import com.platon.metis.storage.dao.entity.MetaDataOptionPart;
 import com.platon.metis.storage.service.MetaDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,56 +20,96 @@ import java.util.List;
 public class MetaDataServiceImpl implements MetaDataService {
 
     @Autowired
-    private DataFileMapper dataFileMapper;
+    private MetaDataMapper metaDataMapper;
 
     @Autowired
-    private MetaDataColumnMapper metaDataColumnMapper;
+    private MetaDataOptionPartMapper metaDataOptionPartMapper;
 
+    @Value("${meta-data.option-part-size}")
+    private int metaDataOptionPartSize;
+
+    @Transactional
     @Override
-    public void insertMetaData(DataFile dataFile, List<MetaDataColumn> metaDataColumnList) {
-        dataFileMapper.insert(dataFile);
-        metaDataColumnMapper.insertBatch(metaDataColumnList);
+    public void insertMetaData(MetaData dataFile) {
+        metaDataMapper.insert(dataFile);
+        //判断metaDataOption是否会过大，如果过大则分开存储，防止数据库字段存储不下
+        saveMetaDataOption(dataFile.getMetaDataId(), dataFile.getMetaDataOption());
     }
 
     @Override
-    public List<DataFile> listDataFile(int status, LocalDateTime lastUpdatedAt, long limit) {
-        return dataFileMapper.listDataFile(status, lastUpdatedAt, limit);
+    public List<MetaData> listDataFile(int status, LocalDateTime lastUpdatedAt, long limit) {
+        List<MetaData> metaDataList = metaDataMapper.listDataFile(status, lastUpdatedAt, limit);
+        metaDataList.forEach(metaData -> {
+            metaData.setMetaDataOption(getMetaDataOption(metaData.getMetaDataId()));
+        });
+        return metaDataList;
     }
 
     @Override
-    public List<DataFile> syncDataFile(LocalDateTime lastUpdatedAt, long limit) {
-        return dataFileMapper.syncDataFile(lastUpdatedAt, limit);
+    public List<MetaData> syncDataFile(LocalDateTime lastUpdatedAt, long limit) {
+        List<MetaData> metaDataList = metaDataMapper.syncDataFile(lastUpdatedAt, limit);
+        metaDataList.forEach(metaData -> {
+            metaData.setMetaDataOption(getMetaDataOption(metaData.getMetaDataId()));
+        });
+        return metaDataList;
     }
 
     @Override
-    public List<DataFile> syncDataFileByIdentityId(String identityId, LocalDateTime lastUpdatedAt, long limit) {
-        return dataFileMapper.syncDataFileByIdentityId(identityId, lastUpdatedAt, limit);
+    public List<MetaData> syncDataFileByIdentityId(String identityId, LocalDateTime lastUpdatedAt, long limit) {
+        List<MetaData> metaDataList = metaDataMapper.syncDataFileByIdentityId(identityId, lastUpdatedAt, limit);
+        metaDataList.forEach(metaData -> {
+            metaData.setMetaDataOption(getMetaDataOption(metaData.getMetaDataId()));
+        });
+        return metaDataList;
     }
 
 
     @Override
-    public void insertDataFile(List<DataFile> dataFileList) {
-        dataFileMapper.insertBatch(dataFileList);
+    public void insertDataFile(List<MetaData> dataFileList) {
+        metaDataMapper.insertBatch(dataFileList);
     }
 
-    @Override
-    public void insertMetaDataColumn(List<MetaDataColumn> metaDataColumnList) {
-        metaDataColumnMapper.insertBatch(metaDataColumnList);
-    }
 
     @Override
     public void updateStatus(String metaDataId, int status) {
-        dataFileMapper.updateStatus(metaDataId, status);
+        metaDataMapper.updateStatus(metaDataId, status);
         //metaDataColumnMapper.deleteByMetaDataId(metaDataId);
     }
 
+    @Transactional
     @Override
-    public DataFile findByMetaDataId(String metaDataId) {
-        return dataFileMapper.selectByPrimaryKey(metaDataId);
+    public void update(MetaData metaData) {
+        //1.修改metadata信息
+        metaDataMapper.updateByPrimaryKeySelective(metaData);
+        //2.删除metadata列信息
+        metaDataOptionPartMapper.deleteByMetaDataId(metaData.getMetaDataId());
+        //3.新增metadata列信息
+        saveMetaDataOption(metaData.getMetaDataId(), metaData.getMetaDataOption());
     }
 
     @Override
-    public List<MetaDataColumn> listMetaDataColumn(String metaDataId) {
-        return metaDataColumnMapper.listMetaDataColumn(metaDataId);
+    public MetaData findByMetaDataId(String metaDataId) {
+        MetaData metaData = metaDataMapper.selectByPrimaryKey(metaDataId);
+        metaData.setMetaDataOption(getMetaDataOption(metaDataId));
+        return metaData;
+    }
+
+    private String getMetaDataOption(String metaDataId) {
+        List<MetaDataOptionPart> metaDataOptionParts = metaDataOptionPartMapper.selectByMetaDataId(metaDataId);
+        StringBuilder sb = new StringBuilder();
+        metaDataOptionParts.forEach(part -> {
+            sb.append(part);
+        });
+        return sb.toString();
+    }
+
+    private void saveMetaDataOption(String metaDataId, String metaDataOption) {
+        for (int i = 0; i < metaDataOption.length(); i = i + metaDataOptionPartSize) {
+            String part = metaDataOption.substring(i, i + metaDataOptionPartSize);
+            MetaDataOptionPart optionPart = new MetaDataOptionPart();
+            optionPart.setMetaDataId(metaDataId);
+            optionPart.setMetaDataOptionPart(part);
+            metaDataOptionPartMapper.insert(optionPart);
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.platon.metis.storage.grpc;
 
 
 import com.platon.metis.storage.grpc.lib.api.*;
-import com.platon.metis.storage.grpc.lib.common.SimpleResponse;
 import com.platon.metis.storage.grpc.lib.types.LocalResourcePB;
 import com.platon.metis.storage.grpc.lib.types.ResourcePB;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +15,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
+import static com.platon.metis.storage.grpc.lib.types.Base.Organization;
+import static com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
@@ -26,9 +28,10 @@ public class ResourceGrpcStubTest {
     @Test
     public void publishPower() {
         log.info("start to test publishPower()...");
+        Organization organization = Organization.newBuilder().setIdentityId("org_id_5").build();
         PublishPowerRequest request = PublishPowerRequest.newBuilder()
                 .setPower(ResourcePB.newBuilder()
-                        .setIdentityId("org_id_5")
+                        .setOwner(organization)
                         .setTotalBandwidth(20000L)
                         .setTotalMem(10000L)
                         .setTotalProcessor(10)
@@ -72,7 +75,7 @@ public class ResourceGrpcStubTest {
         log.info("start to test listPower()...");
 
         log.info("start to test getMetadataList()...");
-        LocalDateTime lastUpdated = LocalDateTime.parse("1970-01-01 00:00:00",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime lastUpdated = LocalDateTime.parse("1970-01-01 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
 
         ListPowerRequest request = ListPowerRequest
@@ -100,7 +103,7 @@ public class ResourceGrpcStubTest {
     public void listPowerSummary() {
         log.info("start to test listPowerSummary()...");
 
-        LocalDateTime lastUpdated = LocalDateTime.parse("1970-01-01 00:00:00",  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime lastUpdated = LocalDateTime.parse("1970-01-01 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         com.google.protobuf.Empty request = com.google.protobuf.Empty.newBuilder().build();
 

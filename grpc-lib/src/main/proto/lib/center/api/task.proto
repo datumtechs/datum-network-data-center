@@ -6,8 +6,10 @@ option go_package = "github.com/RosettaFlow/Carrier-Go/lib/center/api";
 option java_multiple_files = true;
 option java_package = "com.platon.metis.storage.grpc.lib.api";
 
-import "lib/common/base.proto";
+import "lib/types/base.proto";
 import "lib/types/taskdata.proto";
+//import "google/protobuf/empty.proto";
+//import "lib/center/api/metadata.proto";
 
 message SaveTaskRequest {
   types.TaskPB task = 1;
@@ -18,18 +20,18 @@ message ListTaskByTaskIdsRequest {
 }
 
 message ListTaskByIdentityRequest {
-  string identity_id      = 1;
-  uint64 last_updated = 2;
-  uint64 page_size = 3; // 单次批量数据的返回条数
+  string identity_id = 1;
+  uint64 last_updated = 2;    // 从对应updateAt那条记录开始拉
+  uint64 page_size = 3;       // 单次批量数据的返回条数
 }
 
 message ListTaskRequest {
-  uint64 last_updated = 1;
-  uint64 page_size = 2; // 单次批量数据的返回条数
+  uint64 last_updated = 1;  // 从对应updateAt那条记录开始拉
+  uint64 page_size = 2;     // 单次批量数据的返回条数
 }
 
 message ListTaskResponse {
-  repeated types.TaskPB tasks = 1;
+  repeated types.TaskPB     tasks = 1;
 }
 
 message GetTaskDetailRequest {
@@ -57,7 +59,7 @@ message ListTaskEventResponse {
 service TaskService {
 
   // 存储任务
-  rpc SaveTask(SaveTaskRequest) returns (api.protobuf.SimpleResponse);
+  rpc SaveTask(SaveTaskRequest) returns (types.SimpleResponse);
 
   // 查询任务详情（任务ID、节点ID、参与方标识）
   rpc GetTaskDetail(GetTaskDetailRequest) returns (GetTaskDetailResponse);

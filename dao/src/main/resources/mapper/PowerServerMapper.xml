@@ -84,6 +84,9 @@
       <if test="publishedAt != null">
         published_at = #{publishedAt,jdbcType=TIMESTAMP},
       </if>
+      <if test="status != null">
+        `status` = #{status}
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>

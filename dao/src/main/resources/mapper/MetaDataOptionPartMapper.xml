@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platon.metis.storage.dao.MetaDataOptionPartMapper">
+  <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.MetaDataOptionPart">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="meta_data_id" jdbcType="VARCHAR" property="metaDataId" />
+    <result column="meta_data_option_part" jdbcType="VARCHAR" property="metaDataOptionPart" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id,meta_data_id,meta_data_option_part
+  </sql>
+
+  <select id="selectByMetaDataId" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from meta_data_option_part where meta_data_id = #{metaDataId}
+    order by id
+  </select>
+
+  <delete id="deleteByMetaDataId">
+    delete from meta_data_option_part where meta_data_id = #{metaDataId}
+  </delete>
+
+  <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.MetaDataOptionPart">
+    insert into meta_data_option_part (meta_data_id,meta_data_option_part) values (#{metaDataId},#{metaDataOptionPart})
+  </insert>
+</mapper>
