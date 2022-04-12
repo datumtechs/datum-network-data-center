@@ -1,5 +1,7 @@
 package com.platon.metis.storage.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.platon.metis.storage.dao.MetaDataMapper;
 import com.platon.metis.storage.dao.MetaDataOptionPartMapper;
 import com.platon.metis.storage.dao.entity.MetaData;
@@ -104,12 +106,13 @@ public class MetaDataServiceImpl implements MetaDataService {
     }
 
     private void saveMetaDataOption(String metaDataId, String metaDataOption) {
-        for (int i = 0; i < metaDataOption.length(); i = i + metaDataOptionPartSize) {
-            String part = metaDataOption.substring(i, i + metaDataOptionPartSize);
+        String[] partArray = StrUtil.split(metaDataOption, metaDataOptionPartSize);
+        for (int i = 0; i < partArray.length; i++) {
             MetaDataOptionPart optionPart = new MetaDataOptionPart();
             optionPart.setMetaDataId(metaDataId);
-            optionPart.setMetaDataOptionPart(part);
+            optionPart.setMetaDataOptionPart(partArray[i]);
             metaDataOptionPartMapper.insert(optionPart);
         }
     }
+
 }

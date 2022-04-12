@@ -41,7 +41,6 @@ CREATE TABLE `meta_data` (
   `publish_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间，精确到毫秒',
   `update_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '(状态)修改时间',
   `nonce` int(11) DEFAULT '0' COMMENT '元数据的 nonce (用来标识该元数据在所属组织中的元数据的序号, 从 0 开始递增)',
-  `meta_data_option` text COLLATE utf8mb4_unicode_ci COMMENT '元数据的选项，和 data_type 配套使用',
   `allow_expose` tinyint(1) DEFAULT '0' COMMENT '是否可以被曝光 (1: 可以; 0: 不可以; 如 数据原始内容可以被下载或者支持外域查看时则为1, 默认为0)',
   `token_address` varchar(80) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '元数据对应的 dataToken 合约的地址',
   PRIMARY KEY (`meta_data_id`),
