@@ -32,7 +32,7 @@
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     update meta_data
-    set status = 3, data_status = 2
+    set status = 3
     where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
   </delete>
   <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.MetaData">
