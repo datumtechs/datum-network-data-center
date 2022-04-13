@@ -56,25 +56,25 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.platon.metis.storage.dao.entity.MetaData">
     update meta_data
     <set>
-      <if test="identityId != null">
+      <if test="identityId != null or identityId != ''">
         identity_id = #{identityId},
       </if>
-      <if test="dataId != null">
+      <if test="dataId != null or identityId != ''">
         data_id = #{dataId},
       </if>
       <if test="dataStatus != null">
         data_status = #{dataStatus},
       </if>
-      <if test="metaDataName != null">
+      <if test="metaDataName != null or identityId != ''">
         meta_data_name = #{metaDataName},
       </if>
       <if test="metaDataType != null">
         meta_data_type = #{metaDataType},
       </if>
-      <if test="dataHash != null">
+      <if test="dataHash != null or identityId != ''">
         data_hash = #{dataHash},
       </if>
-      <if test="desc != null">
+      <if test="desc != null or identityId != ''">
         `desc` = #{desc},
       </if>
       <if test="locationType != null">
@@ -101,11 +101,11 @@
       <if test="allowExpose != null">
         allow_expose = #{allowExpose},
       </if>
-      <if test="tokenAddress != null">
+      <if test="tokenAddress != null or identityId != ''">
         token_address = #{tokenAddress},
       </if>
     </set>
-    where meta_data_id = #{meta_data_id,jdbcType=VARCHAR}
+    where meta_data_id = #{metaDataId}
   </update>
 
   <select id="listDataFile"  resultMap="BaseResultMap">
