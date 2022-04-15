@@ -100,7 +100,7 @@ public class MetaDataServiceImpl implements MetaDataService {
         List<MetaDataOptionPart> metaDataOptionParts = metaDataOptionPartMapper.selectByMetaDataId(metaDataId);
         StringBuilder sb = new StringBuilder();
         metaDataOptionParts.forEach(part -> {
-            sb.append(part);
+            sb.append(part.getMetaDataOptionPart());
         });
         return sb.toString();
     }
