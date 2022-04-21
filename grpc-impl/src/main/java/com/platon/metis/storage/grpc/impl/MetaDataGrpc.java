@@ -36,6 +36,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * </pre>
      */
     @Transactional
+    @Override
     public void saveMetadata(com.platon.metis.storage.grpc.lib.api.SaveMetadataRequest request,
                              io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
 
@@ -76,6 +77,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * 查看全部元数据摘要列表 (不包含 列字段描述)，状态为可用
      * </pre>
      */
+    @Override
     public void listMetadataSummary(ListMetadataSummaryRequest request,
                                     io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataSummaryResponse> responseObserver) {
         log.debug("listMetadataSummary, request:{}", request);
@@ -103,6 +105,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * 新增：元数据详细列表（用于将数据同步给管理台，考虑checkpoint同步点位）
      * </pre>
      */
+    @Override
     public void listMetadata(com.platon.metis.storage.grpc.lib.api.ListMetadataRequest request,
                              io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataResponse> responseObserver) {
 
@@ -138,6 +141,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * 新增：对应identityId的元数据详细列表（用于将数据同步给管理台，考虑checkpoint同步点位）
      * </pre>
      */
+    @Override
     public void listMetadataByIdentityId(com.platon.metis.storage.grpc.lib.api.ListMetadataByIdentityIdRequest request,
                                          io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataResponse> responseObserver) {
         log.debug("listMetadataByIdentityId, request:{}", request);
@@ -170,6 +174,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * 新增，根据元数据ID查询元数据详情
      * </pre>
      */
+    @Override
     public void findMetadataById(com.platon.metis.storage.grpc.lib.api.FindMetadataByIdRequest request,
                                  io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.FindMetadataByIdResponse> responseObserver) {
 
@@ -198,10 +203,40 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
 
     /**
      * <pre>
+     * 新增，根据多个元数据ID查询多个元数据详情
+     * </pre>
+     */
+    @Override
+    public void findMetadataByIds(com.platon.metis.storage.grpc.lib.api.FindMetadataByIdsRequest request,
+                                  io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataResponse> responseObserver) {
+
+        log.debug("findMetadataByIds, request:{}", request);
+
+        List<String> metaDataIdList = request.getMetadataIdsList();
+        //1.查询元数据信息
+        List<MetaData> dataFileList = metaDataService.findByMetaDataIdList(metaDataIdList);
+
+        ListMetadataResponse response = null;
+        //2.将元数据信息转换成proto接口所需的数据结构
+        if (CollectionUtils.isEmpty(dataFileList)) {
+            response = ListMetadataResponse.newBuilder().build();
+        } else {
+            List<MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
+            response = ListMetadataResponse.newBuilder().addAllMetadata(mtadataPBList).build();
+        }
+        log.debug("findMetadataByIds, response:{}", response);
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    /**
+     * <pre>
      * 撤销元数据 (从底层网络撤销)
      * </pre>
      */
     @Transactional
+    @Override
     public void revokeMetadata(com.platon.metis.storage.grpc.lib.api.RevokeMetadataRequest request,
                                io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
 
@@ -225,6 +260,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * </pre>
      */
     @Transactional
+    @Override
     public void updateMetadata(com.platon.metis.storage.grpc.lib.api.UpdateMetadataRequest request,
                                io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
 

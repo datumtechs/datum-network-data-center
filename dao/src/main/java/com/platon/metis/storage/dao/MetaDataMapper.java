@@ -11,6 +11,7 @@ public interface MetaDataMapper {
 
     /**
      * 插入数据
+     *
      * @param record
      * @return
      */
@@ -20,17 +21,21 @@ public interface MetaDataMapper {
 
     MetaData selectByPrimaryKey(String metaDataId);
 
+    List<MetaData> selectByMetaDataIdList(@Param("metaDataIdList") List<String> metaDataIdList);
+
 //    int updateByPrimaryKeySelective(MetaData record);
 
 //    int updateByPrimaryKey(MetaData record);
 
-    List<MetaData> listDataFile(@Param("status") int status, @Param("lastUpdatedAt") LocalDateTime lastUpdatedAt,@Param("limit") long limit);
+    List<MetaData> listDataFile(@Param("status") int status, @Param("lastUpdatedAt") LocalDateTime lastUpdatedAt, @Param("limit") long limit);
 
     void insertBatch(List<MetaData> dataFileList);
 
-    List<MetaData> syncDataFile(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt,@Param("limit") long limit);
-    List<MetaData> syncDataFileByIdentityId(@Param("identityId") String identityId, @Param("lastUpdatedAt") LocalDateTime lastUpdatedAt,@Param("limit") long limit);
-    void updateStatus(@Param("metaDataId")String metaDataId, @Param("status")int status);
+    List<MetaData> syncDataFile(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt, @Param("limit") long limit);
+
+    List<MetaData> syncDataFileByIdentityId(@Param("identityId") String identityId, @Param("lastUpdatedAt") LocalDateTime lastUpdatedAt, @Param("limit") long limit);
+
+    void updateStatus(@Param("metaDataId") String metaDataId, @Param("status") int status);
 
     void updateByPrimaryKeySelective(MetaData metaData);
 }

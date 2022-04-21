@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -94,6 +95,18 @@ public class MetaDataServiceImpl implements MetaDataService {
         MetaData metaData = metaDataMapper.selectByPrimaryKey(metaDataId);
         metaData.setMetaDataOption(getMetaDataOption(metaDataId));
         return metaData;
+    }
+
+    @Override
+    public List<MetaData> findByMetaDataIdList(List<String> metaDataIdList) {
+        if(metaDataIdList.isEmpty()){
+            return new ArrayList<>();
+        }
+        List<MetaData> metaDataList = metaDataMapper.selectByMetaDataIdList(metaDataIdList);
+        metaDataList.forEach(metaData -> {
+            metaData.setMetaDataOption(getMetaDataOption(metaData.getMetaDataId()));
+        });
+        return metaDataList;
     }
 
     private String getMetaDataOption(String metaDataId) {

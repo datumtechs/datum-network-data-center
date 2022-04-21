@@ -19,4 +19,6 @@ public interface MetaDataService {
      * v0.4.0支持绑定合约地址
      */
     void update(MetaData metaData);
+
+    List<MetaData> findByMetaDataIdList(List<String> metaDataIdList);
 }
