@@ -1,7 +1,15 @@
 package com.platon.metis.storage.dao.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.time.LocalDateTime;
 
+
+@Getter
+@Setter
+@ToString
 public class TaskEvent {
     private Long id;
 
@@ -15,60 +23,4 @@ public class TaskEvent {
     private LocalDateTime eventAt;
 
     private String eventContent;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
-    }
-
-    public String getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(String eventType) {
-        this.eventType = eventType;
-    }
-
-    public String getIdentityId() {
-        return identityId;
-    }
-
-    public void setIdentityId(String identityId) {
-        this.identityId = identityId;
-    }
-
-    public String getPartyId() {
-        return partyId;
-    }
-
-    public void setPartyId(String partyId) {
-        this.partyId = partyId;
-    }
-
-    public LocalDateTime getEventAt() {
-        return eventAt;
-    }
-
-    public void setEventAt(LocalDateTime eventAt) {
-        this.eventAt = eventAt;
-    }
-
-    public String getEventContent() {
-        return eventContent;
-    }
-
-    public void setEventContent(String eventContent) {
-        this.eventContent = eventContent;
-    }
 }

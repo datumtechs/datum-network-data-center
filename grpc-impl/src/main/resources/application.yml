@@ -85,6 +85,6 @@ logging:
       max-history: 30
 
 # ==================================== conf for system =====================================
-meta-data:
-  #metaDataOption分开存储大小配置
-  option-part-size: 10000
+option-part:
+  #DataOption分开存储大小配置
+  size: 10000

@@ -28,8 +28,8 @@ public class MetaDataServiceImpl implements MetaDataService {
     @Autowired
     private MetaDataOptionPartMapper metaDataOptionPartMapper;
 
-    @Value("${meta-data.option-part-size}")
-    private int metaDataOptionPartSize;
+    @Value("${option-part.size}")
+    private int optionPartSize;
 
     @Transactional
     @Override
@@ -119,7 +119,7 @@ public class MetaDataServiceImpl implements MetaDataService {
     }
 
     private void saveMetaDataOption(String metaDataId, String metaDataOption) {
-        String[] partArray = StrUtil.split(metaDataOption, metaDataOptionPartSize);
+        String[] partArray = StrUtil.split(metaDataOption, optionPartSize);
         for (int i = 0; i < partArray.length; i++) {
             MetaDataOptionPart optionPart = new MetaDataOptionPart();
             optionPart.setMetaDataId(metaDataId);
