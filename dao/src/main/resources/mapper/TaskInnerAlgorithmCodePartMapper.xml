@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platon.metis.storage.dao.TaskInnerAlgorithmCodePartMapper">
+    <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.TaskInnerAlgorithmCodePart">
+        <!--@mbg.generated-->
+        <!--@Table task_inner_algorithm_code_part-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="task_id" jdbcType="VARCHAR" property="taskId"/>
+        <result column="algorithm_code_part" jdbcType="VARCHAR" property="algorithmCodePart"/>
+        <result column="algorithm_code_extra_params_part" jdbcType="VARCHAR" property="algorithmCodeExtraParamsPart"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id, task_id, algorithm_code_part, algorithm_code_extra_params_part
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        <!--@mbg.generated-->
+        select
+        <include refid="Base_Column_List"/>
+        from task_inner_algorithm_code_part
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        <!--@mbg.generated-->
+        delete
+        from task_inner_algorithm_code_part
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.TaskInnerAlgorithmCodePart">
+        <!--@mbg.generated-->
+        insert into task_inner_algorithm_code_part (id, task_id, algorithm_code_part,
+                                                    algorithm_code_extra_params_part)
+        values (#{id,jdbcType=INTEGER}, #{taskId,jdbcType=VARCHAR}, #{algorithmCodePart,jdbcType=VARCHAR},
+                #{algorithmCodeExtraParamsPart,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.TaskInnerAlgorithmCodePart">
+        <!--@mbg.generated-->
+        insert into task_inner_algorithm_code_part
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="taskId != null">
+                task_id,
+            </if>
+            <if test="algorithmCodePart != null">
+                algorithm_code_part,
+            </if>
+            <if test="algorithmCodeExtraParamsPart != null">
+                algorithm_code_extra_params_part,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="taskId != null">
+                #{taskId,jdbcType=VARCHAR},
+            </if>
+            <if test="algorithmCodePart != null">
+                #{algorithmCodePart,jdbcType=VARCHAR},
+            </if>
+            <if test="algorithmCodeExtraParamsPart != null">
+                #{algorithmCodeExtraParamsPart,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective"
+            parameterType="com.platon.metis.storage.dao.entity.TaskInnerAlgorithmCodePart">
+        <!--@mbg.generated-->
+        update task_inner_algorithm_code_part
+        <set>
+            <if test="taskId != null">
+                task_id = #{taskId,jdbcType=VARCHAR},
+            </if>
+            <if test="algorithmCodePart != null">
+                algorithm_code_part = #{algorithmCodePart,jdbcType=VARCHAR},
+            </if>
+            <if test="algorithmCodeExtraParamsPart != null">
+                algorithm_code_extra_params_part = #{algorithmCodeExtraParamsPart,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.TaskInnerAlgorithmCodePart">
+        <!--@mbg.generated-->
+        update task_inner_algorithm_code_part
+        set task_id                          = #{taskId,jdbcType=VARCHAR},
+            algorithm_code_part              = #{algorithmCodePart,jdbcType=VARCHAR},
+            algorithm_code_extra_params_part = #{algorithmCodeExtraParamsPart,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <select id="selectByTaskId" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from task_inner_algorithm_code_part
+        where task_id = #{taskId}
+        order by id
+    </select>
+</mapper>

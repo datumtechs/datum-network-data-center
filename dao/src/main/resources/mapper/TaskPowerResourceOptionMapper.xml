@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platon.metis.storage.dao.TaskPowerResourceOptionMapper">
+    <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.TaskPowerResourceOption">
+        <!--@mbg.generated-->
+        <!--@Table task_power_resource_option-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="task_id" jdbcType="VARCHAR" property="taskId"/>
+        <result column="part_id" jdbcType="VARCHAR" property="partId"/>
+        <result column="total_memory" jdbcType="BIGINT" property="totalMemory"/>
+        <result column="total_processor" jdbcType="INTEGER" property="totalProcessor"/>
+        <result column="total_bandwidth" jdbcType="BIGINT" property="totalBandwidth"/>
+        <result column="total_disk" jdbcType="BIGINT" property="totalDisk"/>
+        <result column="used_memory" jdbcType="BIGINT" property="usedMemory"/>
+        <result column="used_processor" jdbcType="INTEGER" property="usedProcessor"/>
+        <result column="used_bandwidth" jdbcType="BIGINT" property="usedBandwidth"/>
+        <result column="used_disk" jdbcType="BIGINT" property="usedDisk"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id, task_id, part_id, total_memory, total_processor, total_bandwidth, total_disk,
+        used_memory, used_processor, used_bandwidth, used_disk
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        <!--@mbg.generated-->
+        select
+        <include refid="Base_Column_List"/>
+        from task_power_resource_option
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        <!--@mbg.generated-->
+        delete
+        from task_power_resource_option
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.TaskPowerResourceOption">
+        <!--@mbg.generated-->
+        insert into task_power_resource_option (task_id, part_id,
+                                                total_memory, total_processor, total_bandwidth,
+                                                total_disk, used_memory, used_processor,
+                                                used_bandwidth, used_disk)
+        values (#{taskId,jdbcType=VARCHAR}, #{partId,jdbcType=VARCHAR},
+                #{totalMemory,jdbcType=BIGINT}, #{totalProcessor,jdbcType=INTEGER}, #{totalBandwidth,jdbcType=BIGINT},
+                #{totalDisk,jdbcType=BIGINT}, #{usedMemory,jdbcType=BIGINT}, #{usedProcessor,jdbcType=INTEGER},
+                #{usedBandwidth,jdbcType=BIGINT}, #{usedDisk,jdbcType=BIGINT})
+    </insert>
+    <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.TaskPowerResourceOption">
+        <!--@mbg.generated-->
+        insert into task_power_resource_option
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">
+                task_id,
+            </if>
+            <if test="partId != null">
+                part_id,
+            </if>
+            <if test="totalMemory != null">
+                total_memory,
+            </if>
+            <if test="totalProcessor != null">
+                total_processor,
+            </if>
+            <if test="totalBandwidth != null">
+                total_bandwidth,
+            </if>
+            <if test="totalDisk != null">
+                total_disk,
+            </if>
+            <if test="usedMemory != null">
+                used_memory,
+            </if>
+            <if test="usedProcessor != null">
+                used_processor,
+            </if>
+            <if test="usedBandwidth != null">
+                used_bandwidth,
+            </if>
+            <if test="usedDisk != null">
+                used_disk,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">
+                #{taskId,jdbcType=VARCHAR},
+            </if>
+            <if test="partId != null">
+                #{partId,jdbcType=VARCHAR},
+            </if>
+            <if test="totalMemory != null">
+                #{totalMemory,jdbcType=BIGINT},
+            </if>
+            <if test="totalProcessor != null">
+                #{totalProcessor,jdbcType=INTEGER},
+            </if>
+            <if test="totalBandwidth != null">
+                #{totalBandwidth,jdbcType=BIGINT},
+            </if>
+            <if test="totalDisk != null">
+                #{totalDisk,jdbcType=BIGINT},
+            </if>
+            <if test="usedMemory != null">
+                #{usedMemory,jdbcType=BIGINT},
+            </if>
+            <if test="usedProcessor != null">
+                #{usedProcessor,jdbcType=INTEGER},
+            </if>
+            <if test="usedBandwidth != null">
+                #{usedBandwidth,jdbcType=BIGINT},
+            </if>
+            <if test="usedDisk != null">
+                #{usedDisk,jdbcType=BIGINT},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective"
+            parameterType="com.platon.metis.storage.dao.entity.TaskPowerResourceOption">
+        <!--@mbg.generated-->
+        update task_power_resource_option
+        <set>
+            <if test="taskId != null">
+                task_id = #{taskId,jdbcType=VARCHAR},
+            </if>
+            <if test="partId != null">
+                part_id = #{partId,jdbcType=VARCHAR},
+            </if>
+            <if test="totalMemory != null">
+                total_memory = #{totalMemory,jdbcType=BIGINT},
+            </if>
+            <if test="totalProcessor != null">
+                total_processor = #{totalProcessor,jdbcType=INTEGER},
+            </if>
+            <if test="totalBandwidth != null">
+                total_bandwidth = #{totalBandwidth,jdbcType=BIGINT},
+            </if>
+            <if test="totalDisk != null">
+                total_disk = #{totalDisk,jdbcType=BIGINT},
+            </if>
+            <if test="usedMemory != null">
+                used_memory = #{usedMemory,jdbcType=BIGINT},
+            </if>
+            <if test="usedProcessor != null">
+                used_processor = #{usedProcessor,jdbcType=INTEGER},
+            </if>
+            <if test="usedBandwidth != null">
+                used_bandwidth = #{usedBandwidth,jdbcType=BIGINT},
+            </if>
+            <if test="usedDisk != null">
+                used_disk = #{usedDisk,jdbcType=BIGINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.TaskPowerResourceOption">
+        <!--@mbg.generated-->
+        update task_power_resource_option
+        set task_id         = #{taskId,jdbcType=VARCHAR},
+            part_id         = #{partId,jdbcType=VARCHAR},
+            total_memory    = #{totalMemory,jdbcType=BIGINT},
+            total_processor = #{totalProcessor,jdbcType=INTEGER},
+            total_bandwidth = #{totalBandwidth,jdbcType=BIGINT},
+            total_disk      = #{totalDisk,jdbcType=BIGINT},
+            used_memory     = #{usedMemory,jdbcType=BIGINT},
+            used_processor  = #{usedProcessor,jdbcType=INTEGER},
+            used_bandwidth  = #{usedBandwidth,jdbcType=BIGINT},
+            used_disk       = #{usedDisk,jdbcType=BIGINT}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <insert id="insertList" parameterType="com.platon.metis.storage.dao.entity.TaskPowerResourceOption">
+        <!--@mbg.generated-->
+        <foreach collection="optionList" item="option" separator=";">
+            insert into task_power_resource_option
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="option.taskId != null">
+                    task_id,
+                </if>
+                <if test="option.partId != null">
+                    part_id,
+                </if>
+                <if test="option.totalMemory != null">
+                    total_memory,
+                </if>
+                <if test="option.totalProcessor != null">
+                    total_processor,
+                </if>
+                <if test="option.totalBandwidth != null">
+                    total_bandwidth,
+                </if>
+                <if test="option.totalDisk != null">
+                    total_disk,
+                </if>
+                <if test="option.usedMemory != null">
+                    used_memory,
+                </if>
+                <if test="option.usedProcessor != null">
+                    used_processor,
+                </if>
+                <if test="option.usedBandwidth != null">
+                    used_bandwidth,
+                </if>
+                <if test="option.usedDisk != null">
+                    used_disk,
+                </if>
+            </trim>
+            <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="option.taskId != null">
+                    #{option.taskId,jdbcType=VARCHAR},
+                </if>
+                <if test="option.partId != null">
+                    #{option.partId,jdbcType=VARCHAR},
+                </if>
+                <if test="option.totalMemory != null">
+                    #{option.totalMemory,jdbcType=BIGINT},
+                </if>
+                <if test="option.totalProcessor != null">
+                    #{option.totalProcessor,jdbcType=INTEGER},
+                </if>
+                <if test="option.totalBandwidth != null">
+                    #{option.totalBandwidth,jdbcType=BIGINT},
+                </if>
+                <if test="option.totalDisk != null">
+                    #{option.totalDisk,jdbcType=BIGINT},
+                </if>
+                <if test="option.usedMemory != null">
+                    #{option.usedMemory,jdbcType=BIGINT},
+                </if>
+                <if test="option.usedProcessor != null">
+                    #{option.usedProcessor,jdbcType=INTEGER},
+                </if>
+                <if test="option.usedBandwidth != null">
+                    #{option.usedBandwidth,jdbcType=BIGINT},
+                </if>
+                <if test="option.usedDisk != null">
+                    #{option.usedDisk,jdbcType=BIGINT},
+                </if>
+            </trim>
+        </foreach>
+    </insert>
+
+    <select id="selectByTaskId" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from task_power_resource_option
+        where task_id = #{taskId}
+    </select>
+</mapper>

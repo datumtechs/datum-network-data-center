@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platon.metis.storage.dao.TaskOrgMapper">
+    <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.TaskOrg">
+        <!--@mbg.generated-->
+        <!--@Table task_org-->
+        <result column="task_id" jdbcType="VARCHAR" property="taskId"/>
+        <result column="task_role" jdbcType="INTEGER" property="taskRole"/>
+        <result column="party_id" jdbcType="VARCHAR" property="partyId"/>
+        <result column="node_name" jdbcType="VARCHAR" property="nodeName"/>
+        <result column="node_id" jdbcType="VARCHAR" property="nodeId"/>
+        <result column="identity_id" jdbcType="VARCHAR" property="identityId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        task_id, task_role, party_id, node_name, node_id, identity_id
+    </sql>
+    <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.TaskOrg">
+        <!--@mbg.generated-->
+        insert into task_org (task_id, task_role, party_id,
+                              node_name, node_id, identity_id)
+        values (#{taskId,jdbcType=VARCHAR}, #{taskRole,jdbcType=INTEGER}, #{partyId,jdbcType=VARCHAR},
+                #{nodeName,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.TaskOrg">
+        <!--@mbg.generated-->
+        insert into task_org
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">
+                task_id,
+            </if>
+            <if test="taskRole != null">
+                task_role,
+            </if>
+            <if test="partyId != null">
+                party_id,
+            </if>
+            <if test="nodeName != null">
+                node_name,
+            </if>
+            <if test="nodeId != null">
+                node_id,
+            </if>
+            <if test="identityId != null">
+                identity_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">
+                #{taskId,jdbcType=VARCHAR},
+            </if>
+            <if test="taskRole != null">
+                #{taskRole,jdbcType=INTEGER},
+            </if>
+            <if test="partyId != null">
+                #{partyId,jdbcType=VARCHAR},
+            </if>
+            <if test="nodeName != null">
+                #{nodeName,jdbcType=VARCHAR},
+            </if>
+            <if test="nodeId != null">
+                #{nodeId,jdbcType=VARCHAR},
+            </if>
+            <if test="identityId != null">
+                #{identityId,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="insertList" parameterType="com.platon.metis.storage.dao.entity.TaskOrg">
+        <!--@mbg.generated-->
+        <foreach collection="taskOrgList" item="org" separator=";">
+            insert into task_org
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="org.taskId != null">
+                    task_id,
+                </if>
+                <if test="org.taskRole != null">
+                    task_role,
+                </if>
+                <if test="org.partyId != null">
+                    party_id,
+                </if>
+                <if test="org.nodeName != null">
+                    node_name,
+                </if>
+                <if test="org.nodeId != null">
+                    node_id,
+                </if>
+                <if test="org.identityId != null">
+                    identity_id,
+                </if>
+            </trim>
+            <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="org.taskId != null">
+                    #{org.taskId,jdbcType=VARCHAR},
+                </if>
+                <if test="org.taskRole != null">
+                    #{org.taskRole,jdbcType=INTEGER},
+                </if>
+                <if test="org.partyId != null">
+                    #{org.partyId,jdbcType=VARCHAR},
+                </if>
+                <if test="org.nodeName != null">
+                    #{org.nodeName,jdbcType=VARCHAR},
+                </if>
+                <if test="org.nodeId != null">
+                    #{org.nodeId,jdbcType=VARCHAR},
+                </if>
+                <if test="org.identityId != null">
+                    #{org.identityId,jdbcType=VARCHAR},
+                </if>
+            </trim>
+        </foreach>
+    </insert>
+
+    <select id="selectAllOrgByTaskId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from task_org
+        where task_id = #{taskId}
+    </select>
+</mapper>
