@@ -21,7 +21,7 @@ public class PowerServerServiceImpl implements PowerServerService {
 
     @Override
     public int insert(PowerServer powerServer) {
-        return powerServerMapper.insert(powerServer);
+        return powerServerMapper.insertSelective(powerServer);
     }
 
     @Override

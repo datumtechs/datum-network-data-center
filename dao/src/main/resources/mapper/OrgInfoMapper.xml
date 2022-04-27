@@ -1,85 +1,116 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.platon.metis.storage.dao.OrgInfoMapper">
-  <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.OrgInfo">
-    <id column="identity_id" jdbcType="VARCHAR" property="identityId" />
-    <result column="identity_type" jdbcType="VARCHAR" property="identityType" />
-    <result column="node_id" jdbcType="VARCHAR" property="nodeId" />
-    <result column="org_name" jdbcType="VARCHAR" property="orgName" />
-    <result column="status" jdbcType="INTEGER" property="status" />
-    <result column="image_url" jdbcType="VARCHAR" property="imageUrl" />
-    <result column="profile" jdbcType="VARCHAR" property="profile" />
-    <result column="accumulative_data_file_count" jdbcType="INTEGER" property="accumulativeDataFileCount" />
-    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    identity_id, identity_type, node_id, org_name, status, image_url, profile,
-    accumulative_data_file_count, update_at
-  </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from org_info
-    where identity_id = #{identityId,jdbcType=VARCHAR}
-  </select>
-  <update id="deleteByPrimaryKey" parameterType="java.lang.String">
-    update org_info
-    set status = 'disabled'
-    where identity_id = #{identityId,jdbcType=VARCHAR}
-  </update>
-  <update id="updateStatus">
-    update org_info
-    set status = #{status,jdbcType=INTEGER}
-    where identity_id = #{identityId,jdbcType=VARCHAR}
-  </update>
+    <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.OrgInfo">
+        <result column="identity_type" jdbcType="VARCHAR" property="identityType"/>
+        <result column="identity_id" jdbcType="VARCHAR" property="identityId"/>
+        <result column="node_id" jdbcType="VARCHAR" property="nodeId"/>
+        <result column="node_name" jdbcType="VARCHAR" property="nodeName"/>
+        <result column="data_id" jdbcType="VARCHAR" property="dataId"/>
+        <result column="data_status" jdbcType="INTEGER" property="dataStatus"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="credential" jdbcType="VARCHAR" property="credential"/>
+        <result column="image_url" jdbcType="VARCHAR" property="imageUrl"/>
+        <result column="details" jdbcType="VARCHAR" property="details"/>
+        <result column="nonce" jdbcType="BIGINT" property="nonce"/>
+        <result column="update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        identity_type,
+        identity_id,
+        node_id,
+        node_name,
+        data_id,
+        data_status,
+        `status`,
+        credential,
+        image_url,
+        `details`,
+        nonce,
+        update_at
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from org_info
+        where identity_id = #{identityId}
+    </select>
 
-  <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.OrgInfo">
-    insert into org_info (identity_id, identity_type, node_id, org_name, status, image_url, profile,
-      accumulative_data_file_count
-      )
-    values (#{identityId,jdbcType=VARCHAR}, #{identityType,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{orgName,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{imageUrl,jdbcType=VARCHAR}, #{profile,jdbcType=VARCHAR},
-       #{accumulativeDataFileCount,jdbcType=INTEGER}
-      )
-  </insert>
+    <update id="updateStatus">
+        update org_info
+        set status = #{status}
+        where identity_id = #{identityId}
+    </update>
 
-  <insert id="insertBatch" >
-    insert into org_info (identity_id, identity_type, node_id, org_name, status, image_url, profile,
-      accumulative_data_file_count
-      )
-    values
-    <foreach collection ="list" item="item" separator =",">
-      (#{item.identityId,jdbcType=VARCHAR}, #{item.identityType,jdbcType=VARCHAR}, #{item.nodeId,jdbcType=VARCHAR}, #{item.orgName,jdbcType=VARCHAR}, #{item.status,jdbcType=INTEGER}, #{item.imageUrl,jdbcType=VARCHAR}, #{item.profile,jdbcType=VARCHAR},
-        #{item.accumulativeDataFileCount,jdbcType=INTEGER}
-        )
-    </foreach>
-  </insert>
+    <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.OrgInfo">
+        insert into org_info (identity_id, identity_type, node_id, node_name, data_id, data_status, status,
+                              credential, image_url, details, nonce)
+        values (#{identityId}, #{identityType}, #{nodeId}, #{nodeName}, #{dataId}, #{dataStatus}, #{status},
+                #{credential}, #{imageUrl}, #{details}, #{nonce})
+    </insert>
 
-  <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.OrgInfo">
-    update org_info
-    set identity_type = #{identityType,jdbcType=VARCHAR},
-      node_id = #{nodeId,jdbcType=VARCHAR},
-      org_name = #{orgName,jdbcType=VARCHAR},
-      status = #{status,jdbcType=INTEGER},
-      image_url = #{imageUrl,jdbcType=VARCHAR},
-      profile = #{profile,jdbcType=VARCHAR},
-      accumulative_data_file_count = #{accumulativeDataFileCount,jdbcType=INTEGER}
-    where identity_id = #{identityId,jdbcType=VARCHAR}
-  </update>
+    <insert id="insertBatch">
+        insert into org_info (identity_id, identity_type, node_id, node_name, data_id, data_status, status,
+                              credential, image_url, details, nonce)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.identityId}, #{item.identityType}, #{item.nodeId}, #{item.nodeName}, #{item.dataId},
+             #{item.dataStatus}, #{item.status},
+             #{item.credential}, #{item.imageUrl}, #{item.details}, #{item.nonce})
+        </foreach>
+    </insert>
 
-  <select id="findByMetaDataId" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select
-    o.*
-    from org_info o
-    join data_file d on o.identity_id = d.identity_id and d.meta_data_id = #{metaDataId,jdbcType=VARCHAR}
-  </select>
 
-  <select id="syncOrgInfo" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from org_info
-    where update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
-    order by update_at, identity_id
-    limit 0, #{limit,jdbcType=BIGINT}
-  </select>
+    <select id="syncOrgInfo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from org_info
+        where update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
+        order by update_at, identity_id
+        limit 0, #{limit,jdbcType=BIGINT}
+    </select>
 
+    <!--auto generated by MybatisCodeHelper on 2022-04-26-->
+    <update id="updateByIdentityId">
+        update org_info
+        <set>
+            <if test="updated.identityType != null">
+                identity_type = #{updated.identityType,jdbcType=VARCHAR},
+            </if>
+            <if test="updated.identityId != null">
+                identity_id = #{updated.identityId,jdbcType=VARCHAR},
+            </if>
+            <if test="updated.nodeId != null">
+                node_id = #{updated.nodeId,jdbcType=VARCHAR},
+            </if>
+            <if test="updated.nodeName != null">
+                node_name = #{updated.nodeName,jdbcType=VARCHAR},
+            </if>
+            <if test="updated.dataId != null">
+                data_id = #{updated.dataId,jdbcType=VARCHAR},
+            </if>
+            <if test="updated.dataStatus != null">
+                data_status = #{updated.dataStatus,jdbcType=INTEGER},
+            </if>
+            <if test="updated.status != null">
+                status = #{updated.status,jdbcType=INTEGER},
+            </if>
+            <if test="updated.credential != null">
+                credential = #{updated.credential,jdbcType=VARCHAR},
+            </if>
+            <if test="updated.imageUrl != null">
+                image_url = #{updated.imageUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="updated.details != null">
+                details = #{updated.details,jdbcType=VARCHAR},
+            </if>
+            <if test="updated.nonce != null">
+                nonce = #{updated.nonce,jdbcType=BIGINT},
+            </if>
+            <if test="updated.updateAt != null">
+                update_at = #{updated.updateAt,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where identity_id = #{identityId,jdbcType=VARCHAR}
+    </update>
 </mapper>

@@ -11,11 +11,7 @@ public interface OrgInfoService {
 
     OrgInfo findByPK(String identityId);
 
-    OrgInfo findByMetaDataId(String metaDataId);
-
     List<OrgInfo> syncOrgInfo(LocalDateTime lastUpdatedAt, long limit);
-
-    int deleteByPK(String identityId);
 
     int update(OrgInfo orgInfo);
 

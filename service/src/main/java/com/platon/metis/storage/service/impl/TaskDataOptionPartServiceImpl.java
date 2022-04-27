@@ -5,6 +5,7 @@ import com.platon.metis.storage.dao.TaskDataFlowOptionPartMapper;
 import com.platon.metis.storage.dao.TaskDataOptionPartMapper;
 import com.platon.metis.storage.dao.entity.TaskDataFlowOptionPart;
 import com.platon.metis.storage.dao.entity.TaskDataOptionPart;
+import com.platon.metis.storage.service.BaseService;
 import com.platon.metis.storage.service.TaskDataOptionPartService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +24,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class TaskDataOptionPartServiceImpl implements TaskDataOptionPartService {
+public class TaskDataOptionPartServiceImpl extends BaseService implements TaskDataOptionPartService {
 
     @Resource
     private TaskDataOptionPartMapper taskDataOptionPartMapper;
@@ -32,7 +33,8 @@ public class TaskDataOptionPartServiceImpl implements TaskDataOptionPartService 
     private int optionPartSize;
 
     @Override
-    public void saveDataOption(String taskId, String dataPolicyOption) {
+    public void saveDataOption(String taskId, List<String> dataPolicyOptionList) {
+        String dataPolicyOption = list2string(dataPolicyOptionList);
         String[] partArray = StrUtil.split(dataPolicyOption, optionPartSize);
         for (int i = 0; i < partArray.length; i++) {
             TaskDataOptionPart optionPart = new TaskDataOptionPart();
@@ -43,13 +45,13 @@ public class TaskDataOptionPartServiceImpl implements TaskDataOptionPartService 
     }
 
     @Override
-    public String getDataOption(String taskId) {
+    public List<String> getDataOption(String taskId) {
         List<TaskDataOptionPart> list = taskDataOptionPartMapper.selectByTaskId(taskId);
         StringBuilder sb = new StringBuilder();
         list.forEach(part -> {
             sb.append(part.getDataOptionPart());
         });
-        return sb.toString();
+        return string2list(sb.toString());
     }
 
 }

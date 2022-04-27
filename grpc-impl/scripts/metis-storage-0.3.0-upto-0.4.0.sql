@@ -83,9 +83,9 @@ CREATE TABLE `task_info` (
                              `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '发起任务的用户的信息 (task是属于用户的)',
                              `user_type` tinyint DEFAULT NULL COMMENT '用户类型 (0: 未定义; 1: 第二地址; 2: 测试网地址; 3: 主网地址)',
                              `task_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '任务名称',
-                             `data_policy_type` tinyint DEFAULT NULL COMMENT '任务的数据提供方选择数据策略的类型',
-                             `power_policy_type` tinyint DEFAULT NULL COMMENT '任务的算力提供方选择算力策略的类型',
-                             `data_flow_policy_type` tinyint DEFAULT NULL COMMENT '任务的数据流向策略的类型',
+                             `data_policy_types` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '任务的数据提供方选择数据策略的类型',
+                             `power_policy_types` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '任务的算力提供方选择算力策略的类型',
+                             `data_flow_policy_types` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '任务的数据流向策略的类型',
                              `meta_algorithm_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '算法元数据Id (为了后续支持 算法市场而用, 使用内置算法时则该值为 "" 空字符串)',
                              `state` tinyint DEFAULT NULL COMMENT '任务的状态 (0: 未知; 1: 等在中; 2: 计算中; 3: 失败; 4: 成功)',
                              `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '任务失败原因',
@@ -142,3 +142,40 @@ CREATE TABLE `task_power_resource_option` (
                                               PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='算力的资源消耗明细';
 
+DROP TABLE IF EXISTS `org_info`;
+CREATE TABLE `org_info` (
+                            `identity_type` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT 'did' COMMENT '身份认证标识的类型 (ca 或者 did)',
+                            `identity_id` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '身份认证标识的id',
+                            `node_id` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '组织节点ID',
+                            `node_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '组织身份名称',
+                            `data_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '预留',
+                            `data_status` tinyint(2) DEFAULT '1' COMMENT '1 - valid, 2 - invalid',
+                            `status` tinyint(2) NOT NULL DEFAULT '1' COMMENT '1 - valid, 2 - invalid',
+                            `credential` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'json format for credential',
+                            `image_url` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '组织机构图像url',
+                            `details` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '组织机构简介',
+                            `nonce` bigint(11) DEFAULT '0' COMMENT '身份信息的 nonce (用来标识该身份在所属组织中发布的序号, 从 0 开始递增; 注: 身份可以来回发布注销，所以nonce表示第几次发布)',
+                            `update_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                            PRIMARY KEY (`identity_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='组织信息';
+
+DROP TABLE IF EXISTS `power_server`;
+CREATE TABLE `power_server` (
+                                `identity_id` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '组织身份ID',
+                                `data_id` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '算力的powerId',
+                                `data_status` tinyint(2) DEFAULT NULL COMMENT '1 - valid, 2 - invalid.',
+                                `state` tinyint(2) DEFAULT NULL COMMENT '算力的状态 (0: 未知; 1: create 还未发布的算力; 2: release 已发布的算力; 3: revoke 已撤销的算力)',
+                                `total_mem` bigint(20) DEFAULT '0' COMMENT '算力总内存 (单位: byte)',
+                                `used_mem` bigint(20) DEFAULT '0' COMMENT '算力已使用内存 (单位: byte)',
+                                `total_processor` int(11) DEFAULT '0' COMMENT '算力总内核数 (单位: 个)',
+                                `used_processor` int(11) DEFAULT '0' COMMENT '算力已使用内核数 (单位: 个)',
+                                `total_bandwidth` bigint(20) DEFAULT '0' COMMENT '算力总带宽数 (单位: bps)',
+                                `used_bandwidth` bigint(20) DEFAULT '0' COMMENT '算力已使用带宽数 (单位: bps)',
+                                `total_disk` bigint(20) DEFAULT '0' COMMENT '算力总磁盘容量 (单位: byte)',
+                                `used_disk` bigint(20) DEFAULT NULL COMMENT '算力已使用磁盘容量 (单位: byte)',
+                                `publish_at` timestamp NULL DEFAULT NULL COMMENT '数据发布时间',
+                                `update_at` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '(状态)修改时间',
+                                `nonce` bigint(20) DEFAULT '0' COMMENT '算力的 nonce (用来标识该算力在所属组织中的算力的序号, 从 0 开始递增)',
+                                PRIMARY KEY (`data_id`),
+                                KEY `update_at` (`update_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='计算服务信息';

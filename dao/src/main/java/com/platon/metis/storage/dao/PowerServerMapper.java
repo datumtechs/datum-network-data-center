@@ -10,18 +10,17 @@ import java.util.List;
 public interface PowerServerMapper {
     int deleteByPrimaryKey(String id);
 
-    int insert(PowerServer record);
+    int insertSelective(PowerServer record);
 
     PowerServer selectByPrimaryKey(String id);
 
     int updateByPrimaryKeySelective(PowerServer record);
 
-    int updateByPrimaryKey(PowerServer record);
-
     List<PowerServer> syncPowerServer(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt, @Param("limit") long limit);
 
     /**
      * 只包含 各项 的sum
+     *
      * @param identityId
      * @return
      */
@@ -31,7 +30,7 @@ public interface PowerServerMapper {
 
     void insertBatch(List<PowerServer> powerServerList);
 
-    int updateStatus(@Param("id") String powerId, @Param("status")int status);
+    int updateStatus(@Param("id") String powerId, @Param("status") int status);
 
     OrgPowerTaskSummary getPowerSummaryByOrgId(@Param("identityId") String identityId);
 }

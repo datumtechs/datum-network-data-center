@@ -20,15 +20,16 @@ public interface PowerServerService {
 
     /**
      * 只包含 各项 的sum
+     *
      * @param identityId
      * @return
      */
     PowerServer sumPowerByOrgId(String identityId);
 
     /**
-     *
      * List<Map<String, Object>>是算力server列表
      * 其中Map<String, Object> 是一行，key是column_name
+     *
      * @return
      */
     List<OrgPowerTaskSummary> listPowerSummaryGroupByOrgId();

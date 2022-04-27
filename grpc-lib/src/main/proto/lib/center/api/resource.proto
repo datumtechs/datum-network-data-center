@@ -11,16 +11,6 @@ import "lib/types/base.proto";
 import "lib/types/resourcedata.proto";
 import "google/protobuf/empty.proto";
 
-// 算力的基本仨元素
-/*message PurePower {
-  // 系统的总内存
-  uint64 mem = 1;
-  // 系统的总内核数
-  uint32 processor = 2;
-  // 系统的总带宽数
-  uint64 bandwidth = 3;
-}*/
-
 // 发布算力请求参数
 message PublishPowerRequest {
   types.ResourcePB power = 1;

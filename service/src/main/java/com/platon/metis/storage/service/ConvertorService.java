@@ -2,6 +2,8 @@ package com.platon.metis.storage.service;
 
 import com.platon.metis.storage.dao.entity.*;
 import com.platon.metis.storage.grpc.lib.api.MetadataSummaryOwner;
+import com.platon.metis.storage.grpc.lib.types.Base;
+import com.platon.metis.storage.grpc.lib.types.IdentityPB;
 
 import java.util.List;
 
@@ -11,7 +13,9 @@ import java.util.List;
  */
 public interface ConvertorService {
 
-    com.platon.metis.storage.grpc.lib.types.Base.Organization toProtoOrganization(OrgInfo orgInfo);
+    IdentityPB toProtoIdentityPB(OrgInfo orgInfo);
+
+    Base.Organization toProtoOrganization(OrgInfo orgInfo);
 
     List<com.platon.metis.storage.grpc.lib.types.TaskEvent> toProtoTaskEvent(List<com.platon.metis.storage.dao.entity.TaskEvent> taskEventList);
 

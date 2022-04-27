@@ -1,8 +1,11 @@
 package com.platon.metis.storage.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONUtil;
 import com.platon.metis.storage.dao.TaskDataFlowOptionPartMapper;
 import com.platon.metis.storage.dao.entity.TaskDataFlowOptionPart;
+import com.platon.metis.storage.service.BaseService;
 import com.platon.metis.storage.service.TaskDataFlowOptionPartService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +23,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class TaskDataFlowOptionPartServiceImpl implements TaskDataFlowOptionPartService {
+public class TaskDataFlowOptionPartServiceImpl extends BaseService implements TaskDataFlowOptionPartService {
 
     @Resource
     private TaskDataFlowOptionPartMapper taskDataFlowOptionPartMapper;
@@ -30,7 +33,8 @@ public class TaskDataFlowOptionPartServiceImpl implements TaskDataFlowOptionPart
 
 
     @Override
-    public void saveDataFlowOption(String taskId, String dataFlowPolicyOption) {
+    public void saveDataFlowOption(String taskId, List<String> dataFlowPolicyOptionList) {
+        String dataFlowPolicyOption = list2string(dataFlowPolicyOptionList);
         String[] partArray = StrUtil.split(dataFlowPolicyOption, optionPartSize);
         for (int i = 0; i < partArray.length; i++) {
             TaskDataFlowOptionPart optionPart = new TaskDataFlowOptionPart();
@@ -41,12 +45,14 @@ public class TaskDataFlowOptionPartServiceImpl implements TaskDataFlowOptionPart
     }
 
     @Override
-    public String getDataFlowOption(String taskId) {
+    public List<String> getDataFlowOption(String taskId) {
         List<TaskDataFlowOptionPart> list = taskDataFlowOptionPartMapper.selectByTaskId(taskId);
         StringBuilder sb = new StringBuilder();
         list.forEach(part -> {
             sb.append(part.getDataFlowOptionPart());
         });
-        return sb.toString();
+        return string2list(sb.toString());
     }
+
+
 }

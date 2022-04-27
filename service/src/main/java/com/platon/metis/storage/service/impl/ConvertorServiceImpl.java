@@ -3,13 +3,12 @@ package com.platon.metis.storage.service.impl;
 import cn.hutool.core.lang.Pair;
 import com.google.protobuf.ByteString;
 import com.platon.metis.storage.common.exception.OrgNotFound;
+import com.platon.metis.storage.dao.entity.TaskEvent;
+import com.platon.metis.storage.dao.entity.TaskPowerResourceOption;
 import com.platon.metis.storage.dao.entity.*;
 import com.platon.metis.storage.grpc.lib.api.MetadataSummaryOwner;
 import com.platon.metis.storage.grpc.lib.types.Base.*;
-import com.platon.metis.storage.grpc.lib.types.MetadataPB;
-import com.platon.metis.storage.grpc.lib.types.MetadataSummary;
-import com.platon.metis.storage.grpc.lib.types.ResourceUsageOverview;
-import com.platon.metis.storage.grpc.lib.types.TaskPB;
+import com.platon.metis.storage.grpc.lib.types.*;
 import com.platon.metis.storage.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -54,14 +53,32 @@ public class ConvertorServiceImpl implements ConvertorService {
 
 
     @Override
-    public com.platon.metis.storage.grpc.lib.types.Base.Organization toProtoOrganization(OrgInfo orgInfo) {
-        return com.platon.metis.storage.grpc.lib.types.Base.Organization.newBuilder()
+    public IdentityPB toProtoIdentityPB(OrgInfo orgInfo) {
+        return IdentityPB.newBuilder()
                 .setIdentityId(orgInfo.getIdentityId())
                 .setNodeId(orgInfo.getNodeId())
-                .setNodeName(orgInfo.getOrgName())
-                .setStatus(DataStatus.forNumber(orgInfo.getStatus()))
-                .setImageUrl(StringUtils.trimToEmpty(orgInfo.getImageUrl()))
-                .setDetails(StringUtils.trimToEmpty(orgInfo.getProfile()))
+                .setNodeName(orgInfo.getNodeName())
+                .setDataId(orgInfo.getDataId())
+                .setDataStatus(DataStatus.forNumber(orgInfo.getDataStatus()))
+                .setStatus(CommonStatus.forNumber(orgInfo.getStatus()))
+                .setCredential(orgInfo.getCredential())
+                .setImageUrl(orgInfo.getImageUrl())
+                .setDetails(orgInfo.getDetails())
+                .setNonce(orgInfo.getNonce())
+                .setUpdateAt(orgInfo.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+                .build();
+    }
+
+    @Override
+    public Organization toProtoOrganization(OrgInfo orgInfo) {
+        return Organization.newBuilder()
+                .setIdentityId(orgInfo.getIdentityId())
+                .setNodeId(orgInfo.getNodeId())
+                .setNodeName(orgInfo.getNodeName())
+                .setDataStatus(DataStatus.forNumber(orgInfo.getDataStatus()))
+                .setStatus(CommonStatus.forNumber(orgInfo.getStatus()))
+                .setImageUrl(orgInfo.getImageUrl())
+                .setDetails(orgInfo.getDetails())
                 .setUpdateAt(orgInfo.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .build();
     }
@@ -130,7 +147,7 @@ public class ConvertorServiceImpl implements ConvertorService {
         //1.组装元数据所属组织信息
         Organization owner = Organization.newBuilder()
                 .setIdentityId(orgInfo.getIdentityId())
-                .setNodeName(orgInfo.getOrgName())
+                .setNodeName(orgInfo.getNodeName())
                 .setNodeId(orgInfo.getNodeId())
                 .build();
 
@@ -209,12 +226,12 @@ public class ConvertorServiceImpl implements ConvertorService {
         }
 
         //部分大数据
-        String dataFlowPolicyOption = taskDataFlowOptionPartService.getDataFlowOption(taskId);
-        String dataPolicyOption = taskDataOptionPartService.getDataOption(taskId);
+        List<String> dataFlowPolicyOption = taskDataFlowOptionPartService.getDataFlowOption(taskId);
+        List<String> dataPolicyOption = taskDataOptionPartService.getDataOption(taskId);
         Pair<String, String> algorithmPair = taskInnerAlgorithmCodePartService.getAlgorithmCode(taskId);
         String algorithmCode = algorithmPair.getKey();
         String algorithmCodeExtraParams = algorithmPair.getValue();
-        String powerPolicyOption = taskPowerOptionPartService.getPowerOption(taskId);
+        List<String> powerPolicyOption = taskPowerOptionPartService.getPowerOption(taskId);
         List<TaskPowerResourceOption> list = taskPowerResourceOptionService.getPowerResourceOption(taskId);
         List<com.platon.metis.storage.grpc.lib.types.TaskPowerResourceOption> powerResourceOptionList = list.stream()
                 .map(option -> {
@@ -253,12 +270,12 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .addAllDataSuppliers(dataSupplierOrgList)
                 .addAllPowerSuppliers(powerSupplierOrgList)
                 .addAllReceivers(receiverOrgList)
-                .setDataPolicyType(taskInfo.getDataPolicyType())
-                .setDataPolicyOption(dataPolicyOption)
-                .setPowerPolicyType(taskInfo.getPowerPolicyType())
-                .setPowerPolicyOption(powerPolicyOption)
-                .setDataFlowPolicyType(taskInfo.getDataFlowPolicyType())
-                .setDataFlowPolicyOption(dataFlowPolicyOption)
+                .addAllDataFlowPolicyTypes(taskInfo.getDataPolicyTypesList())
+                .addAllDataPolicyOptions(dataPolicyOption)
+                .addAllPowerPolicyTypes(taskInfo.getPowerPolicyTypesList())
+                .addAllPowerPolicyOptions(powerPolicyOption)
+                .addAllDataFlowPolicyTypes(taskInfo.getDataFlowPolicyTypesList())
+                .addAllDataFlowPolicyOptions(dataFlowPolicyOption)
                 .setOperationCost(taskResourceCostDeclare)
                 .setAlgorithmCode(algorithmCode)
                 .setMetaAlgorithmId(taskInfo.getMetaAlgorithmId())

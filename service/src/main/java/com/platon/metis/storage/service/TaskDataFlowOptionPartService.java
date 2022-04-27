@@ -1,5 +1,7 @@
 package com.platon.metis.storage.service;
 
+import java.util.List;
+
 /**
  * @Author liushuyu
  * @Date 2022/4/22 14:27
@@ -7,7 +9,7 @@ package com.platon.metis.storage.service;
  * @Desc
  */
 public interface TaskDataFlowOptionPartService {
-    void saveDataFlowOption(String taskId, String dataFlowPolicyOption);
+    void saveDataFlowOption(String taskId, List<String> dataFlowPolicyOptionList);
 
-    String getDataFlowOption(String taskId);
+    List<String> getDataFlowOption(String taskId);
 }

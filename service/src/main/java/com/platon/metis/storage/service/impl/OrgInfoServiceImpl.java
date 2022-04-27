@@ -35,23 +35,13 @@ public class OrgInfoServiceImpl implements OrgInfoService {
     }
 
     @Override
-    public OrgInfo findByMetaDataId(String metaDataId) {
-        return orgInfoMapper.findByMetaDataId(metaDataId);
-    }
-
-    @Override
     public List<OrgInfo> syncOrgInfo(LocalDateTime lastUpdatedAt, long limit) {
         return orgInfoMapper.syncOrgInfo(lastUpdatedAt, limit);
     }
 
     @Override
-    public int deleteByPK(String identityId) {
-        return orgInfoMapper.deleteByPrimaryKey(identityId);
-    }
-
-    @Override
     public int update(OrgInfo orgInfo) {
-        return orgInfoMapper.updateByPrimaryKey(orgInfo);
+        return orgInfoMapper.updateByIdentityId(orgInfo, orgInfo.getIdentityId());
     }
 
     @Override

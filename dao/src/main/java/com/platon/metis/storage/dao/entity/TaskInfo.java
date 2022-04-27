@@ -5,6 +5,10 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * @Author juzix
@@ -53,17 +57,17 @@ public class TaskInfo {
     /**
      * 任务的数据提供方选择数据策略的类型
      */
-    private Integer dataPolicyType;
+    private String dataPolicyTypes;
 
     /**
      * 任务的算力提供方选择算力策略的类型
      */
-    private Integer powerPolicyType;
+    private String powerPolicyTypes;
 
     /**
      * 任务的数据流向策略的类型
      */
-    private Integer dataFlowPolicyType;
+    private String dataFlowPolicyTypes;
 
     /**
      * 算法元数据Id (为了后续支持 算法市场而用, 使用内置算法时则该值为 "" 空字符串)
@@ -129,4 +133,43 @@ public class TaskInfo {
      * 任务的初始声明的所需任务时长
      */
     private Long initDuration;
+
+    public List<Integer> getDataPolicyTypesList() {
+        String[] split = dataPolicyTypes.split(",");
+        return Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toList());
+    }
+
+    public void setDataPolicyTypes(List<Integer> dataPolicyTypes) {
+        StringJoiner sj = new StringJoiner(",");
+        dataPolicyTypes.forEach(dataPolicyTypes1 -> {
+            sj.add(dataPolicyTypes1.toString());
+        });
+        this.dataPolicyTypes = sj.toString();
+    }
+
+    public List<Integer> getPowerPolicyTypesList() {
+        String[] split = powerPolicyTypes.split(",");
+        return Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toList());
+    }
+
+    public void setPowerPolicyTypes(List<Integer> powerPolicyTypes) {
+        StringJoiner sj = new StringJoiner(",");
+        powerPolicyTypes.forEach(powerPolicyTypes1 -> {
+            sj.add(powerPolicyTypes1.toString());
+        });
+        this.powerPolicyTypes = sj.toString();
+    }
+
+    public List<Integer> getDataFlowPolicyTypesList() {
+        String[] split = dataFlowPolicyTypes.split(",");
+        return Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toList());
+    }
+
+    public void setDataFlowPolicyTypes(List<Integer> dataFlowPolicyTypes) {
+        StringJoiner sj = new StringJoiner(",");
+        dataFlowPolicyTypes.forEach(dataFlowPolicyTypes1 -> {
+            sj.add(dataFlowPolicyTypes1.toString());
+        });
+        this.dataFlowPolicyTypes = sj.toString();
+    }
 }

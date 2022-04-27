@@ -1,164 +1,320 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.platon.metis.storage.dao.PowerServerMapper">
-  <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.PowerServer">
-    <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="identity_id" jdbcType="VARCHAR" property="identityId" />
-    <result column="memory" jdbcType="BIGINT" property="memory" />
-    <result column="core" jdbcType="INTEGER" property="core" />
-    <result column="bandwidth" jdbcType="BIGINT" property="bandwidth" />
-    <result column="used_memory" jdbcType="BIGINT" property="usedMemory" />
-    <result column="used_core" jdbcType="INTEGER" property="usedCore" />
-    <result column="used_bandwidth" jdbcType="BIGINT" property="usedBandwidth" />
-    <result column="published" jdbcType="BIT" property="published" />
-    <result column="published_at" jdbcType="TIMESTAMP" property="publishedAt" />
-    <result column="status" jdbcType="INTEGER" property="status" />
-    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    id, identity_id, memory, core, bandwidth, used_memory, used_core, used_bandwidth, published,
-    published_at, status, update_at
-  </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select 
-    <include refid="Base_Column_List" />
-    from power_server
-    where id = #{id,jdbcType=VARCHAR}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from power_server
-    where id = #{id,jdbcType=VARCHAR}
-  </delete>
-  <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.PowerServer">
-    insert into power_server (id, identity_id, memory,
-      core, bandwidth, used_memory, 
-      used_core, used_bandwidth, published, 
-      published_at, status)
-    values (#{id,jdbcType=VARCHAR}, #{identityId,jdbcType=VARCHAR}, #{memory,jdbcType=BIGINT},
-      #{core,jdbcType=INTEGER}, #{bandwidth,jdbcType=BIGINT}, #{usedMemory,jdbcType=BIGINT}, 
-      #{usedCore,jdbcType=INTEGER}, #{usedBandwidth,jdbcType=BIGINT}, #{published,jdbcType=BIT}, 
-      #{publishedAt,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER})
-  </insert>
+    <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.PowerServer">
+        <!--@mbg.generated-->
+        <!--@Table power_server-->
+        <id column="data_id" jdbcType="VARCHAR" property="dataId"/>
+        <result column="identity_id" jdbcType="VARCHAR" property="identityId"/>
+        <result column="data_status" jdbcType="TINYINT" property="dataStatus"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="total_mem" jdbcType="BIGINT" property="totalMem"/>
+        <result column="used_mem" jdbcType="BIGINT" property="usedMem"/>
+        <result column="total_processor" jdbcType="INTEGER" property="totalProcessor"/>
+        <result column="used_processor" jdbcType="INTEGER" property="usedProcessor"/>
+        <result column="total_bandwidth" jdbcType="BIGINT" property="totalBandwidth"/>
+        <result column="used_bandwidth" jdbcType="BIGINT" property="usedBandwidth"/>
+        <result column="total_disk" jdbcType="BIGINT" property="totalDisk"/>
+        <result column="used_disk" jdbcType="BIGINT" property="usedDisk"/>
+        <result column="publish_at" jdbcType="TIMESTAMP" property="publishAt"/>
+        <result column="update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+        <result column="nonce" jdbcType="BIGINT" property="nonce"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        data_id, identity_id, data_status, `state`, total_mem, used_mem, total_processor,
+        used_processor, total_bandwidth, used_bandwidth, total_disk, used_disk, publish_at,
+        update_at, nonce
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        <!--@mbg.generated-->
+        select
+        <include refid="Base_Column_List"/>
+        from power_server
+        where data_id = #{dataId,jdbcType=VARCHAR}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        <!--@mbg.generated-->
+        delete
+        from power_server
+        where data_id = #{dataId,jdbcType=VARCHAR}
+    </delete>
 
-  <insert id="insertBatch" >
-    insert into power_server (id, identity_id, memory,
-      core, bandwidth, used_memory,
-      used_core, used_bandwidth, published,
-      published_at, status)
-    values
-    <foreach collection ="list" item="item" separator =",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.identityId,jdbcType=VARCHAR}, #{item.memory,jdbcType=BIGINT},
-        #{item.core,jdbcType=INTEGER}, #{item.bandwidth,jdbcType=BIGINT}, #{item.usedMemory,jdbcType=BIGINT},
-        #{item.usedCore,jdbcType=INTEGER}, #{item.usedBandwidth,jdbcType=BIGINT}, #{item.published,jdbcType=BIT},
-        #{item.publishedAt,jdbcType=TIMESTAMP}, #{item.status,jdbcType=INTEGER})
-    </foreach>
-  </insert>
+    <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.PowerServer">
+        <!--@mbg.generated-->
+        insert into power_server
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="dataId != null">
+                data_id,
+            </if>
+            <if test="identityId != null">
+                identity_id,
+            </if>
+            <if test="dataStatus != null">
+                data_status,
+            </if>
+            <if test="state != null">
+                `state`,
+            </if>
+            <if test="totalMem != null">
+                total_mem,
+            </if>
+            <if test="usedMem != null">
+                used_mem,
+            </if>
+            <if test="totalProcessor != null">
+                total_processor,
+            </if>
+            <if test="usedProcessor != null">
+                used_processor,
+            </if>
+            <if test="totalBandwidth != null">
+                total_bandwidth,
+            </if>
+            <if test="usedBandwidth != null">
+                used_bandwidth,
+            </if>
+            <if test="totalDisk != null">
+                total_disk,
+            </if>
+            <if test="usedDisk != null">
+                used_disk,
+            </if>
+            <if test="publishAt != null">
+                publish_at,
+            </if>
+            <if test="updateAt != null">
+                update_at,
+            </if>
+            <if test="nonce != null">
+                nonce,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="dataId != null">
+                #{dataId,jdbcType=VARCHAR},
+            </if>
+            <if test="identityId != null">
+                #{identityId,jdbcType=VARCHAR},
+            </if>
+            <if test="dataStatus != null">
+                #{dataStatus,jdbcType=TINYINT},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=TINYINT},
+            </if>
+            <if test="totalMem != null">
+                #{totalMem,jdbcType=BIGINT},
+            </if>
+            <if test="usedMem != null">
+                #{usedMem,jdbcType=BIGINT},
+            </if>
+            <if test="totalProcessor != null">
+                #{totalProcessor,jdbcType=INTEGER},
+            </if>
+            <if test="usedProcessor != null">
+                #{usedProcessor,jdbcType=INTEGER},
+            </if>
+            <if test="totalBandwidth != null">
+                #{totalBandwidth,jdbcType=BIGINT},
+            </if>
+            <if test="usedBandwidth != null">
+                #{usedBandwidth,jdbcType=BIGINT},
+            </if>
+            <if test="totalDisk != null">
+                #{totalDisk,jdbcType=BIGINT},
+            </if>
+            <if test="usedDisk != null">
+                #{usedDisk,jdbcType=BIGINT},
+            </if>
+            <if test="publishAt != null">
+                #{publishAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="nonce != null">
+                #{nonce,jdbcType=BIGINT},
+            </if>
+        </trim>
+    </insert>
 
-  <update id="updateByPrimaryKeySelective" parameterType="com.platon.metis.storage.dao.entity.PowerServer">
-    update power_server
-    <set>
-      <if test="identityId != null">
-        identity_id = #{identityId,jdbcType=VARCHAR},
-      </if>
-      <if test="memory != null">
-        memory = #{memory,jdbcType=BIGINT},
-      </if>
-      <if test="core != null">
-        core = #{core,jdbcType=INTEGER},
-      </if>
-      <if test="bandwidth != null">
-        bandwidth = #{bandwidth,jdbcType=BIGINT},
-      </if>
-      <if test="usedMemory != null">
-        used_memory = #{usedMemory,jdbcType=BIGINT},
-      </if>
-      <if test="usedCore != null">
-        used_core = #{usedCore,jdbcType=INTEGER},
-      </if>
-      <if test="usedBandwidth != null">
-        used_bandwidth = #{usedBandwidth,jdbcType=BIGINT},
-      </if>
-      <if test="published != null">
-        published = #{published,jdbcType=BIT},
-      </if>
-      <if test="publishedAt != null">
-        published_at = #{publishedAt,jdbcType=TIMESTAMP},
-      </if>
-      <if test="status != null">
-        `status` = #{status}
-      </if>
-    </set>
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
+    <insert id="insertBatch">
+        insert into power_server (data_id, identity_id, data_status,
+                                  `state`, total_mem, used_mem,
+                                  total_processor, used_processor, total_bandwidth,
+                                  used_bandwidth, total_disk, used_disk,
+                                  publish_at, update_at, nonce)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.dataId,jdbcType=VARCHAR}, #{item.identityId,jdbcType=VARCHAR}, #{item.dataStatus,jdbcType=TINYINT},
+             #{item.state,jdbcType=TINYINT}, #{item.totalMem,jdbcType=BIGINT}, #{item.usedMem,jdbcType=BIGINT},
+             #{item.totalProcessor,jdbcType=INTEGER}, #{item.usedProcessor,jdbcType=INTEGER},
+             #{item.totalBandwidth,jdbcType=BIGINT},
+             #{item.usedBandwidth,jdbcType=BIGINT}, #{item.totalDisk,jdbcType=BIGINT}, #{item.usedDisk,jdbcType=BIGINT},
+             #{item.publishAt,jdbcType=TIMESTAMP}, #{item.updateAt,jdbcType=TIMESTAMP}, #{item.nonce,jdbcType=BIGINT})
+        </foreach>
+    </insert>
 
-  <resultMap id="BaseResultMap_With_orgName" type="com.platon.metis.storage.dao.entity.PowerServer" extends="BaseResultMap">
-    <result column="org_name" property="dynamicFields.orgName" jdbcType="VARCHAR"/>
-  </resultMap>
+    <update id="updateByPrimaryKeySelective" parameterType="com.platon.metis.storage.dao.entity.PowerServer">
+        <!--@mbg.generated-->
+        update power_server
+        <set>
+            <if test="identityId != null">
+                identity_id = #{identityId,jdbcType=VARCHAR},
+            </if>
+            <if test="dataStatus != null">
+                data_status = #{dataStatus,jdbcType=TINYINT},
+            </if>
+            <if test="state != null">
+                `state` = #{state,jdbcType=TINYINT},
+            </if>
+            <if test="totalMem != null">
+                total_mem = #{totalMem,jdbcType=BIGINT},
+            </if>
+            <if test="usedMem != null">
+                used_mem = #{usedMem,jdbcType=BIGINT},
+            </if>
+            <if test="totalProcessor != null">
+                total_processor = #{totalProcessor,jdbcType=INTEGER},
+            </if>
+            <if test="usedProcessor != null">
+                used_processor = #{usedProcessor,jdbcType=INTEGER},
+            </if>
+            <if test="totalBandwidth != null">
+                total_bandwidth = #{totalBandwidth,jdbcType=BIGINT},
+            </if>
+            <if test="usedBandwidth != null">
+                used_bandwidth = #{usedBandwidth,jdbcType=BIGINT},
+            </if>
+            <if test="totalDisk != null">
+                total_disk = #{totalDisk,jdbcType=BIGINT},
+            </if>
+            <if test="usedDisk != null">
+                used_disk = #{usedDisk,jdbcType=BIGINT},
+            </if>
+            <if test="publishAt != null">
+                publish_at = #{publishAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                update_at = #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="nonce != null">
+                nonce = #{nonce,jdbcType=BIGINT},
+            </if>
+        </set>
+        where data_id = #{dataId,jdbcType=VARCHAR}
+    </update>
 
-  <select id="syncPowerServer" resultMap="BaseResultMap_With_orgName">
-    select ps.*, o.org_name
-    from power_server ps
-    left join org_info o on ps.identity_id = o.identity_id
-    where ps.update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
-    order by ps.update_at, ps.id
-    limit 0, #{limit,jdbcType=BIGINT}
-  </select>
+    <resultMap id="BaseResultMap_With_orgName" type="com.platon.metis.storage.dao.entity.PowerServer"
+               extends="BaseResultMap">
+        <result column="node_name" property="dynamicFields.orgName" jdbcType="VARCHAR"/>
+    </resultMap>
 
-  <!-- 算力提供方，即使算力被撤消了，也要返回-->
-  <select id="countPowerByOrgId" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select sum(core) as core, sum(memory) as memory, sum(bandwidth) as bandwidth, sum(used_core) as used_core, sum(used_memory) as used_memory, sum(used_bandwidth) as used_bandwidth
-    from power_server
-    where identity_id = #{identityId,jdbcType=VARCHAR}
-  </select>
+    <select id="syncPowerServer" resultMap="BaseResultMap_With_orgName">
+        select ps.*, o.node_name
+        from power_server ps
+                 left join org_info o on ps.identity_id = o.identity_id
+        where ps.update_at <![CDATA[ > ]]> #{lastUpdatedAt,jdbcType=TIMESTAMP}
+        order by ps.update_at, ps.data_id
+        limit 0, #{limit,jdbcType=BIGINT}
+    </select>
 
-  <resultMap id="OrgPowerTaskSummaryResultMap" type="com.platon.metis.storage.dao.entity.OrgPowerTaskSummary">
-    <result column="identity_id" jdbcType="VARCHAR" property="identityId" />
-    <result column="memory" jdbcType="BIGINT" property="memory" />
-    <result column="core" jdbcType="INTEGER" property="core" />
-    <result column="bandwidth" jdbcType="BIGINT" property="bandwidth" />
-    <result column="used_memory" jdbcType="BIGINT" property="usedMemory" />
-    <result column="used_core" jdbcType="INTEGER" property="usedCore" />
-    <result column="used_bandwidth" jdbcType="INTEGER" property="usedBandwidth" />
-    <result column="power_task_count" jdbcType="INTEGER" property="powerTaskCount" />
-  </resultMap>
-  <select id ="listPowerSummaryGroupByOrgId" resultMap="OrgPowerTaskSummaryResultMap">
-    select o.identity_id, o.org_name, a.core, a.memory, a.bandwidth, ifnull(a.used_core,0) as used_core, ifnull(a.used_memory,0) as used_memory, ifnull(a.used_bandwidth,0) as used_bandwidth, ifnull(b.power_task_count,0) as power_task_count
-    from org_info o
-    join (
-      select identity_id, sum(core) as core, sum(memory) as memory, sum(bandwidth) as bandwidth, sum(used_core) as used_core, sum(used_memory) as used_memory, sum(used_bandwidth) as used_bandwidth
-      from power_server
-      where status=2 and (core  <![CDATA[ > ]]> 0 or memory  <![CDATA[ > ]]> 0 or bandwidth  <![CDATA[ > ]]> 0)
-      group by identity_id
-    ) a on o.identity_id = a.identity_id
-    left join (
-      select identity_id, count(task_id) as power_task_count
-      from task_power_provider
-      group by identity_id
-    ) b on o.identity_id = b.identity_id
-    where o.`status` = 1
-  </select>
+    <!-- 算力提供方，即使算力被撤消了，也要返回-->
+    <select id="countPowerByOrgId" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select sum(total_processor) as core,
+               sum(total_mem)       as memory,
+               sum(total_bandwidth) as bandwidth,
+               sum(used_processor)  as used_core,
+               sum(used_mem)        as used_memory,
+               sum(used_bandwidth)  as used_bandwidth
+        from power_server
+        where identity_id = #{identityId,jdbcType=VARCHAR}
+    </select>
 
-  <select id ="getPowerSummaryByOrgId" resultMap="OrgPowerTaskSummaryResultMap">
-    select o.identity_id, o.org_name, a.core, a.memory, a.bandwidth, ifnull(a.used_core,0) as used_core, ifnull(a.used_memory,0) as used_memory, ifnull(a.used_bandwidth,0) as used_bandwidth, ifnull(b.power_task_count,0) as power_task_count
-    from org_info o
-    left join (
-      select identity_id, sum(core) as core, sum(memory) as memory, sum(bandwidth) as bandwidth, sum(used_core) as used_core, sum(used_memory) as used_memory, sum(used_bandwidth) as used_bandwidth
-      from power_server
-      where status=2
-      group by identity_id
-    ) a on o.identity_id = a.identity_id
-    left join (
-      select identity_id, count(task_id) as power_task_count
-      from task_power_provider
-      group by identity_id
-    ) b on o.identity_id = b.identity_id
-    where o.identity_id = #{identityId,jdbcType=VARCHAR}
-  </select>
+    <resultMap id="OrgPowerTaskSummaryResultMap" type="com.platon.metis.storage.dao.entity.OrgPowerTaskSummary">
+        <result column="identity_id" jdbcType="VARCHAR" property="identityId"/>
+        <result column="memory" jdbcType="BIGINT" property="memory"/>
+        <result column="core" jdbcType="INTEGER" property="core"/>
+        <result column="bandwidth" jdbcType="BIGINT" property="bandwidth"/>
+        <result column="used_memory" jdbcType="BIGINT" property="usedMemory"/>
+        <result column="used_core" jdbcType="INTEGER" property="usedCore"/>
+        <result column="used_bandwidth" jdbcType="INTEGER" property="usedBandwidth"/>
+        <result column="power_task_count" jdbcType="INTEGER" property="powerTaskCount"/>
+    </resultMap>
+    <select id="listPowerSummaryGroupByOrgId" resultMap="OrgPowerTaskSummaryResultMap">
+        select o.identity_id,
+               o.node_name,
+               a.state,
+               a.core,
+               a.memory,
+               a.bandwidth,
+               ifnull(a.used_core, 0)        as used_core,
+               ifnull(a.used_memory, 0)      as used_memory,
+               ifnull(a.used_bandwidth, 0)   as used_bandwidth,
+               ifnull(b.power_task_count, 0) as power_task_count
+        from org_info o
+                 join (
+            select identity_id,
+                   state,
+                   sum(total_processor) as core,
+                   sum(total_mem)       as memory,
+                   sum(total_bandwidth) as bandwidth,
+                   sum(used_processor)  as used_core,
+                   sum(used_mem)        as used_memory,
+                   sum(used_bandwidth)  as used_bandwidth
+            from power_server
+            where state = 2
+              and (total_processor  <![CDATA[ > ]]> 0 or total_mem  <![CDATA[ > ]]> 0 or total_bandwidth  <![CDATA[ > ]]> 0)
+            group by identity_id
+        ) a on o.identity_id = a.identity_id
+                 left join (
+            select identity_id, count(task_id) as power_task_count
+            from task_org
+            where task_role = 4
+            GROUP BY identity_id
+        ) b on o.identity_id = b.identity_id
+        where o.`status` = 1
+    </select>
+
+    <select id="getPowerSummaryByOrgId" resultMap="OrgPowerTaskSummaryResultMap">
+        select o.identity_id,
+               o.node_name,
+               a.state,
+               a.core,
+               a.memory,
+               a.bandwidth,
+               ifnull(a.used_core, 0)        as used_core,
+               ifnull(a.used_memory, 0)      as used_memory,
+               ifnull(a.used_bandwidth, 0)   as used_bandwidth,
+               ifnull(b.power_task_count, 0) as power_task_count
+        from org_info o
+                 left join (
+            select identity_id,
+                   state,
+                   sum(total_processor) as core,
+                   sum(total_mem)       as memory,
+                   sum(total_bandwidth) as bandwidth,
+                   sum(used_processor)  as used_core,
+                   sum(used_mem)        as used_memory,
+                   sum(used_bandwidth)  as used_bandwidth
+            from power_server
+            where state = 2
+            group by identity_id
+        ) a on o.identity_id = a.identity_id
+                 left join (
+            select identity_id, count(task_id) as power_task_count
+            from task_org
+            where task_role = 4
+            GROUP BY identity_id
+        ) b on o.identity_id = b.identity_id
+        where o.identity_id = #{identityId,jdbcType=VARCHAR}
+    </select>
 
 
-  <update id="updateStatus">
-    update power_server
-    set status = #{status,jdbcType=INTEGER}
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
+    <update id="updateStatus">
+        update power_server
+        set state = #{status,jdbcType=INTEGER}
+        where data_id = #{id,jdbcType=VARCHAR}
+    </update>
 </mapper>

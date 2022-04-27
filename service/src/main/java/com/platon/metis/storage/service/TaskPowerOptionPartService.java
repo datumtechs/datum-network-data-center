@@ -1,5 +1,7 @@
 package com.platon.metis.storage.service;
 
+import java.util.List;
+
 /**
  * @Author liushuyu
  * @Date 2022/4/22 14:28
@@ -7,7 +9,7 @@ package com.platon.metis.storage.service;
  * @Desc
  */
 public interface TaskPowerOptionPartService {
-    void savePowerOption(String taskId, String powerPolicyOption);
+    void savePowerOption(String taskId, List<String> powerPolicyOptionList);
 
-    String getPowerOption(String taskId);
+    List<String> getPowerOption(String taskId);
 }

@@ -11,6 +11,7 @@ import lombok.ToString;
 public class OrgPowerTaskSummary {
     private String identityId;
     private String orgName;
+    private Integer state;
     private int core;
     private long memory;
     private long bandwidth;
