@@ -1,6 +1,7 @@
 package com.platon.metis.storage.grpc.impl;
 
 import com.platon.metis.storage.common.exception.OrgNotFound;
+import com.platon.metis.storage.common.util.LocalDateTimeUtil;
 import com.platon.metis.storage.common.util.ValueUtils;
 import com.platon.metis.storage.dao.entity.OrgInfo;
 import com.platon.metis.storage.dao.entity.OrgPowerTaskSummary;
@@ -150,7 +151,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
+            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
         }
 
         List<PowerServer> powerServerList = powerServerService.syncPowerServer(lastUpdateAt, request.getPageSize());

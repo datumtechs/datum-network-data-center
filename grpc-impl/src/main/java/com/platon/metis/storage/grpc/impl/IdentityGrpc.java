@@ -1,11 +1,11 @@
 package com.platon.metis.storage.grpc.impl;
 
 import com.platon.metis.storage.common.exception.BizException;
+import com.platon.metis.storage.common.util.LocalDateTimeUtil;
 import com.platon.metis.storage.dao.entity.MetaDataAuth;
 import com.platon.metis.storage.dao.entity.OrgInfo;
 import com.platon.metis.storage.grpc.lib.api.*;
 import com.platon.metis.storage.grpc.lib.types.Base;
-import com.platon.metis.storage.grpc.lib.types.Base.Organization;
 import com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse;
 import com.platon.metis.storage.grpc.lib.types.IdentityPB;
 import com.platon.metis.storage.grpc.lib.types.MetadataAuthorityPB;
@@ -23,7 +23,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,13 +47,13 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
      */
     @Override
     public void listIdentity(ListIdentityRequest request,
-                                io.grpc.stub.StreamObserver<ListIdentityResponse> responseObserver) {
+                             io.grpc.stub.StreamObserver<ListIdentityResponse> responseObserver) {
 
         log.debug("listIdentity, request:{}", request);
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
+            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
         }
 
         List<OrgInfo> orgInfoList = orgInfoService.syncOrgInfo(lastUpdateAt, request.getPageSize());
@@ -86,7 +85,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
         IdentityPB information = request.getInformation();
         OrgInfo orgInfo = orgInfoService.findByPK(information.getIdentityId());
 
-        if (orgInfo==null){
+        if (orgInfo == null) {
             orgInfo = new OrgInfo();
             orgInfo.setIdentityId(information.getIdentityId());
             orgInfo.setNodeId(information.getNodeId());
@@ -99,7 +98,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
             orgInfo.setDetails(information.getDetails());
             orgInfo.setNonce(information.getNonce());
             orgInfoService.insert(orgInfo);
-        }else{
+        } else {
             orgInfo.setIdentityId(information.getIdentityId());
             orgInfo.setNodeId(information.getNodeId());
             orgInfo.setNodeName(information.getNodeName());
@@ -131,7 +130,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
     @Transactional
     @Override
     public void revokeIdentity(com.platon.metis.storage.grpc.lib.api.RevokeIdentityRequest request,
-                                   io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
+                               io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
 
         log.debug("revokeIdentityJoin, request:{}", request);
 
@@ -147,66 +146,67 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
     }
 
 
-//    /**
-//     * <pre>
-//     * v2.0
-//     * 存储元数据鉴权申请记录
-//     * </pre>
-//     */
-//    @Transactional
-//    @Override
-//    public void saveMetadataAuthority(com.platon.metis.storage.grpc.lib.api.MetadataAuthorityRequest request,
-//                                      io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
-//        log.debug("saveMetadataAuthority, request:{}", request);
-//
-//        MetaDataAuth metaDataAuth = convertMetadataAuthorityPB(request.getMetadataAuthority());
-//
-//       // metaDataAuth.setStatus(AuditMetadataOption.Audit_Pending.ordinal());
-//
-//        metaDataAuthService.insertSelective(metaDataAuth);
-//
-//        SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
-//
-//        log.debug("saveMetadataAuthority response:{}", response);
-//
-//        // 返回
-//        responseObserver.onNext(response);
-//        responseObserver.onCompleted();
-//    }
-//
-//    private static MetaDataAuth convertMetadataAuthorityPB(MetadataAuthorityPB metadataAuthorityPB){
-//        MetaDataAuth metaDataAuth = new MetaDataAuth();
-//        metaDataAuth.setMetaDataAuthId(metadataAuthorityPB.getMetadataAuthId());
-//        metaDataAuth.setUser(metadataAuthorityPB.getUser());
-//        metaDataAuth.setUserType(metadataAuthorityPB.getUserType().ordinal());
-//        metaDataAuth.setMetaDataId(metadataAuthorityPB.getAuth().getMetadataId());
-//        metaDataAuth.setAuthType(metadataAuthorityPB.getAuth().getUsageRule().getUsageType().ordinal());
-//        metaDataAuth.setUserIdentityId(metadataAuthorityPB.getAuth().getOwner().getIdentityId());
-//        metaDataAuth.setDfsDataId(metadataAuthorityPB.getDataId());
-//        metaDataAuth.setDfsDataStatus(metadataAuthorityPB.getDataStatusValue());
-//        if(metadataAuthorityPB.getApplyAt()>0) {
-//            metaDataAuth.setApplyAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(metadataAuthorityPB.getApplyAt()), ZoneOffset.UTC));
-//        }
-//        if(metadataAuthorityPB.getAuditAt()>0) {
-//            metaDataAuth.setAuditAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(metadataAuthorityPB.getAuditAt()), ZoneOffset.UTC));
-//        }
-//        metaDataAuth.setAuditOption(metadataAuthorityPB.getAuditOption().getNumber());
-//        metaDataAuth.setAuditDesc(metadataAuthorityPB.getAuditSuggestion());
-//
-//        metaDataAuth.setAuthSign(Hex.encodeHexString(metadataAuthorityPB.getSign().toByteArray()));
-//        metaDataAuth.setAuthStatus(metadataAuthorityPB.getStateValue());
-//
-//        if(metaDataAuth.getAuthType() == Base.MetadataUsageType.Usage_Period.ordinal()){
-//            metaDataAuth.setStartAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(metadataAuthorityPB.getAuth().getUsageRule().getStartAt()), ZoneOffset.UTC));
-//            metaDataAuth.setEndAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(metadataAuthorityPB.getAuth().getUsageRule().getEndAt()), ZoneOffset.UTC));
-//            metaDataAuth.setExpired(metadataAuthorityPB.getUsedQuo().getExpire());
-//        } else if (metaDataAuth.getAuthType() == Base.MetadataUsageType.Usage_Times.ordinal()){
-//            metaDataAuth.setTimes(metadataAuthorityPB.getAuth().getUsageRule().getTimes());
-//            metaDataAuth.setUsedTimes(metadataAuthorityPB.getUsedQuo().getUsedTimes());
-//        }
-//
-//        return metaDataAuth;
-//    }
+    /**
+     * <pre>
+     * v2.0
+     * 存储元数据鉴权申请记录
+     * </pre>
+     */
+    @Transactional
+    @Override
+    public void saveMetadataAuthority(com.platon.metis.storage.grpc.lib.api.MetadataAuthorityRequest request,
+                                      io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
+        log.debug("saveMetadataAuthority, request:{}", request);
+
+        MetaDataAuth metaDataAuth = convertMetadataAuthorityPB(request.getMetadataAuthority());
+
+        metaDataAuth.setDataStatus(Base.DataStatus.DataStatus_Valid_VALUE);
+        // metaDataAuth.setStatus(AuditMetadataOption.Audit_Pending.ordinal());
+
+        metaDataAuthService.insertSelective(metaDataAuth);
+
+        SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+
+        log.debug("saveMetadataAuthority response:{}", response);
+
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    private static MetaDataAuth convertMetadataAuthorityPB(MetadataAuthorityPB metadataAuthorityPB) {
+        MetaDataAuth metaDataAuth = new MetaDataAuth();
+        metaDataAuth.setMetaDataAuthId(metadataAuthorityPB.getMetadataAuthId());
+        metaDataAuth.setUser(metadataAuthorityPB.getUser());
+        metaDataAuth.setDataId(metadataAuthorityPB.getDataId());
+        metaDataAuth.setDataStatus(metadataAuthorityPB.getDataStatusValue());
+        metaDataAuth.setUserType(metadataAuthorityPB.getUserTypeValue());
+        metaDataAuth.setIdentityId(metadataAuthorityPB.getAuth().getOwner().getIdentityId());
+        metaDataAuth.setMetaDataId(metadataAuthorityPB.getAuth().getMetadataId());
+        metaDataAuth.setUsageType(metadataAuthorityPB.getAuth().getUsageRule().getUsageTypeValue());
+        metaDataAuth.setAuditOption(metadataAuthorityPB.getAuditOptionValue());
+        metaDataAuth.setAuditSuggestion(metadataAuthorityPB.getAuditSuggestion());
+        metaDataAuth.setState(metadataAuthorityPB.getStateValue());
+        metaDataAuth.setSign(Hex.encodeHexString(metadataAuthorityPB.getSign().toByteArray()));
+        metaDataAuth.setPublishAt(LocalDateTimeUtil.toUTC(metadataAuthorityPB.getPublishAt()));
+        metaDataAuth.setUpdateAt(cn.hutool.core.date.LocalDateTimeUtil.ofUTC(Instant.now()));
+        metaDataAuth.setNonce(metadataAuthorityPB.getNonce());
+        if (metadataAuthorityPB.getApplyAt() > 0) {
+            metaDataAuth.setApplyAt(LocalDateTimeUtil.toUTC(metadataAuthorityPB.getApplyAt()));
+        }
+        if (metadataAuthorityPB.getAuditAt() > 0) {
+            metaDataAuth.setAuditAt(LocalDateTimeUtil.toUTC(metadataAuthorityPB.getAuditAt()));
+        }
+        if (metaDataAuth.getUsageType() == Base.MetadataUsageType.Usage_Period.ordinal()) {
+            metaDataAuth.setStartAt(LocalDateTimeUtil.toUTC(metadataAuthorityPB.getAuth().getUsageRule().getStartAt()));
+            metaDataAuth.setEndAt(LocalDateTimeUtil.toUTC(metadataAuthorityPB.getAuth().getUsageRule().getEndAt()));
+            metaDataAuth.setExpire(metadataAuthorityPB.getUsedQuo().getExpire() ? 1 : 0);
+        } else if (metaDataAuth.getUsageType() == Base.MetadataUsageType.Usage_Times.ordinal()) {
+            metaDataAuth.setTimes(metadataAuthorityPB.getAuth().getUsageRule().getTimes());
+            metaDataAuth.setUsedTimes(metadataAuthorityPB.getUsedQuo().getUsedTimes());
+        }
+        return metaDataAuth;
+    }
 
     /**
      * <pre>
@@ -220,7 +220,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
         log.debug("findMetadataAuthority, request:{}", request);
 
         MetaDataAuth metaDataAuth = metaDataAuthService.findByPK(request.getMetadataAuthId());
-        if(metaDataAuth==null){
+        if (metaDataAuth == null) {
             throw new BizException(-1, "metadata authority not found");
         }
         MetadataAuthorityPB metadataAuthorityPB = this.convertorService.toProtoMetadataAuthorityPB(metaDataAuth);
@@ -236,30 +236,30 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
         responseObserver.onCompleted();
     }
 
-//    /**
-//     * <pre>
-//     * 数据授权审核，规则：
-//     * 1、授权后，可以将审核结果绑定到原有申请记录之上
-//     * </pre>
-//     */
-//    @Transactional
-//    @Override
-//    public void updateMetadataAuthority(com.platon.metis.storage.grpc.lib.api.MetadataAuthorityRequest request,
-//                                       io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
-//
-//        log.debug("updateMetadataAuthority, request:{}", request);
-//        MetaDataAuth metaDataAuth = convertMetadataAuthorityPB(request.getMetadataAuthority());
-//
-//        metaDataAuthService.updateSelective(metaDataAuth);
-//
-//        SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
-//
-//        log.debug("updateMetadataAuthority response:{}", response);
-//
-//        // 返回
-//        responseObserver.onNext(response);
-//        responseObserver.onCompleted();
-//    }
+    /**
+     * <pre>
+     * 数据授权审核，规则：
+     * 1、授权后，可以将审核结果绑定到原有申请记录之上
+     * </pre>
+     */
+    @Transactional
+    @Override
+    public void updateMetadataAuthority(com.platon.metis.storage.grpc.lib.api.MetadataAuthorityRequest request,
+                                        io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
+
+        log.debug("updateMetadataAuthority, request:{}", request);
+        MetaDataAuth metaDataAuth = convertMetadataAuthorityPB(request.getMetadataAuthority());
+
+        metaDataAuthService.updateSelective(metaDataAuth);
+
+        SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+
+        log.debug("updateMetadataAuthority response:{}", response);
+
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
 
     /**
@@ -270,23 +270,23 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
      */
     @Override
     public void listMetadataAuthority(com.platon.metis.storage.grpc.lib.api.ListMetadataAuthorityRequest request,
-                                         io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataAuthorityResponse> responseObserver) {
+                                      io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataAuthorityResponse> responseObserver) {
 
         log.debug("listMetadataAuthority, request:{}", request);
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
+            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
         }
         String identityId = request.getIdentityId();
         List<MetaDataAuth> metaDataAuthList = metaDataAuthService.syncMetaDataAuth(identityId, lastUpdateAt, request.getPageSize());
 
 
-        ListMetadataAuthorityResponse response ;
-        if(CollectionUtils.isEmpty(metaDataAuthList)) {
+        ListMetadataAuthorityResponse response;
+        if (CollectionUtils.isEmpty(metaDataAuthList)) {
             response = ListMetadataAuthorityResponse.newBuilder().build();
 
-        }else{
+        } else {
             List<MetadataAuthorityPB> metaDataAuthorityDetailList = metaDataAuthList.parallelStream().map(metaDataAuth -> {
                 return this.convertorService.toProtoMetadataAuthorityPB(metaDataAuth);
             }).collect(Collectors.toList());

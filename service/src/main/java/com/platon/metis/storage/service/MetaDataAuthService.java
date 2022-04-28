@@ -8,8 +8,6 @@ import java.util.List;
 public interface MetaDataAuthService {
     int insertSelective(MetaDataAuth metaDataAuth);
 
-    void insert(List<MetaDataAuth> metaDataAuthList);
-
     int updateSelective(MetaDataAuth metaDataAuth);
 
     List<MetaDataAuth> syncMetaDataAuth(String identityId, LocalDateTime lastUpdateAt, long limit);

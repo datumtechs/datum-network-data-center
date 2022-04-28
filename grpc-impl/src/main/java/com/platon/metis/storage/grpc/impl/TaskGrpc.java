@@ -1,5 +1,6 @@
 package com.platon.metis.storage.grpc.impl;
 
+import com.platon.metis.storage.common.util.LocalDateTimeUtil;
 import com.platon.metis.storage.dao.entity.TaskEvent;
 import com.platon.metis.storage.dao.entity.TaskInfo;
 import com.platon.metis.storage.dao.entity.TaskOrg;
@@ -122,9 +123,9 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         taskInfo.setState(state.getNumber());
         taskInfo.setReason(reason);
         taskInfo.setDesc(desc);
-        taskInfo.setCreateAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(createAt), ZoneOffset.UTC));
-        taskInfo.setStartAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(startAt), ZoneOffset.UTC));
-        taskInfo.setEndAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(endAt), ZoneOffset.UTC));
+        taskInfo.setCreateAt(LocalDateTimeUtil.toUTC(createAt));
+        taskInfo.setStartAt(LocalDateTimeUtil.toUTC(startAt));
+        taskInfo.setEndAt(LocalDateTimeUtil.toUTC(endAt));
         taskInfo.setSign(sign);
         taskInfo.setNonce(nonce);
         taskInfo.setInitMemory(operationCost.getMemory());
@@ -183,7 +184,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
             for (com.platon.metis.storage.grpc.lib.types.TaskEvent event : taskEventsList) {
                 TaskEvent taskEvent = new TaskEvent();
                 taskEvent.setTaskId(taskId);
-                taskEvent.setEventAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getCreateAt()), ZoneOffset.UTC));
+                taskEvent.setEventAt(LocalDateTimeUtil.toUTC(event.getCreateAt()));
                 taskEvent.setEventType(event.getType());
                 taskEvent.setIdentityId(event.getIdentityId());
                 taskEvent.setPartyId(event.getPartyId());
@@ -251,7 +252,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
+            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
         }
 
         List<TaskInfo> taskInfoList = taskInfoService.syncTaskInfo(lastUpdateAt, request.getPageSize());
@@ -274,7 +275,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
+            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
         }
 
         List<TaskInfo> taskInfoList = taskInfoService.listTaskInfoByIdentityId(request.getIdentityId(), lastUpdateAt, request.getPageSize());

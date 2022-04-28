@@ -306,57 +306,58 @@ public class ConvertorServiceImpl implements ConvertorService {
 
     @Override
     public MetadataAuthorityPB toProtoMetadataAuthorityPB(MetaDataAuth metaDataAuth) {
-//        ByteString sign = ByteString.EMPTY;
-//        if(StringUtils.isNotEmpty(metaDataAuth.getAuthSign())){
-//            try {
-//                sign = ByteString.copyFrom(Hex.decodeHex(metaDataAuth.getAuthSign()));
-//            } catch (DecoderException e) {
-//                log.error("cannot decode the sign", e);
-//            }
-//        }
-//
-//        OrgInfo orgInfo = orgInfoService.findByPK(metaDataAuth.getUserIdentityId());
-//        if (orgInfo == null) {
-//            log.error("identity not found. identityId:={}", metaDataAuth.getUserIdentityId());
-//            throw new OrgNotFound();
-//        }
-//
-//        return MetadataAuthorityPB.newBuilder()
-//                .setMetadataAuthId(metaDataAuth.getMetaDataAuthId())
-//                .setUser(metaDataAuth.getUserId())
-//                .setDataId(metaDataAuth.getDfsDataId())
-//                .setDataStatus(DataStatus.forNumber(metaDataAuth.getDfsDataStatus()))
-//                .setUserType(UserType.forNumber(metaDataAuth.getUserType()))
-//                .setAuth(MetadataAuthority.newBuilder()
-//                        .setMetadataId(metaDataAuth.getMetaDataId())
-//                        .setOwner(Organization.newBuilder()
-//                                .setIdentityId(metaDataAuth.getUserIdentityId())
-//                                .setNodeId(orgInfo.getNodeId())
-//                                .setNodeName(orgInfo.getNodeName())
-//                                .setStatus(CommonStatus.forNumber(orgInfo.getStatus()))
-//                                .build())
-//                        .setUsageRule(MetadataUsageRule.newBuilder()
-//                                .setUsageType(MetadataUsageType.forNumber(metaDataAuth.getAuthType()))
-//                                .setTimes(metaDataAuth.getTimes())
-//                                .setStartAt(metaDataAuth.getStartAt()==null?0:metaDataAuth.getStartAt().toInstant(ZoneOffset.UTC).toEpochMilli())
-//                                .setEndAt(metaDataAuth.getEndAt()==null?0:metaDataAuth.getEndAt().toInstant(ZoneOffset.UTC).toEpochMilli())
-//                                .build())
-//                )
-//                .setAuditOption(AuditMetadataOption.forNumber(metaDataAuth.getAuditOption()))
-//                .setAuditSuggestion(StringUtils.trimToEmpty(metaDataAuth.getAuditDesc()))
-//                .setUsedQuo(MetadataUsedQuo.newBuilder().setUsageType(MetadataUsageType.forNumber(metaDataAuth.getAuthType()))
-//                        .setExpire(metaDataAuth.getExpired())
-//                        .setUsedTimes(metaDataAuth.getUsedTimes())
-//                        .build())
-//
-//                .setApplyAt(metaDataAuth.getApplyAt()==null?0:metaDataAuth.getApplyAt().toInstant(ZoneOffset.UTC).toEpochMilli())
-//
-//                .setAuditAt(metaDataAuth.getAuditAt() == null ? 0 : metaDataAuth.getAuditAt().toInstant(ZoneOffset.UTC).toEpochMilli())
-//                .setState(MetadataAuthorityState.forNumber(metaDataAuth.getAuthStatus()))
-//                .setSign(sign)
-//                .setUpdateAt(metaDataAuth.getUpdateAt() == null ? 0 : metaDataAuth.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
-//                .build();
-        return null;
+        ByteString sign = ByteString.EMPTY;
+        if (StringUtils.isNotEmpty(metaDataAuth.getSign())) {
+            try {
+                sign = ByteString.copyFrom(Hex.decodeHex(metaDataAuth.getSign()));
+            } catch (DecoderException e) {
+                log.error("cannot decode the sign", e);
+            }
+        }
+
+        OrgInfo orgInfo = orgInfoService.findByPK(metaDataAuth.getIdentityId());
+        if (orgInfo == null) {
+            log.error("identity not found. identityId:={}", metaDataAuth.getIdentityId());
+            throw new OrgNotFound();
+        }
+
+        return MetadataAuthorityPB.newBuilder()
+                .setMetadataAuthId(metaDataAuth.getMetaDataAuthId())
+                .setUser(metaDataAuth.getUser())
+                .setDataId(metaDataAuth.getDataId())
+                .setDataStatus(DataStatus.forNumber(metaDataAuth.getDataStatus()))
+                .setUserType(UserType.forNumber(metaDataAuth.getUserType()))
+                .setAuth(MetadataAuthority.newBuilder()
+                        .setMetadataId(metaDataAuth.getMetaDataId())
+                        .setOwner(Organization.newBuilder()
+                                .setIdentityId(metaDataAuth.getIdentityId())
+                                .setNodeId(orgInfo.getNodeId())
+                                .setNodeName(orgInfo.getNodeName())
+                                .setStatus(CommonStatus.forNumber(orgInfo.getStatus()))
+                                .build())
+                        .setUsageRule(MetadataUsageRule.newBuilder()
+                                .setUsageType(MetadataUsageType.forNumber(metaDataAuth.getUsageType()))
+                                .setTimes(metaDataAuth.getTimes())
+                                .setStartAt(metaDataAuth.getStartAt() == null ? 0 : metaDataAuth.getStartAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+                                .setEndAt(metaDataAuth.getEndAt() == null ? 0 : metaDataAuth.getEndAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+                                .build())
+                )
+                .setAuditOption(AuditMetadataOption.forNumber(metaDataAuth.getAuditOption()))
+                .setAuditSuggestion(StringUtils.trimToEmpty(metaDataAuth.getAuditSuggestion()))
+                .setUsedQuo(MetadataUsedQuo.newBuilder().setUsageType(MetadataUsageType.forNumber(metaDataAuth.getUsageType()))
+                        .setExpire(metaDataAuth.getExpire() == 1 ? true : false)
+                        .setUsedTimes(metaDataAuth.getUsedTimes())
+                        .build())
+
+                .setApplyAt(metaDataAuth.getApplyAt() == null ? 0 : metaDataAuth.getApplyAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+
+                .setAuditAt(metaDataAuth.getAuditAt() == null ? 0 : metaDataAuth.getAuditAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setState(MetadataAuthorityState.forNumber(metaDataAuth.getState()))
+                .setSign(sign)
+                .setPublishAt(metaDataAuth.getPublishAt() == null ? 0 : metaDataAuth.getPublishAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setUpdateAt(metaDataAuth.getUpdateAt() == null ? 0 : metaDataAuth.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+                .setNonce(metaDataAuth.getNonce())
+                .build();
     }
 
 }

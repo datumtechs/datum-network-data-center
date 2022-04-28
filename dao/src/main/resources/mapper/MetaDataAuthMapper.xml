@@ -33,38 +33,19 @@
         usage_type, start_at, end_at, times, audit_option, audit_suggestion, expire, used_times,
         apply_at, audit_at, `state`, sign, publish_at, update_at, nonce
     </sql>
+
     <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-        <!--@mbg.generated-->
         select
         <include refid="Base_Column_List"/>
         from meta_data_auth
         where meta_data_auth_id = #{metaDataAuthId,jdbcType=VARCHAR}
     </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-        <!--@mbg.generated-->
         delete
         from meta_data_auth
         where meta_data_auth_id = #{metaDataAuthId,jdbcType=VARCHAR}
     </delete>
-    <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.MetaDataAuth">
-        <!--@mbg.generated-->
-        insert into meta_data_auth (meta_data_auth_id, `user`, data_id,
-                                    data_status, user_type, identity_id,
-                                    meta_data_id, usage_type, start_at,
-                                    end_at, times, audit_option,
-                                    audit_suggestion, expire, used_times,
-                                    apply_at, audit_at, `state`,
-                                    sign, publish_at, update_at,
-                                    nonce)
-        values (#{metaDataAuthId,jdbcType=VARCHAR}, #{user,jdbcType=VARCHAR}, #{dataId,jdbcType=VARCHAR},
-                #{dataStatus,jdbcType=TINYINT}, #{userType,jdbcType=TINYINT}, #{identityId,jdbcType=VARCHAR},
-                #{metaDataId,jdbcType=VARCHAR}, #{usageType,jdbcType=TINYINT}, #{startAt,jdbcType=TIMESTAMP},
-                #{endAt,jdbcType=TIMESTAMP}, #{times,jdbcType=INTEGER}, #{auditOption,jdbcType=TINYINT},
-                #{auditSuggestion,jdbcType=VARCHAR}, #{expire,jdbcType=BOOLEAN}, #{usedTimes,jdbcType=INTEGER},
-                #{applyAt,jdbcType=TIMESTAMP}, #{auditAt,jdbcType=TIMESTAMP}, #{state,jdbcType=TINYINT},
-                #{sign,jdbcType=VARCHAR}, #{publishAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP},
-                #{nonce,jdbcType=BIGINT})
-    </insert>
+
     <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.MetaDataAuth">
         <!--@mbg.generated-->
         insert into meta_data_auth
@@ -275,30 +256,20 @@
         </set>
         where meta_data_auth_id = #{metaDataAuthId,jdbcType=VARCHAR}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.MetaDataAuth">
-        <!--@mbg.generated-->
-        update meta_data_auth
-        set `user`           = #{user,jdbcType=VARCHAR},
-            data_id          = #{dataId,jdbcType=VARCHAR},
-            data_status      = #{dataStatus,jdbcType=TINYINT},
-            user_type        = #{userType,jdbcType=TINYINT},
-            identity_id      = #{identityId,jdbcType=VARCHAR},
-            meta_data_id     = #{metaDataId,jdbcType=VARCHAR},
-            usage_type       = #{usageType,jdbcType=TINYINT},
-            start_at         = #{startAt,jdbcType=TIMESTAMP},
-            end_at           = #{endAt,jdbcType=TIMESTAMP},
-            times            = #{times,jdbcType=INTEGER},
-            audit_option     = #{auditOption,jdbcType=TINYINT},
-            audit_suggestion = #{auditSuggestion,jdbcType=VARCHAR},
-            expire           = #{expire,jdbcType=BOOLEAN},
-            used_times       = #{usedTimes,jdbcType=INTEGER},
-            apply_at         = #{applyAt,jdbcType=TIMESTAMP},
-            audit_at         = #{auditAt,jdbcType=TIMESTAMP},
-            `state`          = #{state,jdbcType=TINYINT},
-            sign             = #{sign,jdbcType=VARCHAR},
-            publish_at       = #{publishAt,jdbcType=TIMESTAMP},
-            update_at        = #{updateAt,jdbcType=TIMESTAMP},
-            nonce            = #{nonce,jdbcType=BIGINT}
-        where meta_data_auth_id = #{metaDataAuthId,jdbcType=VARCHAR}
-    </update>
+
+    <select id="syncMetaDataAuth" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from meta_data_auth
+        <where>
+            <if test="identityId != null and identityId != ''">
+                AND identity_id = #{identityId,jdbcType=VARCHAR}
+            </if>
+            <if test="lastUpdateAt != null">
+                AND update_at <![CDATA[ > ]]> #{lastUpdateAt,jdbcType=TIMESTAMP}
+            </if>
+        </where>
+        order by update_at, meta_data_auth_id
+        limit 0, #{limit,jdbcType=BIGINT}
+    </select>
 </mapper>

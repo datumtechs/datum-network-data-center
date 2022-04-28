@@ -1,6 +1,7 @@
 package com.platon.metis.storage.grpc.impl;
 
 import com.platon.metis.storage.common.exception.MetaDataNotFound;
+import com.platon.metis.storage.common.util.LocalDateTimeUtil;
 import com.platon.metis.storage.dao.entity.MetaData;
 import com.platon.metis.storage.grpc.lib.api.*;
 import com.platon.metis.storage.grpc.lib.types.Base;
@@ -84,7 +85,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
+            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
         }
 
         List<MetaData> dataFileList = metaDataService.listDataFile(Base.MetadataState.MetadataState_Released.ordinal(), lastUpdateAt, request.getPageSize());
@@ -113,7 +114,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
+            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
         }
 
         //1.从数据库中查询出元数据信息
@@ -148,7 +149,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getLastUpdated()), ZoneOffset.UTC);
+            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
         }
 
         //1.从数据库中查询出元数据信息
