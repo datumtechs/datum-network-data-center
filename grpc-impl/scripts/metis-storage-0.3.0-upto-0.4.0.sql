@@ -179,3 +179,31 @@ CREATE TABLE `power_server` (
                                 PRIMARY KEY (`data_id`),
                                 KEY `update_at` (`update_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='计算服务信息';
+
+DROP TABLE IF EXISTS `meta_data_auth`;
+CREATE TABLE `meta_data_auth` (
+                                  `meta_data_auth_id` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '元数据授权申请Id',
+                                  `user` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '申请人地址',
+                                  `data_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '预留',
+                                  `data_status` tinyint(2) DEFAULT NULL COMMENT '1- valid, 2 - invalid.',
+                                  `user_type` tinyint(2) DEFAULT NULL COMMENT '申请人类型 (0: 未定义; 1: 以太坊地址; 2: Alaya地址; 3: PlatON地址',
+                                  `identity_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '元数据所属的组织信息',
+                                  `meta_data_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '元数据ID,hash',
+                                  `usage_type` tinyint(2) DEFAULT '0' COMMENT '元数据的使用方式 (0: 未定义; 1: 按照时间段来使用; 2: 按照次数来使用)',
+                                  `start_at` datetime DEFAULT NULL COMMENT '可使用的开始时间 (当 usage_type 为 1 时才需要的字段)',
+                                  `end_at` datetime DEFAULT NULL COMMENT '可使用的结束时间 (当 usage_type 为 1 时才需要的字段)',
+                                  `times` int(11) DEFAULT '0' COMMENT '可使用的次数 (当 usage_type 为 2 时才需要的字段)',
+                                  `audit_option` tinyint(2) DEFAULT '0' COMMENT '审核结果，0：等待审核中；1：审核通过；2：审核拒绝',
+                                  `audit_suggestion` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '审核意见 (允许""字符)',
+                                  `expire` tinyint(1) DEFAULT NULL COMMENT '是否已过期 (当 usage_type 为 1 时才需要的字段)',
+                                  `used_times` int(11) DEFAULT NULL COMMENT '已经使用的次数 (当 usage_type 为 2 时才需要的字段)',
+                                  `apply_at` datetime(3) DEFAULT NULL COMMENT '发起授权申请的时间 (单位: ms)',
+                                  `audit_at` datetime(3) DEFAULT NULL COMMENT '审核授权申请的时间 (单位: ms)',
+                                  `state` tinyint(2) DEFAULT NULL COMMENT '数据授权信息的状态 (0: 未知; 1: 还未发布的数据授权; 2: 已发布的数据授权; 3: 已撤销的数据授权 <失效前主动撤回的>; 4: 已经失效的数据授权 <过期or达到使用上限的>)',
+                                  `sign` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                                  `publish_at` timestamp NULL DEFAULT NULL COMMENT '数据发布时间',
+                                  `update_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '数据更新时间',
+                                  `nonce` bigint(11) DEFAULT NULL COMMENT '元数据授权的 nonce (用来标识该元数据授权在所属组织中的元数据授权的序号, 从 0 开始递增)',
+                                  PRIMARY KEY (`meta_data_auth_id`),
+                                  KEY `k_update_at` (`update_at`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='元数据文件授权信息';

@@ -4,6 +4,7 @@ import com.platon.metis.storage.dao.entity.*;
 import com.platon.metis.storage.grpc.lib.api.MetadataSummaryOwner;
 import com.platon.metis.storage.grpc.lib.types.Base;
 import com.platon.metis.storage.grpc.lib.types.IdentityPB;
+import com.platon.metis.storage.grpc.lib.types.MetadataAuthorityPB;
 
 import java.util.List;
 
@@ -32,4 +33,6 @@ public interface ConvertorService {
     com.platon.metis.storage.grpc.lib.types.TaskPB toTaskPB(TaskInfo taskInfo);
 
     List<com.platon.metis.storage.grpc.lib.types.TaskPB> toTaskPB(List<TaskInfo> taskInfoList);
+
+    MetadataAuthorityPB toProtoMetadataAuthorityPB(MetaDataAuth metaDataAuth);
 }

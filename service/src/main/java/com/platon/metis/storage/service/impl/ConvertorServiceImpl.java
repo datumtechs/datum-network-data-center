@@ -11,6 +11,8 @@ import com.platon.metis.storage.grpc.lib.types.Base.*;
 import com.platon.metis.storage.grpc.lib.types.*;
 import com.platon.metis.storage.service.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -300,6 +302,61 @@ public class ConvertorServiceImpl implements ConvertorService {
                     return toTaskPB(task);
                 }).collect(Collectors.toList());
         return grpcTaskList;
+    }
+
+    @Override
+    public MetadataAuthorityPB toProtoMetadataAuthorityPB(MetaDataAuth metaDataAuth) {
+//        ByteString sign = ByteString.EMPTY;
+//        if(StringUtils.isNotEmpty(metaDataAuth.getAuthSign())){
+//            try {
+//                sign = ByteString.copyFrom(Hex.decodeHex(metaDataAuth.getAuthSign()));
+//            } catch (DecoderException e) {
+//                log.error("cannot decode the sign", e);
+//            }
+//        }
+//
+//        OrgInfo orgInfo = orgInfoService.findByPK(metaDataAuth.getUserIdentityId());
+//        if (orgInfo == null) {
+//            log.error("identity not found. identityId:={}", metaDataAuth.getUserIdentityId());
+//            throw new OrgNotFound();
+//        }
+//
+//        return MetadataAuthorityPB.newBuilder()
+//                .setMetadataAuthId(metaDataAuth.getMetaDataAuthId())
+//                .setUser(metaDataAuth.getUserId())
+//                .setDataId(metaDataAuth.getDfsDataId())
+//                .setDataStatus(DataStatus.forNumber(metaDataAuth.getDfsDataStatus()))
+//                .setUserType(UserType.forNumber(metaDataAuth.getUserType()))
+//                .setAuth(MetadataAuthority.newBuilder()
+//                        .setMetadataId(metaDataAuth.getMetaDataId())
+//                        .setOwner(Organization.newBuilder()
+//                                .setIdentityId(metaDataAuth.getUserIdentityId())
+//                                .setNodeId(orgInfo.getNodeId())
+//                                .setNodeName(orgInfo.getNodeName())
+//                                .setStatus(CommonStatus.forNumber(orgInfo.getStatus()))
+//                                .build())
+//                        .setUsageRule(MetadataUsageRule.newBuilder()
+//                                .setUsageType(MetadataUsageType.forNumber(metaDataAuth.getAuthType()))
+//                                .setTimes(metaDataAuth.getTimes())
+//                                .setStartAt(metaDataAuth.getStartAt()==null?0:metaDataAuth.getStartAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+//                                .setEndAt(metaDataAuth.getEndAt()==null?0:metaDataAuth.getEndAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+//                                .build())
+//                )
+//                .setAuditOption(AuditMetadataOption.forNumber(metaDataAuth.getAuditOption()))
+//                .setAuditSuggestion(StringUtils.trimToEmpty(metaDataAuth.getAuditDesc()))
+//                .setUsedQuo(MetadataUsedQuo.newBuilder().setUsageType(MetadataUsageType.forNumber(metaDataAuth.getAuthType()))
+//                        .setExpire(metaDataAuth.getExpired())
+//                        .setUsedTimes(metaDataAuth.getUsedTimes())
+//                        .build())
+//
+//                .setApplyAt(metaDataAuth.getApplyAt()==null?0:metaDataAuth.getApplyAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+//
+//                .setAuditAt(metaDataAuth.getAuditAt() == null ? 0 : metaDataAuth.getAuditAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+//                .setState(MetadataAuthorityState.forNumber(metaDataAuth.getAuthStatus()))
+//                .setSign(sign)
+//                .setUpdateAt(metaDataAuth.getUpdateAt() == null ? 0 : metaDataAuth.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+//                .build();
+        return null;
     }
 
 }

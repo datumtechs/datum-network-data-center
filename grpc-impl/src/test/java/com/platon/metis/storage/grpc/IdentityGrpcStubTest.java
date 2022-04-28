@@ -39,8 +39,7 @@ public class IdentityGrpcStubTest {
         log.info("start to test saveIdentity()...");
 
         SaveIdentityRequest request = SaveIdentityRequest.newBuilder()
-                .setMember(Base.Organization.newBuilder().setIdentityId("org_id_5").setNodeName("org_name_4").setNodeId("node_id_4").build())
-                .setCredential("DID")
+                .setInformation(IdentityPB.newBuilder().setIdentityId("org_id_5").setNodeName("org_name_4").setNodeId("node_id_4").build())
                 .build();
 
         try {
