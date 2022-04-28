@@ -33,6 +33,7 @@
     data_flow_policy_types, meta_algorithm_id, `state`, reason, `desc`, create_at, start_at, 
     end_at, sign, nonce, init_memory, init_processor, init_bandwidth, init_duration
   </sql>
+
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     <!--@mbg.generated-->
     select 
@@ -311,7 +312,7 @@
   </select>
 
   <select id="listTaskInfoByIdentityId" resultMap="BaseResultMap">
-    select <include refid="Base_Column_List"/>
+    select t1.*
     from task_info t1
     inner join (select distinct task_id from task_org where identity_id = #{identityId}) t2 on t1.task_id = t2.task_id
     where t1.end_at > #{lastUpdatedAt,jdbcType=TIMESTAMP}

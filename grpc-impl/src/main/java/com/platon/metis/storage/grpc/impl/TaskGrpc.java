@@ -115,9 +115,9 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         taskInfo.setUser(user);
         taskInfo.setUserType(userType.getNumber());
         taskInfo.setTaskName(taskName);
-        taskInfo.setDataPolicyTypes(dataPolicyType);
-        taskInfo.setPowerPolicyTypes(powerPolicyType);
-        taskInfo.setDataFlowPolicyTypes(dataFlowPolicyType);
+        taskInfo.setDataPolicyTypesList(dataPolicyType);
+        taskInfo.setPowerPolicyTypesList(powerPolicyType);
+        taskInfo.setDataFlowPolicyTypesList(dataFlowPolicyType);
         taskInfo.setMetaAlgorithmId(metaAlgorithmId);
         taskInfo.setState(state.getNumber());
         taskInfo.setReason(reason);

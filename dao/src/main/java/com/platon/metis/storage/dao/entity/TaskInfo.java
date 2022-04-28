@@ -139,7 +139,7 @@ public class TaskInfo {
         return Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toList());
     }
 
-    public void setDataPolicyTypes(List<Integer> dataPolicyTypes) {
+    public void setDataPolicyTypesList(List<Integer> dataPolicyTypes) {
         StringJoiner sj = new StringJoiner(",");
         dataPolicyTypes.forEach(dataPolicyTypes1 -> {
             sj.add(dataPolicyTypes1.toString());
@@ -152,7 +152,7 @@ public class TaskInfo {
         return Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toList());
     }
 
-    public void setPowerPolicyTypes(List<Integer> powerPolicyTypes) {
+    public void setPowerPolicyTypesList(List<Integer> powerPolicyTypes) {
         StringJoiner sj = new StringJoiner(",");
         powerPolicyTypes.forEach(powerPolicyTypes1 -> {
             sj.add(powerPolicyTypes1.toString());
@@ -165,7 +165,7 @@ public class TaskInfo {
         return Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toList());
     }
 
-    public void setDataFlowPolicyTypes(List<Integer> dataFlowPolicyTypes) {
+    public void setDataFlowPolicyTypesList(List<Integer> dataFlowPolicyTypes) {
         StringJoiner sj = new StringJoiner(",");
         dataFlowPolicyTypes.forEach(dataFlowPolicyTypes1 -> {
             sj.add(dataFlowPolicyTypes1.toString());

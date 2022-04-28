@@ -2,11 +2,13 @@
 
 -- CREATE DATABASE `metis_storage` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+
 USE `metis_storage`;
 
-drop table data_file;
-drop table meta_data_column;
+drop table IF EXISTS data_file;
+drop table IF EXISTS meta_data_column;
 
+drop table IF EXISTS meta_data;
 CREATE TABLE `meta_data` (
                              `meta_data_id` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '元数据ID,hash',
                              `identity_id` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '组织身份ID',
@@ -29,6 +31,8 @@ CREATE TABLE `meta_data` (
                              KEY `update_at` (`update_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='元数据信息';
 
+
+drop table IF EXISTS meta_data_option_part;
 CREATE TABLE `meta_data_option_part` (
                                          `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增id',
                                          `meta_data_id` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'metaDataId',
@@ -60,7 +64,7 @@ DROP TABLE IF EXISTS `task_power_provider`;
 
 DROP TABLE IF EXISTS `task_result_consumer`;
 
-
+drop table IF EXISTS task_data_flow_option_part;
 CREATE TABLE `task_data_flow_option_part` (
                                               `id` int NOT NULL,
                                               `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联的任务ID',
@@ -68,6 +72,7 @@ CREATE TABLE `task_data_flow_option_part` (
                                               PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务的数据流向策略的内容 (json字符串, 和 data_flow_policy_type 配套使用)';
 
+drop table IF EXISTS task_data_option_part;
 CREATE TABLE `task_data_option_part` (
                                          `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
                                          `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联的任务ID',
@@ -75,7 +80,7 @@ CREATE TABLE `task_data_option_part` (
                                          PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务的数据提供方选择数据策略的内容 (json字符串, 和 data_policy_type 配套使用)';
 
-
+drop table IF EXISTS task_info;
 CREATE TABLE `task_info` (
                              `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '任务Id',
                              `data_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '预留',
@@ -102,6 +107,7 @@ CREATE TABLE `task_info` (
                              PRIMARY KEY (`task_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务信息表';
 
+drop table IF EXISTS task_inner_algorithm_code_part;
 CREATE TABLE `task_inner_algorithm_code_part` (
                                                   `id` int NOT NULL,
                                                   `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联的任务ID',
@@ -110,6 +116,7 @@ CREATE TABLE `task_inner_algorithm_code_part` (
                                                   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务内置算法代码';
 
+drop table IF EXISTS task_org;
 CREATE TABLE `task_org` (
                             `task_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '关联的任务ID',
                             `task_role` int NOT NULL COMMENT '任务中的所处的角色：1-任务的发起方，2-任务的算法提供者，3-任务的数据提供方,4-任务的算力提供方,5-任务的结果接收方',
@@ -120,6 +127,7 @@ CREATE TABLE `task_org` (
                             UNIQUE KEY `uk_task_role_identity` (`task_id`,`task_role`,`identity_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务组织信息';
 
+drop table IF EXISTS task_power_option_part;
 CREATE TABLE `task_power_option_part` (
                                           `id` int NOT NULL,
                                           `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联的任务ID',
@@ -127,6 +135,7 @@ CREATE TABLE `task_power_option_part` (
                                           PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务的算力提供方选择算力策略的内容 (json字符串, 和 power_policy_type 配套使用)';
 
+drop table IF EXISTS task_power_resource_option;
 CREATE TABLE `task_power_resource_option` (
                                               `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
                                               `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联得任务ID',
