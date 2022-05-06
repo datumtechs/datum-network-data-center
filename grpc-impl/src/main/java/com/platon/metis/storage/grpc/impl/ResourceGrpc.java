@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -151,7 +150,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
+            lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
         }
 
         List<PowerServer> powerServerList = powerServerService.syncPowerServer(lastUpdateAt, request.getPageSize());

@@ -15,10 +15,15 @@ public class LocalDateTimeUtil {
 
     /**
      * 将时间戳转换成UTC时间
+     *
      * @param timestamp 时间戳
      * @return
      */
-    public static LocalDateTime toUTC(long timestamp){
+    public static LocalDateTime getLocalDateTme(long timestamp) {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC);
+    }
+
+    public static long getTimestamp(LocalDateTime localDateTime) {
+        return localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
     }
 }

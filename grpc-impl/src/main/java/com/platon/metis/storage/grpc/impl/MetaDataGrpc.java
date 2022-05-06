@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -85,7 +84,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
+            lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
         }
 
         List<MetaData> dataFileList = metaDataService.listDataFile(Base.MetadataState.MetadataState_Released.ordinal(), lastUpdateAt, request.getPageSize());
@@ -114,7 +113,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
+            lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
         }
 
         //1.从数据库中查询出元数据信息
@@ -149,7 +148,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
+            lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
         }
 
         //1.从数据库中查询出元数据信息

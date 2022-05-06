@@ -53,7 +53,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
+            lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
         }
 
         List<OrgInfo> orgInfoList = orgInfoService.syncOrgInfo(lastUpdateAt, request.getPageSize());
@@ -188,18 +188,18 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
         metaDataAuth.setAuditSuggestion(metadataAuthorityPB.getAuditSuggestion());
         metaDataAuth.setState(metadataAuthorityPB.getStateValue());
         metaDataAuth.setSign(Hex.encodeHexString(metadataAuthorityPB.getSign().toByteArray()));
-        metaDataAuth.setPublishAt(LocalDateTimeUtil.toUTC(metadataAuthorityPB.getPublishAt()));
+        metaDataAuth.setPublishAt(LocalDateTimeUtil.getLocalDateTme(metadataAuthorityPB.getPublishAt()));
         metaDataAuth.setUpdateAt(cn.hutool.core.date.LocalDateTimeUtil.ofUTC(Instant.now()));
         metaDataAuth.setNonce(metadataAuthorityPB.getNonce());
         if (metadataAuthorityPB.getApplyAt() > 0) {
-            metaDataAuth.setApplyAt(LocalDateTimeUtil.toUTC(metadataAuthorityPB.getApplyAt()));
+            metaDataAuth.setApplyAt(LocalDateTimeUtil.getLocalDateTme(metadataAuthorityPB.getApplyAt()));
         }
         if (metadataAuthorityPB.getAuditAt() > 0) {
-            metaDataAuth.setAuditAt(LocalDateTimeUtil.toUTC(metadataAuthorityPB.getAuditAt()));
+            metaDataAuth.setAuditAt(LocalDateTimeUtil.getLocalDateTme(metadataAuthorityPB.getAuditAt()));
         }
         if (metaDataAuth.getUsageType() == Base.MetadataUsageType.Usage_Period.ordinal()) {
-            metaDataAuth.setStartAt(LocalDateTimeUtil.toUTC(metadataAuthorityPB.getAuth().getUsageRule().getStartAt()));
-            metaDataAuth.setEndAt(LocalDateTimeUtil.toUTC(metadataAuthorityPB.getAuth().getUsageRule().getEndAt()));
+            metaDataAuth.setStartAt(LocalDateTimeUtil.getLocalDateTme(metadataAuthorityPB.getAuth().getUsageRule().getStartAt()));
+            metaDataAuth.setEndAt(LocalDateTimeUtil.getLocalDateTme(metadataAuthorityPB.getAuth().getUsageRule().getEndAt()));
             metaDataAuth.setExpire(metadataAuthorityPB.getUsedQuo().getExpire() ? 1 : 0);
         } else if (metaDataAuth.getUsageType() == Base.MetadataUsageType.Usage_Times.ordinal()) {
             metaDataAuth.setTimes(metadataAuthorityPB.getAuth().getUsageRule().getTimes());
@@ -276,7 +276,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
+            lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
         }
         String identityId = request.getIdentityId();
         List<MetaDataAuth> metaDataAuthList = metaDataAuthService.syncMetaDataAuth(identityId, lastUpdateAt, request.getPageSize());

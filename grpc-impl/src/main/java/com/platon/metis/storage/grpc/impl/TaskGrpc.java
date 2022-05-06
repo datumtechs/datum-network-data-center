@@ -22,9 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -123,9 +121,9 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         taskInfo.setState(state.getNumber());
         taskInfo.setReason(reason);
         taskInfo.setDesc(desc);
-        taskInfo.setCreateAt(LocalDateTimeUtil.toUTC(createAt));
-        taskInfo.setStartAt(LocalDateTimeUtil.toUTC(startAt));
-        taskInfo.setEndAt(LocalDateTimeUtil.toUTC(endAt));
+        taskInfo.setCreateAt(LocalDateTimeUtil.getLocalDateTme(createAt));
+        taskInfo.setStartAt(LocalDateTimeUtil.getLocalDateTme(startAt));
+        taskInfo.setEndAt(LocalDateTimeUtil.getLocalDateTme(endAt));
         taskInfo.setSign(sign);
         taskInfo.setNonce(nonce);
         taskInfo.setInitMemory(operationCost.getMemory());
@@ -184,7 +182,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
             for (com.platon.metis.storage.grpc.lib.types.TaskEvent event : taskEventsList) {
                 TaskEvent taskEvent = new TaskEvent();
                 taskEvent.setTaskId(taskId);
-                taskEvent.setEventAt(LocalDateTimeUtil.toUTC(event.getCreateAt()));
+                taskEvent.setEventAt(LocalDateTimeUtil.getLocalDateTme(event.getCreateAt()));
                 taskEvent.setEventType(event.getType());
                 taskEvent.setIdentityId(event.getIdentityId());
                 taskEvent.setPartyId(event.getPartyId());
@@ -252,7 +250,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
+            lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
         }
 
         List<TaskInfo> taskInfoList = taskInfoService.syncTaskInfo(lastUpdateAt, request.getPageSize());
@@ -275,7 +273,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
-            lastUpdateAt = LocalDateTimeUtil.toUTC(request.getLastUpdated());
+            lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
         }
 
         List<TaskInfo> taskInfoList = taskInfoService.listTaskInfoByIdentityId(request.getIdentityId(), lastUpdateAt, request.getPageSize());
