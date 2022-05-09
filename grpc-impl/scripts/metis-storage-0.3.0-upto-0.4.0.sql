@@ -66,7 +66,7 @@ DROP TABLE IF EXISTS `task_result_consumer`;
 
 drop table IF EXISTS task_data_flow_option_part;
 CREATE TABLE `task_data_flow_option_part` (
-                                              `id` int NOT NULL,
+                                              `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',
                                               `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联的任务ID',
                                               `data_flow_option_part` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '数据片段',
                                               PRIMARY KEY (`id`)
@@ -110,7 +110,7 @@ CREATE TABLE `task_info` (
 
 drop table IF EXISTS task_inner_algorithm_code_part;
 CREATE TABLE `task_inner_algorithm_code_part` (
-                                                  `id` int NOT NULL,
+                                                  `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',
                                                   `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联的任务ID',
                                                   `algorithm_code_part` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '内置算法代码 (使用内置算法, 在不使用算法市场前提下用)',
                                                   `algorithm_code_extra_params_part` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '内置算法的额外超参 (使用内置算法, 内置算法的额外超参数 json 字符串, 内容可为""空字符串, 根据算法来)',
@@ -130,7 +130,7 @@ CREATE TABLE `task_org` (
 
 drop table IF EXISTS task_power_option_part;
 CREATE TABLE `task_power_option_part` (
-                                          `id` int NOT NULL,
+                                          `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',
                                           `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联的任务ID',
                                           `power_option_part` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '数据片段',
                                           PRIMARY KEY (`id`)
@@ -220,7 +220,7 @@ CREATE TABLE `meta_data_auth` (
 
 DROP TABLE IF EXISTS `meta_data_auth`;
 CREATE TABLE `task_receiver_option_part` (
-                                          `id` int NOT NULL,
+                                             `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',
                                           `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联的任务ID',
                                           `receiver_option_part` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '数据片段',
                                           PRIMARY KEY (`id`)
