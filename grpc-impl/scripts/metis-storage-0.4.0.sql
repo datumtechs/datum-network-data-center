@@ -128,6 +128,7 @@ CREATE TABLE `task_info` (
                              `data_policy_types` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '任务的数据提供方选择数据策略的类型',
                              `power_policy_types` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '任务的算力提供方选择算力策略的类型',
                              `data_flow_policy_types` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '任务的数据流向策略的类型',
+                             `receiver_policy_types` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '任务的接收方选择策略的类型',
                              `meta_algorithm_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '算法元数据Id (为了后续支持 算法市场而用, 使用内置算法时则该值为 "" 空字符串)',
                              `state` tinyint DEFAULT NULL COMMENT '任务的状态 (0: 未知; 1: 等在中; 2: 计算中; 3: 失败; 4: 成功)',
                              `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '任务失败原因',
@@ -249,3 +250,11 @@ CREATE TABLE `meta_data_auth` (
                                   PRIMARY KEY (`meta_data_auth_id`),
                                   KEY `k_update_at` (`update_at`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='元数据文件授权信息';
+
+DROP TABLE IF EXISTS `meta_data_auth`;
+CREATE TABLE `task_receiver_option_part` (
+                                             `id` int NOT NULL,
+                                             `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联的任务ID',
+                                             `receiver_option_part` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '数据片段',
+                                             PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务的接收方选择策略的内容 (json字符串数组, 和 receiver_policy_types 配套使用, 使用数组的原因是 可以支持单个或者多个数目的策略)';

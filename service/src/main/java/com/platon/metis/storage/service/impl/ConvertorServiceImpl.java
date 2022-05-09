@@ -39,19 +39,22 @@ public class ConvertorServiceImpl implements ConvertorService {
     private TaskOrgService taskOrgService;
 
     @Resource
-    TaskDataFlowOptionPartService taskDataFlowOptionPartService;
+    private TaskDataFlowOptionPartService taskDataFlowOptionPartService;
 
     @Resource
-    TaskDataOptionPartService taskDataOptionPartService;
+    private TaskDataOptionPartService taskDataOptionPartService;
 
     @Resource
-    TaskInnerAlgorithmCodePartService taskInnerAlgorithmCodePartService;
+    private TaskInnerAlgorithmCodePartService taskInnerAlgorithmCodePartService;
 
     @Resource
-    TaskPowerOptionPartService taskPowerOptionPartService;
+    private TaskPowerOptionPartService taskPowerOptionPartService;
 
     @Resource
-    TaskPowerResourceOptionService taskPowerResourceOptionService;
+    private TaskPowerResourceOptionService taskPowerResourceOptionService;
+
+    @Resource
+    private TaskReceiverOptionService taskReceiverOptionService;
 
 
     @Override
@@ -229,7 +232,7 @@ public class ConvertorServiceImpl implements ConvertorService {
             }
         }
 
-        //部分大数据
+        //大字段属性
         List<String> dataFlowPolicyOption = taskDataFlowOptionPartService.getDataFlowOption(taskId);
         List<String> dataPolicyOption = taskDataOptionPartService.getDataOption(taskId);
         Pair<String, String> algorithmPair = taskInnerAlgorithmCodePartService.getAlgorithmCode(taskId);
@@ -257,6 +260,8 @@ public class ConvertorServiceImpl implements ConvertorService {
                                     .build();
                     return taskPowerResourceOption;
                 }).collect(Collectors.toList());
+        List<String> receiverOption = taskReceiverOptionService.getReceiverOption(taskId);
+
 
         //任务相关事件
         List<TaskEvent> taskEventList = taskEventService.listTaskEventByTaskId(taskId);
@@ -280,6 +285,8 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .addAllPowerPolicyOptions(powerPolicyOption)
                 .addAllDataFlowPolicyTypes(taskInfo.getDataFlowPolicyTypesList())
                 .addAllDataFlowPolicyOptions(dataFlowPolicyOption)
+                .addAllReceiverPolicyTypes(taskInfo.getReceiverPolicyTypesList())
+                .addAllReceiverPolicyOptions(receiverOption)
                 .setOperationCost(taskResourceCostDeclare)
                 .setAlgorithmCode(algorithmCode)
                 .setMetaAlgorithmId(taskInfo.getMetaAlgorithmId())
@@ -299,10 +306,9 @@ public class ConvertorServiceImpl implements ConvertorService {
 
     @Override
     public List<com.platon.metis.storage.grpc.lib.types.TaskPB> toTaskPB(List<TaskInfo> taskInfoList) {
-        List<com.platon.metis.storage.grpc.lib.types.TaskPB> grpcTaskList =
-                taskInfoList.stream().map(task -> {
-                    return toTaskPB(task);
-                }).collect(Collectors.toList());
+        List<com.platon.metis.storage.grpc.lib.types.TaskPB> grpcTaskList = taskInfoList.stream()
+                .map(this::toTaskPB)
+                .collect(Collectors.toList());
         return grpcTaskList;
     }
 

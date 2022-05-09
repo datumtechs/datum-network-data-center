@@ -45,19 +45,22 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
     private TaskOrgService taskOrgService;
 
     @Resource
-    TaskDataFlowOptionPartService taskDataFlowOptionPartService;
+    private TaskDataFlowOptionPartService taskDataFlowOptionPartService;
 
     @Resource
-    TaskDataOptionPartService taskDataOptionPartService;
+    private TaskDataOptionPartService taskDataOptionPartService;
 
     @Resource
-    TaskInnerAlgorithmCodePartService taskInnerAlgorithmCodePartService;
+    private TaskInnerAlgorithmCodePartService taskInnerAlgorithmCodePartService;
 
     @Resource
-    TaskPowerOptionPartService taskPowerOptionPartService;
+    private TaskPowerOptionPartService taskPowerOptionPartService;
 
     @Resource
-    TaskPowerResourceOptionService taskPowerResourceOptionService;
+    private TaskPowerResourceOptionService taskPowerResourceOptionService;
+
+    @Resource
+    private TaskReceiverOptionService taskReceiverOptionService;
 
 
     /**
@@ -75,144 +78,37 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         TaskPB taskPB = request.getTask();
         //task的请求内容
         String taskId = taskPB.getTaskId();
-        String dataId = taskPB.getDataId();
-        Base.DataStatus dataStatus = taskPB.getDataStatus();
-        String user = taskPB.getUser();
-        Base.UserType userType = taskPB.getUserType();
-        String taskName = taskPB.getTaskName();
-        Base.TaskOrganization sender = taskPB.getSender();
-        Base.TaskOrganization algoSupplier = taskPB.getAlgoSupplier();
-        List<Base.TaskOrganization> dataSuppliersList = taskPB.getDataSuppliersList();
-        List<Base.TaskOrganization> powerSuppliersList = taskPB.getPowerSuppliersList();
-        List<Base.TaskOrganization> receiversList = taskPB.getReceiversList();
-        List<Integer> dataPolicyType = taskPB.getDataPolicyTypesList();
-        List<String> dataPolicyOption = taskPB.getDataPolicyOptionsList();
-        List<Integer> powerPolicyType = taskPB.getPowerPolicyTypesList();
-        List<String> powerPolicyOption = taskPB.getPowerPolicyOptionsList();
-        List<Integer> dataFlowPolicyType = taskPB.getDataFlowPolicyTypesList();
-        List<String> dataFlowPolicyOption = taskPB.getDataFlowPolicyOptionsList();
-        Base.TaskResourceCostDeclare operationCost = taskPB.getOperationCost();
-        String algorithmCode = taskPB.getAlgorithmCode();
-        String metaAlgorithmId = taskPB.getMetaAlgorithmId();
-        String algorithmCodeExtraParams = taskPB.getAlgorithmCodeExtraParams();
-        List<com.platon.metis.storage.grpc.lib.types.TaskPowerResourceOption> powerResourceOptionsList = taskPB.getPowerResourceOptionsList();
-        Base.TaskState state = taskPB.getState();
-        String reason = taskPB.getReason();
-        String desc = taskPB.getDesc();
-        long createAt = taskPB.getCreateAt();
-        long startAt = taskPB.getStartAt();
-        long endAt = taskPB.getEndAt();
-        List<com.platon.metis.storage.grpc.lib.types.TaskEvent> taskEventsList = taskPB.getTaskEventsList();
-        String sign = taskPB.getSign().toString();
-        long nonce = taskPB.getNonce();
 
         //task的基本信息
-        TaskInfo taskInfo = new TaskInfo();
-        taskInfo.setTaskId(taskId);
-        taskInfo.setDataId(dataId);
-        taskInfo.setDataStatus(dataStatus.getNumber());
-        taskInfo.setUser(user);
-        taskInfo.setUserType(userType.getNumber());
-        taskInfo.setTaskName(taskName);
-        taskInfo.setDataPolicyTypesList(dataPolicyType);
-        taskInfo.setPowerPolicyTypesList(powerPolicyType);
-        taskInfo.setDataFlowPolicyTypesList(dataFlowPolicyType);
-        taskInfo.setMetaAlgorithmId(metaAlgorithmId);
-        taskInfo.setState(state.getNumber());
-        taskInfo.setReason(reason);
-        taskInfo.setDesc(desc);
-        taskInfo.setCreateAt(LocalDateTimeUtil.getLocalDateTme(createAt));
-        taskInfo.setStartAt(LocalDateTimeUtil.getLocalDateTme(startAt));
-        taskInfo.setEndAt(LocalDateTimeUtil.getLocalDateTme(endAt));
-        taskInfo.setSign(sign);
-        taskInfo.setNonce(nonce);
-        taskInfo.setInitMemory(operationCost.getMemory());
-        taskInfo.setInitProcessor(operationCost.getProcessor());
-        taskInfo.setInitBandwidth(operationCost.getBandwidth());
-        taskInfo.setInitDuration(operationCost.getDuration());
+        TaskInfo taskInfo = toTaskInfo(taskPB);
         taskInfoService.saveTask(taskInfo);
 
-
         //参与任务的组织信息
-        TaskOrg senderOrg = toTaskOrg(taskId, TaskRoleEnum.sender, sender);
-        TaskOrg algoSupplierOrg = toTaskOrg(taskId, TaskRoleEnum.algoSupplier, algoSupplier);
-        List<TaskOrg> dataSupplierOrgList = dataSuppliersList.stream()
-                .map(dataSupplier -> toTaskOrg(taskId, TaskRoleEnum.dataSupplier, dataSupplier))
-                .collect(Collectors.toList());
-        List<TaskOrg> powerSupplierOrgList = powerSuppliersList.stream()
-                .map(powerSupplier -> toTaskOrg(taskId, TaskRoleEnum.powerSupplier, powerSupplier))
-                .collect(Collectors.toList());
-        List<TaskOrg> receiverOrgList = receiversList.stream()
-                .map(receiver -> toTaskOrg(taskId, TaskRoleEnum.receiver, receiver))
-                .collect(Collectors.toList());
-        List<TaskOrg> taskOrgList = new ArrayList<>();
-        taskOrgList.add(senderOrg);
-        taskOrgList.add(algoSupplierOrg);
-        taskOrgList.addAll(dataSupplierOrgList);
-        taskOrgList.addAll(powerSupplierOrgList);
-        taskOrgList.addAll(receiverOrgList);
+        List<TaskOrg> taskOrgList = toTaskOrgList(taskPB);
         taskOrgService.saveTaskOrg(taskOrgList);
 
-        taskDataFlowOptionPartService.saveDataFlowOption(taskId, dataFlowPolicyOption);
-        taskDataOptionPartService.saveDataOption(taskId, dataPolicyOption);
-        taskInnerAlgorithmCodePartService.saveAlgorithmCode(taskId, algorithmCode, algorithmCodeExtraParams);
-        taskPowerOptionPartService.savePowerOption(taskId, powerPolicyOption);
-        List<TaskPowerResourceOption> list = powerResourceOptionsList.stream()
-                .map(taskPowerResourceOption -> {
-                    TaskPowerResourceOption option = new TaskPowerResourceOption();
-                    option.setTaskId(taskId);
-                    option.setPartId(taskPowerResourceOption.getPartyId());
-                    ResourceUsageOverview resourceUsedOverview = taskPowerResourceOption.getResourceUsedOverview();
-                    option.setTotalMemory(resourceUsedOverview.getTotalMem());
-                    option.setUsedMemory(resourceUsedOverview.getUsedMem());
-                    option.setTotalProcessor(resourceUsedOverview.getTotalProcessor());
-                    option.setUsedProcessor(resourceUsedOverview.getUsedProcessor());
-                    option.setTotalBandwidth(resourceUsedOverview.getTotalBandwidth());
-                    option.setUsedBandwidth(resourceUsedOverview.getUsedBandwidth());
-                    option.setTotalDisk(resourceUsedOverview.getTotalDisk());
-                    option.setUsedDisk(resourceUsedOverview.getUsedDisk());
-                    return option;
-                }).collect(Collectors.toList());
-        taskPowerResourceOptionService.savePowerResourceOption(list);
-
+        //任务涉及的大字段属性单独存储
+        taskDataFlowOptionPartService.saveDataFlowOption(taskId, taskPB.getDataFlowPolicyOptionsList());
+        taskDataOptionPartService.saveDataOption(taskId, taskPB.getDataPolicyOptionsList());
+        taskInnerAlgorithmCodePartService.saveAlgorithmCode(taskId, taskPB.getAlgorithmCode(), taskPB.getAlgorithmCodeExtraParams());
+        taskPowerOptionPartService.savePowerOption(taskId, taskPB.getPowerPolicyOptionsList());
+        taskPowerResourceOptionService.savePowerResourceOption(toPowerResourceOption(taskPB));
+        taskReceiverOptionService.saveReceiverOption(taskId, taskPB.getReceiverPolicyOptionsList());
 
         //==任务日志
-        if (!CollectionUtils.isEmpty(taskEventsList)) {
-            List<TaskEvent> taskEventList = new ArrayList<>();
-            for (com.platon.metis.storage.grpc.lib.types.TaskEvent event : taskEventsList) {
-                TaskEvent taskEvent = new TaskEvent();
-                taskEvent.setTaskId(taskId);
-                taskEvent.setEventAt(LocalDateTimeUtil.getLocalDateTme(event.getCreateAt()));
-                taskEvent.setEventType(event.getType());
-                taskEvent.setIdentityId(event.getIdentityId());
-                taskEvent.setPartyId(event.getPartyId());
-                taskEvent.setEventContent(event.getContent());
-                taskEventList.add(taskEvent);
-            }
-            taskEventService.insert(taskEventList);
+        List<TaskEvent> taskEvents = toTaskEventList(taskPB);
+        if (!CollectionUtils.isEmpty(taskEvents)) {
+            taskEventService.insert(taskEvents);
         }
 
         //接口返回值
         Base.SimpleResponse response = Base.SimpleResponse.newBuilder().setStatus(0).build();
-
 
         log.debug("saveTask, response:{}", response);
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
-
-    private TaskOrg toTaskOrg(String taskId, TaskRoleEnum taskRole, Base.TaskOrganization taskOrganization) {
-        TaskOrg org = new TaskOrg();
-        org.setTaskId(taskId);
-        org.setTaskRole(taskRole.getRole());
-        org.setPartyId(taskOrganization.getPartyId());
-        org.setNodeName(taskOrganization.getNodeName());
-        org.setNodeId(taskOrganization.getNodeId());
-        org.setIdentityId(taskOrganization.getIdentityId());
-        return org;
-    }
-
 
     /**
      * <pre>
@@ -334,5 +230,101 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
+    }
+
+    private List<TaskEvent> toTaskEventList(TaskPB taskPB) {
+        List<TaskEvent> taskEventList = new ArrayList<>();
+        for (com.platon.metis.storage.grpc.lib.types.TaskEvent event : taskPB.getTaskEventsList()) {
+            TaskEvent taskEvent = new TaskEvent();
+            taskEvent.setTaskId(taskPB.getTaskId());
+            taskEvent.setEventAt(LocalDateTimeUtil.getLocalDateTme(event.getCreateAt()));
+            taskEvent.setEventType(event.getType());
+            taskEvent.setIdentityId(event.getIdentityId());
+            taskEvent.setPartyId(event.getPartyId());
+            taskEvent.setEventContent(event.getContent());
+            taskEventList.add(taskEvent);
+        }
+        return taskEventList;
+    }
+
+    private List<TaskPowerResourceOption> toPowerResourceOption(TaskPB taskPB) {
+        List<TaskPowerResourceOption> list = taskPB.getPowerResourceOptionsList().stream()
+                .map(taskPowerResourceOption -> {
+                    TaskPowerResourceOption option = new TaskPowerResourceOption();
+                    option.setTaskId(taskPB.getTaskId());
+                    option.setPartId(taskPowerResourceOption.getPartyId());
+                    ResourceUsageOverview resourceUsedOverview = taskPowerResourceOption.getResourceUsedOverview();
+                    option.setTotalMemory(resourceUsedOverview.getTotalMem());
+                    option.setUsedMemory(resourceUsedOverview.getUsedMem());
+                    option.setTotalProcessor(resourceUsedOverview.getTotalProcessor());
+                    option.setUsedProcessor(resourceUsedOverview.getUsedProcessor());
+                    option.setTotalBandwidth(resourceUsedOverview.getTotalBandwidth());
+                    option.setUsedBandwidth(resourceUsedOverview.getUsedBandwidth());
+                    option.setTotalDisk(resourceUsedOverview.getTotalDisk());
+                    option.setUsedDisk(resourceUsedOverview.getUsedDisk());
+                    return option;
+                }).collect(Collectors.toList());
+        return list;
+    }
+
+    private List<TaskOrg> toTaskOrgList(TaskPB taskPB) {
+        String taskId = taskPB.getTaskId();
+        TaskOrg senderOrg = toTaskOrg(taskId, TaskRoleEnum.sender, taskPB.getSender());
+        TaskOrg algoSupplierOrg = toTaskOrg(taskId, TaskRoleEnum.algoSupplier, taskPB.getAlgoSupplier());
+        List<TaskOrg> dataSupplierOrgList = taskPB.getDataSuppliersList().stream()
+                .map(dataSupplier -> toTaskOrg(taskId, TaskRoleEnum.dataSupplier, dataSupplier))
+                .collect(Collectors.toList());
+        List<TaskOrg> powerSupplierOrgList = taskPB.getPowerSuppliersList().stream()
+                .map(powerSupplier -> toTaskOrg(taskId, TaskRoleEnum.powerSupplier, powerSupplier))
+                .collect(Collectors.toList());
+        List<TaskOrg> receiverOrgList = taskPB.getReceiversList().stream()
+                .map(receiver -> toTaskOrg(taskId, TaskRoleEnum.receiver, receiver))
+                .collect(Collectors.toList());
+        List<TaskOrg> taskOrgList = new ArrayList<>();
+        taskOrgList.add(senderOrg);
+        taskOrgList.add(algoSupplierOrg);
+        taskOrgList.addAll(dataSupplierOrgList);
+        taskOrgList.addAll(powerSupplierOrgList);
+        taskOrgList.addAll(receiverOrgList);
+        return taskOrgList;
+    }
+
+    private TaskInfo toTaskInfo(TaskPB taskPB) {
+        TaskInfo taskInfo = new TaskInfo();
+        taskInfo.setTaskId(taskPB.getTaskId());
+        taskInfo.setDataId(taskPB.getDataId());
+        taskInfo.setDataStatus(taskPB.getDataStatusValue());
+        taskInfo.setUser(taskPB.getUser());
+        taskInfo.setUserType(taskPB.getUserTypeValue());
+        taskInfo.setTaskName(taskPB.getTaskName());
+        taskInfo.setDataPolicyTypesList(taskPB.getDataPolicyTypesList());
+        taskInfo.setPowerPolicyTypesList(taskPB.getPowerPolicyTypesList());
+        taskInfo.setDataFlowPolicyTypesList(taskPB.getDataFlowPolicyTypesList());
+        taskInfo.setReceiverPolicyTypesList(taskPB.getReceiverPolicyTypesList());
+        taskInfo.setMetaAlgorithmId(taskPB.getMetaAlgorithmId());
+        taskInfo.setState(taskPB.getStateValue());
+        taskInfo.setReason(taskPB.getReason());
+        taskInfo.setDesc(taskPB.getDesc());
+        taskInfo.setCreateAt(LocalDateTimeUtil.getLocalDateTme(taskPB.getCreateAt()));
+        taskInfo.setStartAt(LocalDateTimeUtil.getLocalDateTme(taskPB.getStartAt()));
+        taskInfo.setEndAt(LocalDateTimeUtil.getLocalDateTme(taskPB.getEndAt()));
+        taskInfo.setSign(taskPB.getSign().toString());
+        taskInfo.setNonce(taskPB.getNonce());
+        taskInfo.setInitMemory(taskPB.getOperationCost().getMemory());
+        taskInfo.setInitProcessor(taskPB.getOperationCost().getProcessor());
+        taskInfo.setInitBandwidth(taskPB.getOperationCost().getBandwidth());
+        taskInfo.setInitDuration(taskPB.getOperationCost().getDuration());
+        return taskInfo;
+    }
+
+    private TaskOrg toTaskOrg(String taskId, TaskRoleEnum taskRole, Base.TaskOrganization taskOrganization) {
+        TaskOrg org = new TaskOrg();
+        org.setTaskId(taskId);
+        org.setTaskRole(taskRole.getRole());
+        org.setPartyId(taskOrganization.getPartyId());
+        org.setNodeName(taskOrganization.getNodeName());
+        org.setNodeId(taskOrganization.getNodeId());
+        org.setIdentityId(taskOrganization.getIdentityId());
+        return org;
     }
 }

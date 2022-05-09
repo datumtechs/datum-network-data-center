@@ -70,6 +70,11 @@ public class TaskInfo {
     private String dataFlowPolicyTypes;
 
     /**
+     * 任务的接收方选择策略的类型
+     */
+    private String receiverPolicyTypes;
+
+    /**
      * 算法元数据Id (为了后续支持 算法市场而用, 使用内置算法时则该值为 "" 空字符串)
      */
     private String metaAlgorithmId;
@@ -171,5 +176,18 @@ public class TaskInfo {
             sj.add(dataFlowPolicyTypes1.toString());
         });
         this.dataFlowPolicyTypes = sj.toString();
+    }
+
+    public List<Integer> getReceiverPolicyTypesList() {
+        String[] split = receiverPolicyTypes.split(",");
+        return Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toList());
+    }
+
+    public void setReceiverPolicyTypesList(List<Integer> receiverPolicyTypes) {
+        StringJoiner sj = new StringJoiner(",");
+        receiverPolicyTypes.forEach(receiverPolicyTypes1 -> {
+            sj.add(receiverPolicyTypes1.toString());
+        });
+        this.receiverPolicyTypes = sj.toString();
     }
 }

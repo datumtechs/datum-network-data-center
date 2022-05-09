@@ -13,6 +13,7 @@
     <result column="data_policy_types" jdbcType="VARCHAR" property="dataPolicyTypes" />
     <result column="power_policy_types" jdbcType="VARCHAR" property="powerPolicyTypes" />
     <result column="data_flow_policy_types" jdbcType="VARCHAR" property="dataFlowPolicyTypes" />
+    <result column="receiver_policy_types" jdbcType="VARCHAR" property="receiverPolicyTypes" />
     <result column="meta_algorithm_id" jdbcType="VARCHAR" property="metaAlgorithmId" />
     <result column="state" jdbcType="TINYINT" property="state" />
     <result column="reason" jdbcType="VARCHAR" property="reason" />
@@ -30,7 +31,7 @@
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
     task_id, data_id, data_status, `user`, user_type, task_name, data_policy_types, power_policy_types, 
-    data_flow_policy_types, meta_algorithm_id, `state`, reason, `desc`, create_at, start_at, 
+    data_flow_policy_types, receiver_policy_types, meta_algorithm_id, `state`, reason, `desc`, create_at, start_at,
     end_at, sign, nonce, init_memory, init_processor, init_bandwidth, init_duration
   </sql>
 
@@ -50,7 +51,7 @@
     <!--@mbg.generated-->
     insert into task_info (task_id, data_id, data_status, 
       `user`, user_type, task_name, 
-      data_policy_types, power_policy_types, data_flow_policy_types, 
+      data_policy_types, power_policy_types, data_flow_policy_types, receiver_policy_types,
       meta_algorithm_id, `state`, reason, 
       `desc`, create_at, start_at, 
       end_at, sign, nonce, 
@@ -58,7 +59,7 @@
       init_duration)
     values (#{taskId,jdbcType=VARCHAR}, #{dataId,jdbcType=VARCHAR}, #{dataStatus,jdbcType=TINYINT}, 
       #{user,jdbcType=VARCHAR}, #{userType,jdbcType=TINYINT}, #{taskName,jdbcType=VARCHAR}, 
-      #{dataPolicyTypes}, #{powerPolicyTypes}, #{dataFlowPolicyTypes},
+      #{dataPolicyTypes}, #{powerPolicyTypes}, #{dataFlowPolicyTypes},#{receiverPolicyTypes}
       #{metaAlgorithmId,jdbcType=INTEGER}, #{state,jdbcType=TINYINT}, #{reason,jdbcType=VARCHAR}, 
       #{desc,jdbcType=VARCHAR}, #{createAt,jdbcType=TIMESTAMP}, #{startAt,jdbcType=TIMESTAMP}, 
       #{endAt,jdbcType=TIMESTAMP}, #{sign,jdbcType=LONGVARCHAR}, #{nonce,jdbcType=INTEGER}, 
@@ -95,6 +96,9 @@
       </if>
       <if test="dataFlowPolicyTypes != null">
         data_flow_policy_types,
+      </if>
+      <if test="receiverPolicyTypes != null">
+        receiver_policy_types,
       </if>
       <if test="metaAlgorithmId != null">
         meta_algorithm_id,
@@ -163,6 +167,9 @@
       </if>
       <if test="dataFlowPolicyTypes != null">
         #{dataFlowPolicyTypes},
+      </if>
+      <if test="receiverPolicyTypes != null">
+        #{receiverPolicyTypes},
       </if>
       <if test="metaAlgorithmId != null">
         #{metaAlgorithmId,jdbcType=INTEGER},
@@ -233,6 +240,9 @@
       <if test="dataFlowPolicyTypes != null">
         data_flow_policy_types = #{dataFlowPolicyTypes},
       </if>
+      <if test="receiverPolicyTypes != null">
+        receiver_policy_types = #{receiverPolicyTypes},
+      </if>
       <if test="metaAlgorithmId != null">
         meta_algorithm_id = #{metaAlgorithmId,jdbcType=INTEGER},
       </if>
@@ -286,6 +296,7 @@
       data_policy_types = #{dataPolicyTypes},
       power_policy_types = #{powerPolicyTypes},
       data_flow_policy_types = #{dataFlowPolicyTypes},
+      receiver_policy_types = #{receiverPolicyTypes},
       meta_algorithm_id = #{metaAlgorithmId,jdbcType=INTEGER},
       `state` = #{state,jdbcType=TINYINT},
       reason = #{reason,jdbcType=VARCHAR},
