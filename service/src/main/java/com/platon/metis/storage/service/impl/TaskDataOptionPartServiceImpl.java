@@ -1,10 +1,8 @@
 package com.platon.metis.storage.service.impl;
 
 import cn.hutool.core.util.StrUtil;
-import com.platon.metis.storage.dao.TaskDataFlowOptionPartMapper;
-import com.platon.metis.storage.dao.TaskDataOptionPartMapper;
-import com.platon.metis.storage.dao.entity.TaskDataFlowOptionPart;
-import com.platon.metis.storage.dao.entity.TaskDataOptionPart;
+import com.platon.metis.storage.dao.TaskDataPolicyOptionsPartMapper;
+import com.platon.metis.storage.dao.entity.TaskDataPolicyOptionsPart;
 import com.platon.metis.storage.service.BaseService;
 import com.platon.metis.storage.service.TaskDataOptionPartService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +25,7 @@ import java.util.List;
 public class TaskDataOptionPartServiceImpl extends BaseService implements TaskDataOptionPartService {
 
     @Resource
-    private TaskDataOptionPartMapper taskDataOptionPartMapper;
+    private TaskDataPolicyOptionsPartMapper taskDataPolicyOptionsPartMapper;
 
     @Value("${option-part.size}")
     private int optionPartSize;
@@ -37,19 +35,19 @@ public class TaskDataOptionPartServiceImpl extends BaseService implements TaskDa
         String dataPolicyOption = list2string(dataPolicyOptionList);
         String[] partArray = StrUtil.split(dataPolicyOption, optionPartSize);
         for (int i = 0; i < partArray.length; i++) {
-            TaskDataOptionPart optionPart = new TaskDataOptionPart();
+            TaskDataPolicyOptionsPart optionPart = new TaskDataPolicyOptionsPart();
             optionPart.setTaskId(taskId);
-            optionPart.setDataOptionPart(partArray[i]);
-            taskDataOptionPartMapper.insertSelective(optionPart);
+            optionPart.setDataPolicyOptionsPart(partArray[i]);
+            taskDataPolicyOptionsPartMapper.insertSelective(optionPart);
         }
     }
 
     @Override
     public List<String> getDataOption(String taskId) {
-        List<TaskDataOptionPart> list = taskDataOptionPartMapper.selectByTaskId(taskId);
+        List<TaskDataPolicyOptionsPart> list = taskDataPolicyOptionsPartMapper.selectByTaskId(taskId);
         StringBuilder sb = new StringBuilder();
         list.forEach(part -> {
-            sb.append(part.getDataOptionPart());
+            sb.append(part.getDataPolicyOptionsPart());
         });
         return string2list(sb.toString());
     }

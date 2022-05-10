@@ -6,21 +6,18 @@ import lombok.ToString;
 
 /**
  * @Author juzix
- * @Date 2022/4/21 19:54
+ * @Date 2022/5/9 11:38
  * @Version 
  * @Desc 
  *******************************
  */
 /**
-    * 任务的数据提供方选择数据策略的内容 (json字符串, 和 data_policy_type 配套使用)
+    * 任务的接收方选择策略的内容 (json字符串数组, 和 receiver_policy_types 配套使用, 使用数组的原因是 可以支持单个或者多个数目的策略)
     */
 @Getter
 @Setter
 @ToString
-public class TaskDataOptionPart {
-    /**
-    * 主键ID
-    */
+public class TaskReceiverPolicyOptionsPart {
     private Integer id;
 
     /**
@@ -29,7 +26,7 @@ public class TaskDataOptionPart {
     private String taskId;
 
     /**
-    * 分片后的信息
+    * 数据片段
     */
-    private String dataOptionPart;
+    private String receiverPolicyOptionsPart;
 }

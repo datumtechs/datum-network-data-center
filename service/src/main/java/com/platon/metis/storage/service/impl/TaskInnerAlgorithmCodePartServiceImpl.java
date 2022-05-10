@@ -2,9 +2,8 @@ package com.platon.metis.storage.service.impl;
 
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.StrUtil;
-import com.platon.metis.storage.dao.TaskInnerAlgorithmCodePartMapper;
-import com.platon.metis.storage.dao.entity.TaskDataOptionPart;
-import com.platon.metis.storage.dao.entity.TaskInnerAlgorithmCodePart;
+import com.platon.metis.storage.dao.TaskAlgorithmCodePartMapper;
+import com.platon.metis.storage.dao.entity.TaskAlgorithmCodePart;
 import com.platon.metis.storage.service.TaskInnerAlgorithmCodePartService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +24,7 @@ import java.util.List;
 public class TaskInnerAlgorithmCodePartServiceImpl implements TaskInnerAlgorithmCodePartService {
 
     @Resource
-    private TaskInnerAlgorithmCodePartMapper taskInnerAlgorithmCodePartMapper;
+    private TaskAlgorithmCodePartMapper taskAlgorithmCodePartMapper;
 
     @Value("${option-part.size}")
     private int optionPartSize;
@@ -35,7 +34,7 @@ public class TaskInnerAlgorithmCodePartServiceImpl implements TaskInnerAlgorithm
         String[] codeArray = StrUtil.split(algorithmCode, optionPartSize);
         String[] paramArray = StrUtil.split(algorithmCodeExtraParams, optionPartSize);
         for (int i = 0; i < codeArray.length || i < paramArray.length; i++) {
-            TaskInnerAlgorithmCodePart optionPart = new TaskInnerAlgorithmCodePart();
+            TaskAlgorithmCodePart optionPart = new TaskAlgorithmCodePart();
             optionPart.setTaskId(taskId);
             if (codeArray.length >= i + 1) {//还没溢出
                 optionPart.setAlgorithmCodePart(codeArray[i]);
@@ -43,23 +42,23 @@ public class TaskInnerAlgorithmCodePartServiceImpl implements TaskInnerAlgorithm
             if (paramArray.length >= i + 1) {//还没溢出
                 optionPart.setAlgorithmCodeExtraParamsPart(paramArray[i]);
             }
-            taskInnerAlgorithmCodePartMapper.insertSelective(optionPart);
+            taskAlgorithmCodePartMapper.insertSelective(optionPart);
         }
     }
 
     @Override
-    public Pair<String,String> getAlgorithmCode(String taskId) {
-        List<TaskInnerAlgorithmCodePart> list = taskInnerAlgorithmCodePartMapper.selectByTaskId(taskId);
+    public Pair<String, String> getAlgorithmCode(String taskId) {
+        List<TaskAlgorithmCodePart> list = taskAlgorithmCodePartMapper.selectByTaskId(taskId);
         StringBuilder codeSb = new StringBuilder();
         StringBuilder paramSb = new StringBuilder();
         list.forEach(part -> {
-            if(StrUtil.isNotBlank(part.getAlgorithmCodePart())){
+            if (StrUtil.isNotBlank(part.getAlgorithmCodePart())) {
                 codeSb.append(part.getAlgorithmCodePart());
             }
-            if(StrUtil.isNotBlank(part.getAlgorithmCodeExtraParamsPart())){
+            if (StrUtil.isNotBlank(part.getAlgorithmCodeExtraParamsPart())) {
                 paramSb.append(part.getAlgorithmCodeExtraParamsPart());
             }
         });
-        return Pair.of(codeSb.toString(),paramSb.toString());
+        return Pair.of(codeSb.toString(), paramSb.toString());
     }
 }

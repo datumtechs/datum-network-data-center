@@ -1,10 +1,8 @@
 package com.platon.metis.storage.service.impl;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONUtil;
-import com.platon.metis.storage.dao.TaskDataFlowOptionPartMapper;
-import com.platon.metis.storage.dao.entity.TaskDataFlowOptionPart;
+import com.platon.metis.storage.dao.TaskDataFlowPolicyOptionsPartMapper;
+import com.platon.metis.storage.dao.entity.TaskDataFlowPolicyOptionsPart;
 import com.platon.metis.storage.service.BaseService;
 import com.platon.metis.storage.service.TaskDataFlowOptionPartService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +24,7 @@ import java.util.List;
 public class TaskDataFlowOptionPartServiceImpl extends BaseService implements TaskDataFlowOptionPartService {
 
     @Resource
-    private TaskDataFlowOptionPartMapper taskDataFlowOptionPartMapper;
+    private TaskDataFlowPolicyOptionsPartMapper taskDataFlowPolicyOptionsPartMapper;
 
     @Value("${option-part.size}")
     private int optionPartSize;
@@ -37,19 +35,19 @@ public class TaskDataFlowOptionPartServiceImpl extends BaseService implements Ta
         String dataFlowPolicyOption = list2string(dataFlowPolicyOptionList);
         String[] partArray = StrUtil.split(dataFlowPolicyOption, optionPartSize);
         for (int i = 0; i < partArray.length; i++) {
-            TaskDataFlowOptionPart optionPart = new TaskDataFlowOptionPart();
+            TaskDataFlowPolicyOptionsPart optionPart = new TaskDataFlowPolicyOptionsPart();
             optionPart.setTaskId(taskId);
-            optionPart.setDataFlowOptionPart(partArray[i]);
-            taskDataFlowOptionPartMapper.insertSelective(optionPart);
+            optionPart.setDataFlowPolicyOptionsPart(partArray[i]);
+            taskDataFlowPolicyOptionsPartMapper.insertSelective(optionPart);
         }
     }
 
     @Override
     public List<String> getDataFlowOption(String taskId) {
-        List<TaskDataFlowOptionPart> list = taskDataFlowOptionPartMapper.selectByTaskId(taskId);
+        List<TaskDataFlowPolicyOptionsPart> list = taskDataFlowPolicyOptionsPartMapper.selectByTaskId(taskId);
         StringBuilder sb = new StringBuilder();
         list.forEach(part -> {
-            sb.append(part.getDataFlowOptionPart());
+            sb.append(part.getDataFlowPolicyOptionsPart());
         });
         return string2list(sb.toString());
     }

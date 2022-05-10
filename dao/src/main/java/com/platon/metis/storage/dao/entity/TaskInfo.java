@@ -1,10 +1,12 @@
 package com.platon.metis.storage.dao.entity;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
@@ -139,7 +141,15 @@ public class TaskInfo {
      */
     private Long initDuration;
 
+    /**
+     * 数据策略类型
+     *
+     * @return
+     */
     public List<Integer> getDataPolicyTypesList() {
+        if (StrUtil.isBlank(dataPolicyTypes)) {
+            return new ArrayList<>();
+        }
         String[] split = dataPolicyTypes.split(",");
         return Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toList());
     }
@@ -152,7 +162,15 @@ public class TaskInfo {
         this.dataPolicyTypes = sj.toString();
     }
 
+    /**
+     * 算力策略类型
+     *
+     * @return
+     */
     public List<Integer> getPowerPolicyTypesList() {
+        if (StrUtil.isBlank(powerPolicyTypes)) {
+            return new ArrayList<>();
+        }
         String[] split = powerPolicyTypes.split(",");
         return Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toList());
     }
@@ -165,7 +183,15 @@ public class TaskInfo {
         this.powerPolicyTypes = sj.toString();
     }
 
+    /**
+     * 数据流策略类型
+     *
+     * @return
+     */
     public List<Integer> getDataFlowPolicyTypesList() {
+        if (StrUtil.isBlank(dataFlowPolicyTypes)) {
+            return new ArrayList<>();
+        }
         String[] split = dataFlowPolicyTypes.split(",");
         return Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toList());
     }
@@ -178,7 +204,15 @@ public class TaskInfo {
         this.dataFlowPolicyTypes = sj.toString();
     }
 
+    /**
+     * 结果接收方策略类型
+     *
+     * @return
+     */
     public List<Integer> getReceiverPolicyTypesList() {
+        if (StrUtil.isBlank(receiverPolicyTypes)) {
+            return new ArrayList<>();
+        }
         String[] split = receiverPolicyTypes.split(",");
         return Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toList());
     }

@@ -17,7 +17,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class TaskInnerAlgorithmCodePart {
+public class TaskAlgorithmCodePart {
     private Integer id;
 
     /**

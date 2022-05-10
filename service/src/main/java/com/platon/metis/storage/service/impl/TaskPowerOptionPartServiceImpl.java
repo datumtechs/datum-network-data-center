@@ -1,8 +1,8 @@
 package com.platon.metis.storage.service.impl;
 
 import cn.hutool.core.util.StrUtil;
-import com.platon.metis.storage.dao.TaskPowerOptionPartMapper;
-import com.platon.metis.storage.dao.entity.TaskPowerOptionPart;
+import com.platon.metis.storage.dao.TaskPowerPolicyOptionsPartMapper;
+import com.platon.metis.storage.dao.entity.TaskPowerPolicyOptionsPart;
 import com.platon.metis.storage.service.BaseService;
 import com.platon.metis.storage.service.TaskPowerOptionPartService;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import java.util.List;
 public class TaskPowerOptionPartServiceImpl extends BaseService implements TaskPowerOptionPartService {
 
     @Resource
-    private TaskPowerOptionPartMapper taskPowerOptionPartMapper;
+    private TaskPowerPolicyOptionsPartMapper taskPowerPolicyOptionsPartMapper;
 
     @Value("${option-part.size}")
     private int optionPartSize;
@@ -34,20 +34,20 @@ public class TaskPowerOptionPartServiceImpl extends BaseService implements TaskP
         String powerPolicyOption = list2string(powerPolicyOptionList);
         String[] partArray = StrUtil.split(powerPolicyOption, optionPartSize);
         for (int i = 0; i < partArray.length; i++) {
-            TaskPowerOptionPart optionPart = new TaskPowerOptionPart();
+            TaskPowerPolicyOptionsPart optionPart = new TaskPowerPolicyOptionsPart();
             optionPart.setTaskId(taskId);
-            optionPart.setPowerOptionPart(partArray[i]);
-            taskPowerOptionPartMapper.insertSelective(optionPart);
+            optionPart.setPowerPolicyOptionsPart(partArray[i]);
+            taskPowerPolicyOptionsPartMapper.insertSelective(optionPart);
         }
     }
 
 
     @Override
     public List<String> getPowerOption(String taskId) {
-        List<TaskPowerOptionPart> list = taskPowerOptionPartMapper.selectByTaskId(taskId);
+        List<TaskPowerPolicyOptionsPart> list = taskPowerPolicyOptionsPartMapper.selectByTaskId(taskId);
         StringBuilder sb = new StringBuilder();
         list.forEach(part -> {
-            sb.append(part.getPowerOptionPart());
+            sb.append(part.getPowerPolicyOptionsPart());
         });
         return string2list(sb.toString());
     }

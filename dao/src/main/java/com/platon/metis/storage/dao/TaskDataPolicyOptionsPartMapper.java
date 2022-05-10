@@ -1,6 +1,6 @@
 package com.platon.metis.storage.dao;
 
-import com.platon.metis.storage.dao.entity.TaskPowerOptionPart;
+import com.platon.metis.storage.dao.entity.TaskDataPolicyOptionsPart;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
  * @Desc 
  *******************************
  */
-public interface TaskPowerOptionPartMapper {
+public interface TaskDataPolicyOptionsPartMapper {
     /**
      * delete by primary key
      * @param id primaryKey
@@ -24,35 +24,35 @@ public interface TaskPowerOptionPartMapper {
      * @param record the record
      * @return insert count
      */
-    int insert(TaskPowerOptionPart record);
+    int insert(TaskDataPolicyOptionsPart record);
 
     /**
      * insert record to table selective
      * @param record the record
      * @return insert count
      */
-    int insertSelective(TaskPowerOptionPart record);
+    int insertSelective(TaskDataPolicyOptionsPart record);
 
     /**
      * select by primary key
      * @param id primary key
      * @return object by primary key
      */
-    TaskPowerOptionPart selectByPrimaryKey(Integer id);
+    TaskDataPolicyOptionsPart selectByPrimaryKey(Integer id);
 
     /**
      * update record selective
      * @param record the updated record
      * @return update count
      */
-    int updateByPrimaryKeySelective(TaskPowerOptionPart record);
+    int updateByPrimaryKeySelective(TaskDataPolicyOptionsPart record);
 
     /**
      * update record
      * @param record the updated record
      * @return update count
      */
-    int updateByPrimaryKey(TaskPowerOptionPart record);
+    int updateByPrimaryKey(TaskDataPolicyOptionsPart record);
 
-    List<TaskPowerOptionPart> selectByTaskId(String taskId);
+    List<TaskDataPolicyOptionsPart> selectByTaskId(String taskId);
 }

@@ -102,22 +102,23 @@ CREATE TABLE `task_event` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务事件';
 
-
-CREATE TABLE `task_data_flow_option_part` (
+DROP TABLE IF EXISTS `task_data_flow_policy_options_part`;
+CREATE TABLE `task_data_flow_policy_options_part` (
                                               `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',
                                               `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联的任务ID',
-                                              `data_flow_option_part` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '数据片段',
+                                              `data_flow_policy_options_part` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '数据片段',
                                               PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务的数据流向策略的内容 (json字符串, 和 data_flow_policy_type 配套使用)';
 
-CREATE TABLE `task_data_option_part` (
+DROP TABLE IF EXISTS `task_data_policy_options_part`;
+CREATE TABLE `task_data_policy_options_part` (
                                          `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
                                          `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联的任务ID',
-                                         `data_option_part` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '分片后的信息',
+                                         `data_policy_options_part` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '分片后的信息',
                                          PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务的数据提供方选择数据策略的内容 (json字符串, 和 data_policy_type 配套使用)';
 
-
+DROP TABLE IF EXISTS `task_info`;
 CREATE TABLE `task_info` (
                              `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '任务Id',
                              `data_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '预留',
@@ -145,7 +146,8 @@ CREATE TABLE `task_info` (
                              PRIMARY KEY (`task_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务信息表';
 
-CREATE TABLE `task_inner_algorithm_code_part` (
+DROP TABLE IF EXISTS `task_algorithm_code_part`;
+CREATE TABLE `task_algorithm_code_part` (
                                                   `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',
                                                   `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联的任务ID',
                                                   `algorithm_code_part` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '内置算法代码 (使用内置算法, 在不使用算法市场前提下用)',
@@ -153,6 +155,7 @@ CREATE TABLE `task_inner_algorithm_code_part` (
                                                   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务内置算法代码';
 
+DROP TABLE IF EXISTS `task_org`;
 CREATE TABLE `task_org` (
                             `task_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '关联的任务ID',
                             `task_role` int NOT NULL COMMENT '任务中的所处的角色：1-任务的发起方，2-任务的算法提供者，3-任务的数据提供方,4-任务的算力提供方,5-任务的结果接收方',
@@ -163,14 +166,16 @@ CREATE TABLE `task_org` (
                             UNIQUE KEY `uk_task_role_identity` (`task_id`,`task_role`,`identity_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务组织信息';
 
-CREATE TABLE `task_power_option_part` (
+DROP TABLE IF EXISTS `task_power_policy_options_part`;
+CREATE TABLE `task_power_policy_options_part` (
                                           `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',
                                           `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联的任务ID',
-                                          `power_option_part` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '数据片段',
+                                          `power_policy_options_part` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '数据片段',
                                           PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务的算力提供方选择算力策略的内容 (json字符串, 和 power_policy_type 配套使用)';
 
-CREATE TABLE `task_power_resource_option` (
+DROP TABLE IF EXISTS `task_power_resource_options`;
+CREATE TABLE `task_power_resource_options` (
                                               `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
                                               `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联得任务ID',
                                               `part_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -251,10 +256,10 @@ CREATE TABLE `meta_data_auth` (
                                   KEY `k_update_at` (`update_at`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='元数据文件授权信息';
 
-DROP TABLE IF EXISTS `meta_data_auth`;
-CREATE TABLE `task_receiver_option_part` (
+DROP TABLE IF EXISTS `task_receiver_policy_options_part`;
+CREATE TABLE `task_receiver_policy_options_part` (
                                              `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',
                                              `task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联的任务ID',
-                                             `receiver_option_part` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '数据片段',
+                                             `receiver_policy_options_part` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '数据片段',
                                              PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务的接收方选择策略的内容 (json字符串数组, 和 receiver_policy_types 配套使用, 使用数组的原因是 可以支持单个或者多个数目的策略)';

@@ -17,7 +17,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class TaskPowerOptionPart {
+public class TaskPowerPolicyOptionsPart {
     private Integer id;
 
     /**
@@ -28,5 +28,5 @@ public class TaskPowerOptionPart {
     /**
     * 数据片段
     */
-    private String powerOptionPart;
+    private String powerPolicyOptionsPart;
 }

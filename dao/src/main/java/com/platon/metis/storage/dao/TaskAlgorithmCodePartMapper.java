@@ -1,6 +1,6 @@
 package com.platon.metis.storage.dao;
 
-import com.platon.metis.storage.dao.entity.TaskInnerAlgorithmCodePart;
+import com.platon.metis.storage.dao.entity.TaskAlgorithmCodePart;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
  * @Desc 
  *******************************
  */
-public interface TaskInnerAlgorithmCodePartMapper {
+public interface TaskAlgorithmCodePartMapper {
     /**
      * delete by primary key
      * @param id primaryKey
@@ -24,35 +24,35 @@ public interface TaskInnerAlgorithmCodePartMapper {
      * @param record the record
      * @return insert count
      */
-    int insert(TaskInnerAlgorithmCodePart record);
+    int insert(TaskAlgorithmCodePart record);
 
     /**
      * insert record to table selective
      * @param record the record
      * @return insert count
      */
-    int insertSelective(TaskInnerAlgorithmCodePart record);
+    int insertSelective(TaskAlgorithmCodePart record);
 
     /**
      * select by primary key
      * @param id primary key
      * @return object by primary key
      */
-    TaskInnerAlgorithmCodePart selectByPrimaryKey(Integer id);
+    TaskAlgorithmCodePart selectByPrimaryKey(Integer id);
 
     /**
      * update record selective
      * @param record the updated record
      * @return update count
      */
-    int updateByPrimaryKeySelective(TaskInnerAlgorithmCodePart record);
+    int updateByPrimaryKeySelective(TaskAlgorithmCodePart record);
 
     /**
      * update record
      * @param record the updated record
      * @return update count
      */
-    int updateByPrimaryKey(TaskInnerAlgorithmCodePart record);
+    int updateByPrimaryKey(TaskAlgorithmCodePart record);
 
-    List<TaskInnerAlgorithmCodePart> selectByTaskId(String taskId);
+    List<TaskAlgorithmCodePart> selectByTaskId(String taskId);
 }

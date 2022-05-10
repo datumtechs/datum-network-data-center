@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.metis.storage.dao.TaskInnerAlgorithmCodePartMapper">
-    <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.TaskInnerAlgorithmCodePart">
+<mapper namespace="com.platon.metis.storage.dao.TaskAlgorithmCodePartMapper">
+    <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.TaskAlgorithmCodePart">
         <!--@mbg.generated-->
-        <!--@Table task_inner_algorithm_code_part-->
+        <!--@Table task_algorithm_code_part-->
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="task_id" jdbcType="VARCHAR" property="taskId"/>
         <result column="algorithm_code_part" jdbcType="VARCHAR" property="algorithmCodePart"/>
@@ -17,25 +17,25 @@
         <!--@mbg.generated-->
         select
         <include refid="Base_Column_List"/>
-        from task_inner_algorithm_code_part
+        from task_algorithm_code_part
         where id = #{id,jdbcType=INTEGER}
     </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         <!--@mbg.generated-->
         delete
-        from task_inner_algorithm_code_part
+        from task_algorithm_code_part
         where id = #{id,jdbcType=INTEGER}
     </delete>
-    <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.TaskInnerAlgorithmCodePart">
+    <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.TaskAlgorithmCodePart">
         <!--@mbg.generated-->
-        insert into task_inner_algorithm_code_part (id, task_id, algorithm_code_part,
-                                                    algorithm_code_extra_params_part)
+        insert into task_algorithm_code_part (id, task_id, algorithm_code_part,
+                                              algorithm_code_extra_params_part)
         values (#{id,jdbcType=INTEGER}, #{taskId,jdbcType=VARCHAR}, #{algorithmCodePart,jdbcType=VARCHAR},
                 #{algorithmCodeExtraParamsPart,jdbcType=VARCHAR})
     </insert>
-    <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.TaskInnerAlgorithmCodePart">
+    <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.TaskAlgorithmCodePart">
         <!--@mbg.generated-->
-        insert into task_inner_algorithm_code_part
+        insert into task_algorithm_code_part
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 id,
@@ -66,9 +66,9 @@
         </trim>
     </insert>
     <update id="updateByPrimaryKeySelective"
-            parameterType="com.platon.metis.storage.dao.entity.TaskInnerAlgorithmCodePart">
+            parameterType="com.platon.metis.storage.dao.entity.TaskAlgorithmCodePart">
         <!--@mbg.generated-->
-        update task_inner_algorithm_code_part
+        update task_algorithm_code_part
         <set>
             <if test="taskId != null">
                 task_id = #{taskId,jdbcType=VARCHAR},
@@ -82,9 +82,9 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.TaskInnerAlgorithmCodePart">
+    <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.TaskAlgorithmCodePart">
         <!--@mbg.generated-->
-        update task_inner_algorithm_code_part
+        update task_algorithm_code_part
         set task_id                          = #{taskId,jdbcType=VARCHAR},
             algorithm_code_part              = #{algorithmCodePart,jdbcType=VARCHAR},
             algorithm_code_extra_params_part = #{algorithmCodeExtraParamsPart,jdbcType=VARCHAR}
@@ -92,8 +92,9 @@
     </update>
 
     <select id="selectByTaskId" resultMap="BaseResultMap">
-        select <include refid="Base_Column_List"/>
-        from task_inner_algorithm_code_part
+        select
+        <include refid="Base_Column_List"/>
+        from task_algorithm_code_part
         where task_id = #{taskId}
         order by id
     </select>

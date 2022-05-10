@@ -1,8 +1,8 @@
 package com.platon.metis.storage.service.impl;
 
 import cn.hutool.core.util.StrUtil;
-import com.platon.metis.storage.dao.TaskReceiverOptionPartMapper;
-import com.platon.metis.storage.dao.entity.TaskReceiverOptionPart;
+import com.platon.metis.storage.dao.TaskReceiverPolicyOptionsPartMapper;
+import com.platon.metis.storage.dao.entity.TaskReceiverPolicyOptionsPart;
 import com.platon.metis.storage.service.BaseService;
 import com.platon.metis.storage.service.TaskReceiverOptionService;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +22,7 @@ import java.util.List;
 public class TaskReceiverOptionServiceImpl extends BaseService implements TaskReceiverOptionService {
 
     @Resource
-    private TaskReceiverOptionPartMapper taskReceiverOptionPartMapper;
+    private TaskReceiverPolicyOptionsPartMapper taskReceiverPolicyOptionsPartMapper;
 
     @Value("${option-part.size}")
     private int optionPartSize;
@@ -32,19 +32,19 @@ public class TaskReceiverOptionServiceImpl extends BaseService implements TaskRe
         String receiverPolicyOption = list2string(receiverPolicyOptionList);
         String[] partArray = StrUtil.split(receiverPolicyOption, optionPartSize);
         for (int i = 0; i < partArray.length; i++) {
-            TaskReceiverOptionPart optionPart = new TaskReceiverOptionPart();
+            TaskReceiverPolicyOptionsPart optionPart = new TaskReceiverPolicyOptionsPart();
             optionPart.setTaskId(taskId);
-            optionPart.setReceiverOptionPart(partArray[i]);
-            taskReceiverOptionPartMapper.insertSelective(optionPart);
+            optionPart.setReceiverPolicyOptionsPart(partArray[i]);
+            taskReceiverPolicyOptionsPartMapper.insertSelective(optionPart);
         }
     }
 
     @Override
     public List<String> getReceiverOption(String taskId) {
-        List<TaskReceiverOptionPart> list = taskReceiverOptionPartMapper.selectByTaskId(taskId);
+        List<TaskReceiverPolicyOptionsPart> list = taskReceiverPolicyOptionsPartMapper.selectByTaskId(taskId);
         StringBuilder sb = new StringBuilder();
         list.forEach(part -> {
-            sb.append(part.getReceiverOptionPart());
+            sb.append(part.getReceiverPolicyOptionsPart());
         });
         return string2list(sb.toString());
     }

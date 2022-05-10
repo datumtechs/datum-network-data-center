@@ -12,12 +12,15 @@ import lombok.ToString;
  *******************************
  */
 /**
-    * 任务的数据流向策略的内容 (json字符串, 和 data_flow_policy_type 配套使用)
+    * 任务的数据提供方选择数据策略的内容 (json字符串, 和 data_policy_type 配套使用)
     */
 @Getter
 @Setter
 @ToString
-public class TaskDataFlowOptionPart {
+public class TaskDataPolicyOptionsPart {
+    /**
+    * 主键ID
+    */
     private Integer id;
 
     /**
@@ -26,7 +29,7 @@ public class TaskDataFlowOptionPart {
     private String taskId;
 
     /**
-    * 数据片段
+    * 分片后的信息
     */
-    private String dataFlowOptionPart;
+    private String dataPolicyOptionsPart;
 }

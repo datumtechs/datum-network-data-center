@@ -6,18 +6,18 @@ import lombok.ToString;
 
 /**
  * @Author juzix
- * @Date 2022/5/9 11:38
+ * @Date 2022/4/21 19:54
  * @Version 
  * @Desc 
  *******************************
  */
 /**
-    * 任务的接收方选择策略的内容 (json字符串数组, 和 receiver_policy_types 配套使用, 使用数组的原因是 可以支持单个或者多个数目的策略)
+    * 任务的数据流向策略的内容 (json字符串, 和 data_flow_policy_type 配套使用)
     */
 @Getter
 @Setter
 @ToString
-public class TaskReceiverOptionPart {
+public class TaskDataFlowPolicyOptionsPart {
     private Integer id;
 
     /**
@@ -28,5 +28,5 @@ public class TaskReceiverOptionPart {
     /**
     * 数据片段
     */
-    private String receiverOptionPart;
+    private String dataFlowPolicyOptionsPart;
 }
