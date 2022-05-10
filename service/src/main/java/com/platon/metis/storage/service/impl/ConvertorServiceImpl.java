@@ -279,7 +279,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .addAllDataSuppliers(dataSupplierOrgList)
                 .addAllPowerSuppliers(powerSupplierOrgList)
                 .addAllReceivers(receiverOrgList)
-                .addAllDataFlowPolicyTypes(taskInfo.getDataPolicyTypesList())
+                .addAllDataPolicyTypes(taskInfo.getDataPolicyTypesList())
                 .addAllDataPolicyOptions(dataPolicyOption)
                 .addAllPowerPolicyTypes(taskInfo.getPowerPolicyTypesList())
                 .addAllPowerPolicyOptions(powerPolicyOption)
