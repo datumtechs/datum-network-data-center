@@ -127,6 +127,8 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setPublishAt(dataFile.getPublishAt() == null ? 0 : dataFile.getPublishAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .setUpdateAt(dataFile.getUpdateAt() == null ? 0 : dataFile.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .setTokenAddress(dataFile.getTokenAddress())
+                .setLocationType(DataLocationType.forNumber(dataFile.getLocationType()))
+                .setAllowExpose(dataFile.getAllowExpose() == 1 ? true : false)
                 .build();
 
 
@@ -172,6 +174,8 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setUpdateAt(dataFile.getUpdateAt() == null ? 0 : dataFile.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .setMetadataOption(dataFile.getMetaDataOption())
                 .setTokenAddress(dataFile.getTokenAddress())
+                .setLocationType(DataLocationType.forNumber(dataFile.getLocationType()))
+                .setAllowExpose(dataFile.getAllowExpose() == 1 ? true : false)
                 .build();
     }
 
