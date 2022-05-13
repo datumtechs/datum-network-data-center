@@ -162,8 +162,7 @@ CREATE TABLE `task_org` (
                             `party_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
                             `node_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '组织名称',
                             `node_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '组织节点ID\n',
-                            `identity_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '组织identityID',
-                            UNIQUE KEY `uk_task_role_identity` (`task_id`,`task_role`,`identity_id`) USING BTREE
+                            `identity_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '组织identityID'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务组织信息';
 
 DROP TABLE IF EXISTS `task_power_policy_options_part`;
