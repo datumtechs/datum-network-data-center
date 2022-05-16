@@ -264,7 +264,7 @@
                    sum(used_mem)        as used_memory,
                    sum(used_bandwidth)  as used_bandwidth
             from power_server
-            where state = 2
+            where state in (2,3)
               and (total_processor  <![CDATA[ > ]]> 0 or total_mem  <![CDATA[ > ]]> 0 or total_bandwidth  <![CDATA[ > ]]> 0)
             group by identity_id
         ) a on o.identity_id = a.identity_id
@@ -299,7 +299,7 @@
                    sum(used_mem)        as used_memory,
                    sum(used_bandwidth)  as used_bandwidth
             from power_server
-            where state = 2
+            where state in (2,3)
             group by identity_id
         ) a on o.identity_id = a.identity_id
                  left join (
