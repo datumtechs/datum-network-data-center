@@ -87,7 +87,7 @@ function stop() {
     _is_exist
 
     if [[ $? -eq "0" ]]; then
-        if [[ ${APP_NAME} =~ metis-storage.*$ ]]; then
+        if [[ ${APP_NAME} =~ browser-agent.*$ ]]; then
             sed -i 's/status=.*/status=SHUTDOWN/g' ${STATUS_FILE}
         else
             kill ${PID}
