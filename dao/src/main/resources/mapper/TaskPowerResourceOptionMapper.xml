@@ -25,18 +25,18 @@
         <!--@mbg.generated-->
         select
         <include refid="Base_Column_List"/>
-        from task_power_resource_option
+        from task_power_resource_options
         where id = #{id,jdbcType=INTEGER}
     </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         <!--@mbg.generated-->
         delete
-        from task_power_resource_option
+        from task_power_resource_options
         where id = #{id,jdbcType=INTEGER}
     </delete>
     <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.TaskPowerResourceOption">
         <!--@mbg.generated-->
-        insert into task_power_resource_option (task_id, part_id,
+        insert into task_power_resource_options (task_id, part_id,
                                                 total_memory, total_processor, total_bandwidth,
                                                 total_disk, used_memory, used_processor,
                                                 used_bandwidth, used_disk)
@@ -47,7 +47,7 @@
     </insert>
     <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.TaskPowerResourceOption">
         <!--@mbg.generated-->
-        insert into task_power_resource_option
+        insert into task_power_resource_options
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="taskId != null">
                 task_id,
@@ -116,7 +116,7 @@
     <update id="updateByPrimaryKeySelective"
             parameterType="com.platon.metis.storage.dao.entity.TaskPowerResourceOption">
         <!--@mbg.generated-->
-        update task_power_resource_option
+        update task_power_resource_options
         <set>
             <if test="taskId != null">
                 task_id = #{taskId,jdbcType=VARCHAR},
@@ -153,7 +153,7 @@
     </update>
     <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.TaskPowerResourceOption">
         <!--@mbg.generated-->
-        update task_power_resource_option
+        update task_power_resource_options
         set task_id         = #{taskId,jdbcType=VARCHAR},
             part_id         = #{partId,jdbcType=VARCHAR},
             total_memory    = #{totalMemory,jdbcType=BIGINT},
@@ -170,7 +170,7 @@
     <insert id="insertList" parameterType="com.platon.metis.storage.dao.entity.TaskPowerResourceOption">
         <!--@mbg.generated-->
         <foreach collection="optionList" item="option" separator=";">
-            insert into task_power_resource_option
+            insert into task_power_resource_options
             <trim prefix="(" suffix=")" suffixOverrides=",">
                 <if test="option.taskId != null">
                     task_id,
@@ -240,7 +240,7 @@
 
     <select id="selectByTaskId" resultMap="BaseResultMap">
         select <include refid="Base_Column_List"/>
-        from task_power_resource_option
+        from task_power_resource_options
         where task_id = #{taskId}
     </select>
 </mapper>
