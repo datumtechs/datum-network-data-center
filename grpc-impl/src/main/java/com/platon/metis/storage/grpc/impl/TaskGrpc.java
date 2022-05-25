@@ -5,7 +5,7 @@ import com.platon.metis.storage.dao.entity.TaskEvent;
 import com.platon.metis.storage.dao.entity.TaskInfo;
 import com.platon.metis.storage.dao.entity.TaskOrg;
 import com.platon.metis.storage.dao.entity.TaskOrg.TaskRoleEnum;
-import com.platon.metis.storage.dao.entity.TaskPowerResourceOption;
+import com.platon.metis.storage.dao.entity.TaskPowerResourceOptions;
 import com.platon.metis.storage.grpc.lib.api.GetTaskDetailResponse;
 import com.platon.metis.storage.grpc.lib.api.ListTaskEventResponse;
 import com.platon.metis.storage.grpc.lib.api.ListTaskResponse;
@@ -57,7 +57,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
     private TaskPowerOptionPartService taskPowerOptionPartService;
 
     @Resource
-    private TaskPowerResourceOptionService taskPowerResourceOptionService;
+    private TaskPowerResourceOptionsService taskPowerResourceOptionsService;
 
     @Resource
     private TaskReceiverOptionService taskReceiverOptionService;
@@ -92,7 +92,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         taskDataOptionPartService.saveDataOption(taskId, taskPB.getDataPolicyOptionsList());
         taskInnerAlgorithmCodePartService.saveAlgorithmCode(taskId, taskPB.getAlgorithmCode(), taskPB.getAlgorithmCodeExtraParams());
         taskPowerOptionPartService.savePowerOption(taskId, taskPB.getPowerPolicyOptionsList());
-        taskPowerResourceOptionService.savePowerResourceOption(toPowerResourceOption(taskPB));
+        taskPowerResourceOptionsService.savePowerResourceOption(toPowerResourceOption(taskPB));
         taskReceiverOptionService.saveReceiverOption(taskId, taskPB.getReceiverPolicyOptionsList());
 
         //==任务日志
@@ -247,10 +247,10 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         return taskEventList;
     }
 
-    private List<TaskPowerResourceOption> toPowerResourceOption(TaskPB taskPB) {
-        List<TaskPowerResourceOption> list = taskPB.getPowerResourceOptionsList().stream()
+    private List<TaskPowerResourceOptions> toPowerResourceOption(TaskPB taskPB) {
+        List<TaskPowerResourceOptions> list = taskPB.getPowerResourceOptionsList().stream()
                 .map(taskPowerResourceOption -> {
-                    TaskPowerResourceOption option = new TaskPowerResourceOption();
+                    TaskPowerResourceOptions option = new TaskPowerResourceOptions();
                     option.setTaskId(taskPB.getTaskId());
                     option.setPartId(taskPowerResourceOption.getPartyId());
                     ResourceUsageOverview resourceUsedOverview = taskPowerResourceOption.getResourceUsedOverview();

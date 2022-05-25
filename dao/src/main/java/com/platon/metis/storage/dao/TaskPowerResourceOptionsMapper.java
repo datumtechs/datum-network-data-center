@@ -1,6 +1,6 @@
 package com.platon.metis.storage.dao;
 
-import com.platon.metis.storage.dao.entity.TaskPowerResourceOption;
+import com.platon.metis.storage.dao.entity.TaskPowerResourceOptions;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  * @Desc 
  *******************************
  */
-public interface TaskPowerResourceOptionMapper {
+public interface TaskPowerResourceOptionsMapper {
     /**
      * delete by primary key
      * @param id primaryKey
@@ -25,37 +25,37 @@ public interface TaskPowerResourceOptionMapper {
      * @param record the record
      * @return insert count
      */
-    int insert(TaskPowerResourceOption record);
+    int insert(TaskPowerResourceOptions record);
 
     /**
      * insert record to table selective
      * @param record the record
      * @return insert count
      */
-    int insertSelective(TaskPowerResourceOption record);
+    int insertSelective(TaskPowerResourceOptions record);
 
     /**
      * select by primary key
      * @param id primary key
      * @return object by primary key
      */
-    TaskPowerResourceOption selectByPrimaryKey(Integer id);
+    TaskPowerResourceOptions selectByPrimaryKey(Integer id);
 
     /**
      * update record selective
      * @param record the updated record
      * @return update count
      */
-    int updateByPrimaryKeySelective(TaskPowerResourceOption record);
+    int updateByPrimaryKeySelective(TaskPowerResourceOptions record);
 
     /**
      * update record
      * @param record the updated record
      * @return update count
      */
-    int updateByPrimaryKey(TaskPowerResourceOption record);
+    int updateByPrimaryKey(TaskPowerResourceOptions record);
 
-    void insertList(@Param("optionList") List<TaskPowerResourceOption> list);
+    void insertList(@Param("optionList") List<TaskPowerResourceOptions> list);
 
-    List<TaskPowerResourceOption> selectByTaskId(String taskId);
+    List<TaskPowerResourceOptions> selectByTaskId(String taskId);
 }

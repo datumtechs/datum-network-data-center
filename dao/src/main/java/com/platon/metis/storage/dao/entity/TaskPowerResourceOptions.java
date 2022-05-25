@@ -17,7 +17,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class TaskPowerResourceOption {
+public class TaskPowerResourceOptions {
     /**
     * 主键ID
     */

@@ -4,7 +4,7 @@ import cn.hutool.core.lang.Pair;
 import com.google.protobuf.ByteString;
 import com.platon.metis.storage.common.exception.OrgNotFound;
 import com.platon.metis.storage.dao.entity.TaskEvent;
-import com.platon.metis.storage.dao.entity.TaskPowerResourceOption;
+import com.platon.metis.storage.dao.entity.TaskPowerResourceOptions;
 import com.platon.metis.storage.dao.entity.*;
 import com.platon.metis.storage.grpc.lib.api.MetadataSummaryOwner;
 import com.platon.metis.storage.grpc.lib.types.Base.*;
@@ -51,7 +51,7 @@ public class ConvertorServiceImpl implements ConvertorService {
     private TaskPowerOptionPartService taskPowerOptionPartService;
 
     @Resource
-    private TaskPowerResourceOptionService taskPowerResourceOptionService;
+    private TaskPowerResourceOptionsService taskPowerResourceOptionsService;
 
     @Resource
     private TaskReceiverOptionService taskReceiverOptionService;
@@ -243,7 +243,7 @@ public class ConvertorServiceImpl implements ConvertorService {
         String algorithmCode = algorithmPair.getKey();
         String algorithmCodeExtraParams = algorithmPair.getValue();
         List<String> powerPolicyOption = taskPowerOptionPartService.getPowerOption(taskId);
-        List<TaskPowerResourceOption> list = taskPowerResourceOptionService.getPowerResourceOption(taskId);
+        List<TaskPowerResourceOptions> list = taskPowerResourceOptionsService.getPowerResourceOption(taskId);
         List<com.platon.metis.storage.grpc.lib.types.TaskPowerResourceOption> powerResourceOptionList = list.stream()
                 .map(option -> {
                     ResourceUsageOverview overview = ResourceUsageOverview.newBuilder()
