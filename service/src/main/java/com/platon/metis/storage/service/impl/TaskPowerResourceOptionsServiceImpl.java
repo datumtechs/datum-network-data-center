@@ -27,6 +27,9 @@ public class TaskPowerResourceOptionsServiceImpl implements TaskPowerResourceOpt
 
     @Override
     public void savePowerResourceOption(List<TaskPowerResourceOptions> powerResourceOptionsList) {
+        if(powerResourceOptionsList == null || powerResourceOptionsList.isEmpty()){
+            return;
+        }
         taskPowerResourceOptionsMapper.insertList(powerResourceOptionsList);
     }
 

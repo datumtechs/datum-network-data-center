@@ -25,6 +25,9 @@ public class TaskOrgServiceImpl implements TaskOrgService {
 
     @Override
     public void saveTaskOrg(List<TaskOrg> taskOrgList) {
+        if(taskOrgList == null || taskOrgList.isEmpty()){
+            return;
+        }
         taskOrgMapper.insertList(taskOrgList);
     }
 

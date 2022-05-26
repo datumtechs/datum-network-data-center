@@ -20,13 +20,19 @@ public class OrgInfoServiceImpl implements OrgInfoService {
     private OrgInfoMapper orgInfoMapper;
 
     @Override
-    public int insert(OrgInfo orgInfo) {
-        return orgInfoMapper.insert(orgInfo);
+    public void insert(OrgInfo orgInfo) {
+        if(orgInfo == null){
+            return;
+        }
+        orgInfoMapper.insert(orgInfo);
     }
 
     @Override
-    public int insert(List<OrgInfo> orgInfoList) {
-        return orgInfoMapper.insertBatch(orgInfoList);
+    public void insert(List<OrgInfo> orgInfoList) {
+        if(orgInfoList == null || orgInfoList.isEmpty()){
+            return;
+        }
+        orgInfoMapper.insertBatch(orgInfoList);
     }
 
     @Override
@@ -40,12 +46,12 @@ public class OrgInfoServiceImpl implements OrgInfoService {
     }
 
     @Override
-    public int update(OrgInfo orgInfo) {
-        return orgInfoMapper.updateByIdentityId(orgInfo, orgInfo.getIdentityId());
+    public void update(OrgInfo orgInfo) {
+        orgInfoMapper.updateByIdentityId(orgInfo, orgInfo.getIdentityId());
     }
 
     @Override
-    public int updateStatus(String identityId, int status) {
-        return orgInfoMapper.updateStatus(identityId, status);
+    public void updateStatus(String identityId, int status) {
+        orgInfoMapper.updateStatus(identityId, status);
     }
 }

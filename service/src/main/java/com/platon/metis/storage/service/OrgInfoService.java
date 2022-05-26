@@ -6,14 +6,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OrgInfoService {
-    int insert(OrgInfo orgInfo);
-    int insert(List<OrgInfo> orgInfoList);
+    void insert(OrgInfo orgInfo);
+    void insert(List<OrgInfo> orgInfoList);
 
     OrgInfo findByPK(String identityId);
 
     List<OrgInfo> syncOrgInfo(LocalDateTime lastUpdatedAt, long limit);
 
-    int update(OrgInfo orgInfo);
+    void update(OrgInfo orgInfo);
 
-    int updateStatus(String identityId, int status);
+    void updateStatus(String identityId, int status);
 }

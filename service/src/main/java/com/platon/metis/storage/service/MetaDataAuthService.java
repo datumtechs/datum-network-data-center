@@ -6,9 +6,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface MetaDataAuthService {
-    int insertSelective(MetaDataAuth metaDataAuth);
+    void insertSelective(MetaDataAuth metaDataAuth);
 
-    int updateSelective(MetaDataAuth metaDataAuth);
+    void updateSelective(MetaDataAuth metaDataAuth);
 
     List<MetaDataAuth> syncMetaDataAuth(String identityId, LocalDateTime lastUpdateAt, long limit);
 

@@ -26,6 +26,9 @@ public class TaskEventServiceImpl implements TaskEventService {
 
     @Override
     public void insert(List<TaskEvent> taskEventList) {
+        if(taskEventList == null || taskEventList.isEmpty()){
+            return;
+        }
         taskEventMapper.insertBatch(taskEventList);
     }
 }

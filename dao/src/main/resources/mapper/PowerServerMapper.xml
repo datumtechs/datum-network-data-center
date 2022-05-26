@@ -256,7 +256,7 @@
         from org_info o
                  join (
             select identity_id,
-                   state,
+                   any_value(state) as state,
                    sum(total_processor) as core,
                    sum(total_mem)       as memory,
                    sum(total_bandwidth) as bandwidth,
@@ -291,7 +291,7 @@
         from org_info o
                  left join (
             select identity_id,
-                   state,
+                   any_value(state) as state,
                    sum(total_processor) as core,
                    sum(total_mem)       as memory,
                    sum(total_bandwidth) as bandwidth,

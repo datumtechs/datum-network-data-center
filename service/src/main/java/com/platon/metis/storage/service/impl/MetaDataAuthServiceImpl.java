@@ -19,13 +19,16 @@ public class MetaDataAuthServiceImpl implements MetaDataAuthService {
     private MetaDataAuthMapper metaDataAuthMapper;
 
     @Override
-    public int insertSelective(MetaDataAuth metaDataAuth) {
-        return metaDataAuthMapper.insertSelective(metaDataAuth);
+    public void insertSelective(MetaDataAuth metaDataAuth) {
+        if(metaDataAuth == null){
+            return;
+        }
+        metaDataAuthMapper.insertSelective(metaDataAuth);
     }
 
     @Override
-    public int updateSelective(MetaDataAuth metaDataAuth) {
-        return metaDataAuthMapper.updateByPrimaryKeySelective(metaDataAuth);
+    public void updateSelective(MetaDataAuth metaDataAuth) {
+        metaDataAuthMapper.updateByPrimaryKeySelective(metaDataAuth);
     }
 
     @Override

@@ -34,6 +34,9 @@ public class MetaDataServiceImpl implements MetaDataService {
     @Transactional
     @Override
     public void insertMetaData(MetaData dataFile) {
+        if(dataFile == null){
+            return;
+        }
         metaDataMapper.insert(dataFile);
         //判断metaDataOption是否会过大，如果过大则分开存储，防止数据库字段存储不下
         saveMetaDataOption(dataFile.getMetaDataId(), dataFile.getMetaDataOption());
