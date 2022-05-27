@@ -107,9 +107,6 @@
             <if test="updated.nonce != null">
                 nonce = #{updated.nonce,jdbcType=BIGINT},
             </if>
-            <if test="updated.updateAt != null">
-                update_at = #{updated.updateAt,jdbcType=TIMESTAMP},
-            </if>
         </set>
         where identity_id = #{identityId,jdbcType=VARCHAR}
     </update>
