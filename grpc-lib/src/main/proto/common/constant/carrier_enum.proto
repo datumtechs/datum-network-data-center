@@ -1,48 +1,12 @@
 syntax = "proto3";
 
-package types;
+option go_package = "github.com/datumtechs/datum-network-carrier/pb/common/constant";
+//一个proto文件会生成一个最外部类，里面会包含很多子类，指定这个proto文件生成的类所属的包名
+option java_package = "com.platon.metis.storage.grpc.common.constant";
+//这个proto文件生成会为其中的所有message生成一个最外部类，此配置设置该类类名，如果没有指定此值，则类名为proto文件名的驼峰命名方法
+option java_outer_classname = "CarrierEnum";
 
-option go_package = "github.com/RosettaFlow/Carrier-Go/lib/types";
-option java_package = "com.platon.metis.storage.grpc.lib.types";
-
-// A represents the basic information of the organization.
-message Organization  {
-  // org name
-  string node_name = 1;
-  // the node_id for org
-  string node_id = 2;
-  // the identity for org
-  string identity_id = 3;
-  // the status of data for local storage, 1 means valid, 2 means invalid
-  DataStatus data_status = 4;
-  // the status of data for datacenter, 1 means valid, 2 means invalid
-  CommonStatus status = 5;
-  //v 3.0
-  // the last_update time of corresponding datacenter (unit: UTC ms)
-  uint64 update_at = 6;
-  // the link of face image (with a length limit)
-  string image_url = 7;
-  // description of the node (with a length limit)
-  string details = 8;
-}
-
-// 任务下的组织信息
-message TaskOrganization  {
-  string party_id = 1;
-  // org name
-  string node_name = 2;
-  // the node_id for org
-  string node_id = 3;
-  // the identity for org
-  string identity_id = 4;
-}
-
-message SimpleResponse {
-  // the code for response
-  int32 status = 1;
-  // the message for response
-  string msg = 2;
-}
+package common.constant;
 
 enum UserType {
   User_Unknown = 0;
@@ -152,15 +116,3 @@ enum MetadataAuthorityState {
   MAState_Invalid = 4;
 }
 
-
-// 任务需要花费的资源声明
-message TaskResourceCostDeclare {
-  // 任务所需的内存 (单位: byte)
-  uint64 memory = 1;
-  // 任务所需的核数 (单位: 个)
-  uint32 processor = 2;
-  // 任务所需的带宽 (单位: bps)
-  uint64 bandwidth = 3;
-  // 任务所需的运行时长 (单位: ms)
-  uint64 duration = 4;
-}

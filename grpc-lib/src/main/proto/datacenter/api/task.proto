@@ -1,18 +1,18 @@
 syntax = "proto3";
 
-package api;
+option go_package = "github.com/datumtechs/datum-network-carrier/pb/datacenter/api";
+//一个proto文件会生成一个最外部类，里面会包含很多子类，指定这个proto文件生成的类所属的包名
+option java_package = "com.platon.metis.storage.grpc.datacenter.api";
+//这个proto文件生成会为其中的所有message生成一个最外部类，此配置设置该类类名，如果没有指定此值，则类名为proto文件名的驼峰命名方法
+option java_outer_classname = "Task";
 
-option go_package = "github.com/RosettaFlow/Carrier-Go/lib/center/api";
-option java_multiple_files = true;
-option java_package = "com.platon.metis.storage.grpc.lib.api";
+package datacenter.api;
 
-import "lib/types/base.proto";
-import "lib/types/taskdata.proto";
-//import "google/protobuf/empty.proto";
-//import "lib/center/api/metadata.proto";
+import "carrier/types/common.proto";
+import "carrier/types/taskdata.proto";
 
 message SaveTaskRequest {
-  types.TaskPB task = 1;
+  carrier.types.TaskPB task = 1;
 }
 
 message ListTaskByTaskIdsRequest {
@@ -31,7 +31,7 @@ message ListTaskRequest {
 }
 
 message ListTaskResponse {
-  repeated types.TaskPB     tasks = 1;
+  repeated carrier.types.TaskPB     tasks = 1;
 }
 
 message GetTaskDetailRequest {
@@ -39,7 +39,7 @@ message GetTaskDetailRequest {
 }
 
 message GetTaskDetailResponse {
-  types.TaskPB task = 1;
+  carrier.types.TaskPB task = 1;
 }
 
 message ListTaskEventRequest {
@@ -52,14 +52,14 @@ message ListTaskEventResponse {
   // 错误信息
   string msg = 2;
   // 事件列表
-  repeated types.TaskEvent task_events = 3;
+  repeated carrier.types.TaskEvent task_events = 3;
 }
 
 // TaskService defines the interface to interact with the central data service.
 service TaskService {
 
   // 存储任务
-  rpc SaveTask(SaveTaskRequest) returns (types.SimpleResponse);
+  rpc SaveTask(SaveTaskRequest) returns (carrier.types.SimpleResponse);
 
   // 查询任务详情（任务ID、节点ID、参与方标识）
   rpc GetTaskDetail(GetTaskDetailRequest) returns (GetTaskDetailResponse);

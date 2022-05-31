@@ -6,13 +6,11 @@ import com.platon.metis.storage.dao.entity.TaskInfo;
 import com.platon.metis.storage.dao.entity.TaskOrg;
 import com.platon.metis.storage.dao.entity.TaskOrg.TaskRoleEnum;
 import com.platon.metis.storage.dao.entity.TaskPowerResourceOptions;
-import com.platon.metis.storage.grpc.lib.api.GetTaskDetailResponse;
-import com.platon.metis.storage.grpc.lib.api.ListTaskEventResponse;
-import com.platon.metis.storage.grpc.lib.api.ListTaskResponse;
-import com.platon.metis.storage.grpc.lib.api.TaskServiceGrpc;
-import com.platon.metis.storage.grpc.lib.types.Base;
-import com.platon.metis.storage.grpc.lib.types.ResourceUsageOverview;
-import com.platon.metis.storage.grpc.lib.types.TaskPB;
+import com.platon.metis.storage.grpc.carrier.types.Common;
+import com.platon.metis.storage.grpc.carrier.types.ResourceData;
+import com.platon.metis.storage.grpc.carrier.types.TaskData;
+import com.platon.metis.storage.grpc.datacenter.api.Task;
+import com.platon.metis.storage.grpc.datacenter.api.TaskServiceGrpc;
 import com.platon.metis.storage.service.*;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -70,12 +68,12 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
      */
     @Transactional(rollbackFor = {Exception.class, RuntimeException.class})
     @Override
-    public void saveTask(com.platon.metis.storage.grpc.lib.api.SaveTaskRequest request,
-                         io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
+    public void saveTask(Task.SaveTaskRequest request,
+                         io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
 
         log.debug("saveTask, request:{}", request);
 
-        TaskPB taskPB = request.getTask();
+        TaskData.TaskPB taskPB = request.getTask();
         //task的请求内容
         String taskId = taskPB.getTaskId();
 
@@ -102,7 +100,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         }
 
         //接口返回值
-        Base.SimpleResponse response = Base.SimpleResponse.newBuilder().setStatus(0).build();
+        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
 
         log.debug("saveTask, response:{}", response);
         // 返回
@@ -116,17 +114,17 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
      * </pre>
      */
     @Override
-    public void getTaskDetail(com.platon.metis.storage.grpc.lib.api.GetTaskDetailRequest request,
-                              io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.GetTaskDetailResponse> responseObserver) {
+    public void getTaskDetail(Task.GetTaskDetailRequest request,
+                              io.grpc.stub.StreamObserver<Task.GetTaskDetailResponse> responseObserver) {
 
         log.debug("getDetailTask, request:{}", request);
 
         // 业务代码
         String taskId = request.getTaskId();
         TaskInfo taskInfo = taskInfoService.findByTaskId(taskId);
-        TaskPB taskPB = convertorService.toTaskPB(taskInfo);
+        TaskData.TaskPB taskPB = convertorService.toTaskPB(taskInfo);
         log.debug("getTaskDetail, taskDetail:{}", taskPB);
-        GetTaskDetailResponse response = GetTaskDetailResponse.newBuilder().setTask(taskPB).build();
+        Task.GetTaskDetailResponse response = Task.GetTaskDetailResponse.newBuilder().setTask(taskPB).build();
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
@@ -139,8 +137,8 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
      * </pre>
      */
     @Override
-    public void listTask(com.platon.metis.storage.grpc.lib.api.ListTaskRequest request,
-                         io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListTaskResponse> responseObserver) {
+    public void listTask(Task.ListTaskRequest request,
+                         io.grpc.stub.StreamObserver<Task.ListTaskResponse> responseObserver) {
 
         log.debug("listTask, request:{}", request);
 
@@ -151,9 +149,9 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
         List<TaskInfo> taskInfoList = taskInfoService.syncTaskInfo(lastUpdateAt, request.getPageSize());
 
-        List<com.platon.metis.storage.grpc.lib.types.TaskPB> grpcTaskList = convertorService.toTaskPB(taskInfoList);
+        List<TaskData.TaskPB> grpcTaskList = convertorService.toTaskPB(taskInfoList);
 
-        ListTaskResponse response = ListTaskResponse.newBuilder().addAllTasks(grpcTaskList).build();
+        Task.ListTaskResponse response = Task.ListTaskResponse.newBuilder().addAllTasks(grpcTaskList).build();
 
         log.debug("listTask, response:{}", response);
         // 返回
@@ -163,8 +161,8 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
 
     @Override
-    public void listTaskByIdentity(com.platon.metis.storage.grpc.lib.api.ListTaskByIdentityRequest request,
-                                   io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListTaskResponse> responseObserver) {
+    public void listTaskByIdentity(Task.ListTaskByIdentityRequest request,
+                                   io.grpc.stub.StreamObserver<Task.ListTaskResponse> responseObserver) {
         log.debug("listTaskByIdentity, request:{}", request);
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
@@ -174,10 +172,10 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
         List<TaskInfo> taskInfoList = taskInfoService.listTaskInfoByIdentityId(request.getIdentityId(), lastUpdateAt, request.getPageSize());
 
-        List<com.platon.metis.storage.grpc.lib.types.TaskPB> grpcTaskList = convertorService.toTaskPB(taskInfoList);
+        List<TaskData.TaskPB> grpcTaskList = convertorService.toTaskPB(taskInfoList);
 
 
-        ListTaskResponse response = ListTaskResponse.newBuilder().addAllTasks(grpcTaskList).build();
+        Task.ListTaskResponse response = Task.ListTaskResponse.newBuilder().addAllTasks(grpcTaskList).build();
 
         log.debug("listTaskByIdentity, response:{}", response);
         // 返回
@@ -192,16 +190,16 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
      * </pre>
      */
     @Override
-    public void listTaskByTaskIds(com.platon.metis.storage.grpc.lib.api.ListTaskByTaskIdsRequest request,
-                                  io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListTaskResponse> responseObserver) {
+    public void listTaskByTaskIds(Task.ListTaskByTaskIdsRequest request,
+                                  io.grpc.stub.StreamObserver<Task.ListTaskResponse> responseObserver) {
 
         log.debug("listTaskByTaskIds, request:{}", request);
 
         List<TaskInfo> taskInfoList = taskInfoService.listTaskInfoByTaskIds(request.getTaskIdsList());
 
-        List<com.platon.metis.storage.grpc.lib.types.TaskPB> grpcTaskList = convertorService.toTaskPB(taskInfoList);
+        List<TaskData.TaskPB> grpcTaskList = convertorService.toTaskPB(taskInfoList);
 
-        ListTaskResponse response = ListTaskResponse.newBuilder().addAllTasks(grpcTaskList).build();
+        Task.ListTaskResponse response = Task.ListTaskResponse.newBuilder().addAllTasks(grpcTaskList).build();
 
         log.debug("listTaskByTaskIds, response:{}", response);
         // 返回
@@ -215,16 +213,16 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
      * </pre>
      */
     @Override
-    public void listTaskEvent(com.platon.metis.storage.grpc.lib.api.ListTaskEventRequest request,
-                              io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListTaskEventResponse> responseObserver) {
+    public void listTaskEvent(Task.ListTaskEventRequest request,
+                              io.grpc.stub.StreamObserver<Task.ListTaskEventResponse> responseObserver) {
         log.debug("listTaskEvent, request:{}", request);
 
         List<TaskEvent> taskEventList = taskEventService.listTaskEventByTaskId(request.getTaskId());
 
-        List<com.platon.metis.storage.grpc.lib.types.TaskEvent>
+        List<com.platon.metis.storage.grpc.carrier.types.TaskData.TaskEvent>
                 grpcTaskEventList = convertorService.toProtoTaskEvent(taskEventList);
 
-        ListTaskEventResponse response = ListTaskEventResponse.newBuilder().addAllTaskEvents(grpcTaskEventList).build();
+        Task.ListTaskEventResponse response = Task.ListTaskEventResponse.newBuilder().addAllTaskEvents(grpcTaskEventList).build();
 
         log.debug("listTaskEvent, response:{}", response);
         // 返回
@@ -232,9 +230,9 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private List<TaskEvent> toTaskEventList(TaskPB taskPB) {
+    private List<TaskEvent> toTaskEventList(TaskData.TaskPB taskPB) {
         List<TaskEvent> taskEventList = new ArrayList<>();
-        for (com.platon.metis.storage.grpc.lib.types.TaskEvent event : taskPB.getTaskEventsList()) {
+        for (com.platon.metis.storage.grpc.carrier.types.TaskData.TaskEvent event : taskPB.getTaskEventsList()) {
             TaskEvent taskEvent = new TaskEvent();
             taskEvent.setTaskId(taskPB.getTaskId());
             taskEvent.setEventAt(LocalDateTimeUtil.getLocalDateTme(event.getCreateAt()));
@@ -247,13 +245,13 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         return taskEventList;
     }
 
-    private List<TaskPowerResourceOptions> toPowerResourceOption(TaskPB taskPB) {
+    private List<TaskPowerResourceOptions> toPowerResourceOption(TaskData.TaskPB taskPB) {
         List<TaskPowerResourceOptions> list = taskPB.getPowerResourceOptionsList().stream()
                 .map(taskPowerResourceOption -> {
                     TaskPowerResourceOptions option = new TaskPowerResourceOptions();
                     option.setTaskId(taskPB.getTaskId());
                     option.setPartId(taskPowerResourceOption.getPartyId());
-                    ResourceUsageOverview resourceUsedOverview = taskPowerResourceOption.getResourceUsedOverview();
+                    ResourceData.ResourceUsageOverview resourceUsedOverview = taskPowerResourceOption.getResourceUsedOverview();
                     option.setTotalMemory(resourceUsedOverview.getTotalMem());
                     option.setUsedMemory(resourceUsedOverview.getUsedMem());
                     option.setTotalProcessor(resourceUsedOverview.getTotalProcessor());
@@ -267,7 +265,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         return list;
     }
 
-    private List<TaskOrg> toTaskOrgList(TaskPB taskPB) {
+    private List<TaskOrg> toTaskOrgList(TaskData.TaskPB taskPB) {
         String taskId = taskPB.getTaskId();
         TaskOrg senderOrg = toTaskOrg(taskId, TaskRoleEnum.sender, taskPB.getSender());
         TaskOrg algoSupplierOrg = toTaskOrg(taskId, TaskRoleEnum.algoSupplier, taskPB.getAlgoSupplier());
@@ -289,7 +287,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         return taskOrgList;
     }
 
-    private TaskInfo toTaskInfo(TaskPB taskPB) {
+    private TaskInfo toTaskInfo(TaskData.TaskPB taskPB) {
         TaskInfo taskInfo = new TaskInfo();
         taskInfo.setTaskId(taskPB.getTaskId());
         taskInfo.setDataId(taskPB.getDataId());
@@ -317,7 +315,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         return taskInfo;
     }
 
-    private TaskOrg toTaskOrg(String taskId, TaskRoleEnum taskRole, Base.TaskOrganization taskOrganization) {
+    private TaskOrg toTaskOrg(String taskId, TaskRoleEnum taskRole, TaskData.TaskOrganization taskOrganization) {
         TaskOrg org = new TaskOrg();
         org.setTaskId(taskId);
         org.setTaskRole(taskRole.getRole());

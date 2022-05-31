@@ -6,11 +6,12 @@ import com.platon.metis.storage.common.util.ValueUtils;
 import com.platon.metis.storage.dao.entity.OrgInfo;
 import com.platon.metis.storage.dao.entity.OrgPowerTaskSummary;
 import com.platon.metis.storage.dao.entity.PowerServer;
-import com.platon.metis.storage.grpc.lib.api.*;
-import com.platon.metis.storage.grpc.lib.types.Base;
-import com.platon.metis.storage.grpc.lib.types.LocalResourcePB;
-import com.platon.metis.storage.grpc.lib.types.ResourcePB;
-import com.platon.metis.storage.grpc.lib.types.ResourceUsageOverview;
+import com.platon.metis.storage.grpc.carrier.types.Common;
+import com.platon.metis.storage.grpc.carrier.types.IdentityData;
+import com.platon.metis.storage.grpc.carrier.types.ResourceData;
+import com.platon.metis.storage.grpc.common.constant.CarrierEnum;
+import com.platon.metis.storage.grpc.datacenter.api.Resource;
+import com.platon.metis.storage.grpc.datacenter.api.ResourceServiceGrpc;
 import com.platon.metis.storage.service.ConvertorService;
 import com.platon.metis.storage.service.OrgInfoService;
 import com.platon.metis.storage.service.PowerServerService;
@@ -46,18 +47,18 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      */
     @Transactional
     @Override
-    public void publishPower(com.platon.metis.storage.grpc.lib.api.PublishPowerRequest request,
-                             io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
+    public void publishPower(Resource.PublishPowerRequest request,
+                             io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
 
         log.debug("publishPower, request:{}", request);
 
-        ResourcePB power = request.getPower();
+        ResourceData.ResourcePB power = request.getPower();
 
         PowerServer powerServer = new PowerServer();
         powerServer.setIdentityId(power.getOwner().getIdentityId());
         powerServer.setDataId(power.getDataId()); //todo:metadata_pb里其实也一样，不过那边加了metadata_id
-        powerServer.setDataStatus(Base.DataStatus.DataStatus_Valid_VALUE);
-        powerServer.setState(Base.PowerState.PowerState_Released.ordinal());
+        powerServer.setDataStatus(CarrierEnum.DataStatus.DataStatus_Valid_VALUE);
+        powerServer.setState(CarrierEnum.PowerState.PowerState_Released.ordinal());
         powerServer.setTotalMem(power.getTotalMem());
         powerServer.setUsedMem(power.getUsedMem());
         powerServer.setTotalProcessor(power.getTotalProcessor());
@@ -71,7 +72,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         powerServerService.insert(powerServer);
 
         //接口返回值
-        Base.SimpleResponse response = Base.SimpleResponse.newBuilder().setStatus(0).build();
+        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
 
         log.debug("publishPower, response:{}", response);
 
@@ -88,12 +89,12 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      */
     @Transactional
     @Override
-    public void syncPower(com.platon.metis.storage.grpc.lib.api.SyncPowerRequest request,
-                          io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
+    public void syncPower(Resource.SyncPowerRequest request,
+                          io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
 
         log.debug("syncPower, request:{}", request);
 
-        LocalResourcePB power = request.getPower();
+        ResourceData.LocalResourcePB power = request.getPower();
 
         PowerServer powerServer = new PowerServer();
         powerServer.setDataId(power.getDataId());
@@ -104,7 +105,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         powerServerService.updateByPrimaryKeySelective(powerServer);
 
         //接口返回值
-        Base.SimpleResponse response = Base.SimpleResponse.newBuilder().setStatus(0).build();
+        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
 
         log.debug("syncPower, response:{}", response);
 
@@ -120,15 +121,15 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      */
     @Transactional
     @Override
-    public void revokePower(com.platon.metis.storage.grpc.lib.api.RevokePowerRequest request,
-                            io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
+    public void revokePower(Resource.RevokePowerRequest request,
+                            io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
 
         log.debug("revokePower, request:{}", request);
 
-        powerServerService.updateStatus(request.getPowerId(), Base.PowerState.PowerState_Revoked.ordinal());
+        powerServerService.updateStatus(request.getPowerId(), CarrierEnum.PowerState.PowerState_Revoked.ordinal());
 
         //接口返回值
-        Base.SimpleResponse response = Base.SimpleResponse.newBuilder().setStatus(0).build();
+        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
 
         log.debug("revokePower, response:{}", response);
 
@@ -143,8 +144,8 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * </pre>
      */
     @Override
-    public void listPower(com.platon.metis.storage.grpc.lib.api.ListPowerRequest request,
-                          io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListPowerResponse> responseObserver) {
+    public void listPower(Resource.ListPowerRequest request,
+                          io.grpc.stub.StreamObserver<Resource.ListPowerResponse> responseObserver) {
 
         log.debug("listPower, request:{}", request);
 
@@ -155,17 +156,17 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
 
         List<PowerServer> powerServerList = powerServerService.syncPowerServer(lastUpdateAt, request.getPageSize());
 
-        List<ResourcePB> powerList = powerServerList.parallelStream().map(powerServer -> {
-            Base.Organization organization = Base.Organization.newBuilder()
+        List<ResourceData.ResourcePB> powerList = powerServerList.parallelStream().map(powerServer -> {
+            IdentityData.Organization organization = IdentityData.Organization.newBuilder()
                     .setIdentityId(powerServer.getIdentityId())
                     .setNodeName((String) powerServer.getField("orgName"))
                     .build();
 
-            return ResourcePB.newBuilder()
+            return ResourceData.ResourcePB.newBuilder()
                     .setOwner(organization)
                     .setDataId(powerServer.getDataId())
-                    .setDataStatus(Base.DataStatus.forNumber(powerServer.getDataStatus()))
-                    .setState(Base.PowerState.forNumber(powerServer.getState()))
+                    .setDataStatus(CarrierEnum.DataStatus.forNumber(powerServer.getDataStatus()))
+                    .setState(CarrierEnum.PowerState.forNumber(powerServer.getState()))
                     .setTotalMem(ValueUtils.longValue(powerServer.getTotalMem()))
                     .setUsedMem(ValueUtils.longValue(powerServer.getUsedMem()))
                     .setTotalProcessor(ValueUtils.intValue(powerServer.getTotalProcessor()))
@@ -181,7 +182,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         }).collect(Collectors.toList());
 
         //接口返回值
-        ListPowerResponse response = ListPowerResponse.newBuilder().addAllPowers(powerList).build();
+        Resource.ListPowerResponse response = Resource.ListPowerResponse.newBuilder().addAllPowers(powerList).build();
 
         log.debug("listPower, response:{}", response);
 
@@ -197,8 +198,8 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * </pre>
      */
     @Override
-    public void getPowerSummaryByIdentityId(com.platon.metis.storage.grpc.lib.api.GetPowerSummaryByIdentityRequest request,
-                                            io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.PowerSummaryResponse> responseObserver) {
+    public void getPowerSummaryByIdentityId(Resource.GetPowerSummaryByIdentityRequest request,
+                                            io.grpc.stub.StreamObserver<Resource.PowerSummaryResponse> responseObserver) {
         log.debug("getPowerSummaryByIdentityId, request:{}", request);
 
         String identityId = request.getIdentityId();
@@ -217,10 +218,10 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
             powerSummary = new OrgPowerTaskSummary();
         }
 
-        PowerSummaryResponse response = PowerSummaryResponse.newBuilder()
+        Resource.PowerSummaryResponse response = Resource.PowerSummaryResponse.newBuilder()
                 .setOwner(convertorService.toProtoOrganization(orgInfo))
-                .setPowerSummary(PowerSummary.newBuilder()
-                        .setInformation(ResourceUsageOverview.newBuilder()
+                .setPowerSummary(Resource.PowerSummary.newBuilder()
+                        .setInformation(ResourceData.ResourceUsageOverview.newBuilder()
                                 .setTotalProcessor(ValueUtils.intValue(powerSummary.getCore()))
                                 .setTotalMem(ValueUtils.longValue(powerSummary.getMemory()))
                                 .setTotalBandwidth(ValueUtils.longValue(powerSummary.getBandwidth()))
@@ -228,7 +229,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
                                 .setUsedMem(ValueUtils.longValue(powerSummary.getUsedMemory()))
                                 .setUsedBandwidth(ValueUtils.longValue(powerSummary.getUsedBandwidth()))
                                 .build())
-                        .setState(Base.PowerState.forNumber(powerSummary.getState()))
+                        .setState(CarrierEnum.PowerState.forNumber(powerSummary.getState()))
                         .setTotalTaskCount(powerSummary.getPowerTaskCount())
                         .build())
                 .build();
@@ -250,22 +251,22 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      */
     @Override
     public void listPowerSummary(com.google.protobuf.Empty request,
-                                 io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListPowerSummaryResponse> responseObserver) {
+                                 io.grpc.stub.StreamObserver<Resource.ListPowerSummaryResponse> responseObserver) {
 
         log.debug("getPowerTotalSummaryList, request:{}", request);
 
         List<OrgPowerTaskSummary> orgPowerTaskSummaryList = powerServerService.listPowerSummaryGroupByOrgId();
 
-        List<PowerSummaryResponse> powerTotalSummaryResponseList = orgPowerTaskSummaryList.parallelStream().map(powerSummary -> {
+        List<Resource.PowerSummaryResponse> powerTotalSummaryResponseList = orgPowerTaskSummaryList.parallelStream().map(powerSummary -> {
             OrgInfo orgInfo = orgInfoService.findByPK(powerSummary.getIdentityId());
             if (orgInfo == null) {
                 log.error("power provider identity not found. identityId:={}", powerSummary.getIdentityId());
                 throw new OrgNotFound();
             }
-            return PowerSummaryResponse.newBuilder()
+            return Resource.PowerSummaryResponse.newBuilder()
                     .setOwner(convertorService.toProtoOrganization(orgInfo))
-                    .setPowerSummary(PowerSummary.newBuilder()
-                            .setInformation(ResourceUsageOverview.newBuilder()
+                    .setPowerSummary(Resource.PowerSummary.newBuilder()
+                            .setInformation(ResourceData.ResourceUsageOverview.newBuilder()
                                     .setTotalProcessor(ValueUtils.intValue(powerSummary.getCore()))
                                     .setTotalMem(ValueUtils.longValue(powerSummary.getMemory()))
                                     .setTotalBandwidth(ValueUtils.longValue(powerSummary.getBandwidth()))
@@ -273,14 +274,14 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
                                     .setUsedMem(ValueUtils.longValue(powerSummary.getUsedMemory()))
                                     .setUsedBandwidth(ValueUtils.longValue(powerSummary.getUsedBandwidth()))
                                     .build())
-                            .setState(Base.PowerState.forNumber(powerSummary.getState()))
+                            .setState(CarrierEnum.PowerState.forNumber(powerSummary.getState()))
                             .setTotalTaskCount(powerSummary.getPowerTaskCount())
                             .build())
                     .build();
         }).collect(Collectors.toList());
 
         //结果
-        ListPowerSummaryResponse response = ListPowerSummaryResponse.newBuilder()
+        Resource.ListPowerSummaryResponse response = Resource.ListPowerSummaryResponse.newBuilder()
                 .addAllPowers(powerTotalSummaryResponseList)
                 .build();
 

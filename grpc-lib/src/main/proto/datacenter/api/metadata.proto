@@ -1,27 +1,30 @@
 syntax = "proto3";
 
-package api;
+option go_package = "github.com/datumtechs/datum-network-carrier/pb/datacenter/api";
+//一个proto文件会生成一个最外部类，里面会包含很多子类，指定这个proto文件生成的类所属的包名
+option java_package = "com.platon.metis.storage.grpc.datacenter.api";
+//这个proto文件生成会为其中的所有message生成一个最外部类，此配置设置该类类名，如果没有指定此值，则类名为proto文件名的驼峰命名方法
+option java_outer_classname = "Metadata";
 
-option go_package = "github.com/RosettaFlow/Carrier-Go/lib/center/api";
-option java_multiple_files = true;
-option java_package = "com.platon.metis.storage.grpc.lib.api";
+package datacenter.api;
 
-import "lib/types/base.proto";
-import "lib/types/metadata.proto";
-//import "google/protobuf/empty.proto";
+import "carrier/types/common.proto";
+import "carrier/types/identitydata.proto";
+import "carrier/types/metadata.proto";
+
 
 message SaveMetadataRequest {
-  types.MetadataPB metadata = 1;          // metadata 数据实体
+  carrier.types.MetadataPB metadata = 1;          // metadata 数据实体
 }
 
 message RevokeMetadataRequest {
   // 元数据拥有者
-  types.Organization owner = 1;
+  carrier.types.Organization owner = 1;
   string                    metadata_id = 2;
 }
 
 message UpdateMetadataRequest {
-  types.MetadataPB metadata = 1;          // metadata 数据实体
+  carrier.types.MetadataPB metadata = 1;          // metadata 数据实体
 }
 
 message ListMetadataSummaryRequest {
@@ -37,9 +40,9 @@ message ListMetadataSummaryResponse {
 
 message MetadataSummaryOwner {
   // 元数据的拥有者
-  types.Organization owner = 1;
+  carrier.types.Organization owner = 1;
   // 元文件摘要主体
-  types.MetadataSummary information = 2;
+  carrier.types.MetadataSummary information = 2;
 }
 
 // 根据状态获取元数据摘要列表
@@ -70,7 +73,7 @@ message ListMetadataByIdentityIdRequest {
 }
 
 message ListMetadataResponse {
-  repeated types.MetadataPB metadata = 1;
+  repeated carrier.types.MetadataPB metadata = 1;
 }
 
 message FindMetadataByIdRequest {
@@ -78,7 +81,7 @@ message FindMetadataByIdRequest {
 }
 
 message FindMetadataByIdResponse {
-  types.MetadataPB metadata = 1;
+  carrier.types.MetadataPB metadata = 1;
 }
 
 message FindMetadataByIdsRequest {
@@ -88,7 +91,7 @@ message FindMetadataByIdsRequest {
 service MetadataService {
 
   // 保存元数据
-  rpc SaveMetadata (SaveMetadataRequest) returns (types.SimpleResponse);
+  rpc SaveMetadata (SaveMetadataRequest) returns (carrier.types.SimpleResponse);
 
   // 查看全部元数据摘要列表 (不包含 列字段描述)，状态为可用
   rpc ListMetadataSummary (ListMetadataSummaryRequest) returns (ListMetadataSummaryResponse);
@@ -106,8 +109,8 @@ service MetadataService {
   rpc FindMetadataByIds(FindMetadataByIdsRequest) returns (ListMetadataResponse);
 
   // 撤销元数据 (从底层网络撤销)
-  rpc RevokeMetadata (RevokeMetadataRequest) returns (types.SimpleResponse);
+  rpc RevokeMetadata (RevokeMetadataRequest) returns (carrier.types.SimpleResponse);
 
   // 更新已经发布的元数据信息 v 0.4.0
-  rpc UpdateMetadata (UpdateMetadataRequest) returns (types.SimpleResponse);
+  rpc UpdateMetadata (UpdateMetadataRequest) returns (carrier.types.SimpleResponse);
 }

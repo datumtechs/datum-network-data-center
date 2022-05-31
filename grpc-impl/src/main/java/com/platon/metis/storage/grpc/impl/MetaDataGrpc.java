@@ -3,9 +3,11 @@ package com.platon.metis.storage.grpc.impl;
 import com.platon.metis.storage.common.exception.MetaDataNotFound;
 import com.platon.metis.storage.common.util.LocalDateTimeUtil;
 import com.platon.metis.storage.dao.entity.MetaData;
-import com.platon.metis.storage.grpc.lib.api.*;
-import com.platon.metis.storage.grpc.lib.types.Base;
-import com.platon.metis.storage.grpc.lib.types.MetadataPB;
+import com.platon.metis.storage.grpc.carrier.types.Common;
+import com.platon.metis.storage.grpc.carrier.types.Metadata;
+import com.platon.metis.storage.grpc.common.constant.CarrierEnum;
+import com.platon.metis.storage.grpc.datacenter.api.Metadata.*;
+import com.platon.metis.storage.grpc.datacenter.api.MetadataServiceGrpc;
 import com.platon.metis.storage.service.ConvertorService;
 import com.platon.metis.storage.service.MetaDataService;
 import lombok.extern.slf4j.Slf4j;
@@ -37,11 +39,11 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      */
     @Transactional
     @Override
-    public void saveMetadata(com.platon.metis.storage.grpc.lib.api.SaveMetadataRequest request,
-                             io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
+    public void saveMetadata(SaveMetadataRequest request,
+                             io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
 
         log.debug("metaDataSave, request:{}", request);
-        MetadataPB metadata = request.getMetadata();
+        Metadata.MetadataPB metadata = request.getMetadata();
         MetaData dataFile = new MetaData();
         dataFile.setMetaDataId(metadata.getMetadataId());
         dataFile.setIdentityId(metadata.getOwner().getIdentityId());
@@ -62,7 +64,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         dataFile.setAllowExpose(metadata.getAllowExpose() ? 1 : 0);
         dataFile.setTokenAddress(metadata.getTokenAddress());
         metaDataService.insertMetaData(dataFile);
-        Base.SimpleResponse response = Base.SimpleResponse.newBuilder()
+        Common.SimpleResponse response = Common.SimpleResponse.newBuilder()
                 .setStatus(0)
                 .build();
         log.debug("metaDataSave, response:{}", response);
@@ -79,7 +81,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      */
     @Override
     public void listMetadataSummary(ListMetadataSummaryRequest request,
-                                    io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataSummaryResponse> responseObserver) {
+                                    io.grpc.stub.StreamObserver<ListMetadataSummaryResponse> responseObserver) {
         log.debug("listMetadataSummary, request:{}", request);
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
@@ -87,7 +89,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
             lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
         }
 
-        List<MetaData> dataFileList = metaDataService.listDataFile(Base.MetadataState.MetadataState_Released.ordinal(), lastUpdateAt, request.getPageSize());
+        List<MetaData> dataFileList = metaDataService.listDataFile(CarrierEnum.MetadataState.MetadataState_Released.ordinal(), lastUpdateAt, request.getPageSize());
 
         List<MetadataSummaryOwner> metaDataSummaryOwnerList = convertorService.toProtoMetaDataSummaryWithOwner(dataFileList);
 
@@ -106,8 +108,8 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * </pre>
      */
     @Override
-    public void listMetadata(com.platon.metis.storage.grpc.lib.api.ListMetadataRequest request,
-                             io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataResponse> responseObserver) {
+    public void listMetadata(ListMetadataRequest request,
+                             io.grpc.stub.StreamObserver<ListMetadataResponse> responseObserver) {
 
         log.debug("listMetadata, request:{}", request);
 
@@ -124,7 +126,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         if (CollectionUtils.isEmpty(dataFileList)) {
             response = ListMetadataResponse.newBuilder().build();
         } else {
-            List<MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
+            List<Metadata.MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
             response = ListMetadataResponse.newBuilder().addAllMetadata(mtadataPBList).build();
         }
 
@@ -142,8 +144,8 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * </pre>
      */
     @Override
-    public void listMetadataByIdentityId(com.platon.metis.storage.grpc.lib.api.ListMetadataByIdentityIdRequest request,
-                                         io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataResponse> responseObserver) {
+    public void listMetadataByIdentityId(ListMetadataByIdentityIdRequest request,
+                                         io.grpc.stub.StreamObserver<ListMetadataResponse> responseObserver) {
         log.debug("listMetadataByIdentityId, request:{}", request);
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
@@ -159,7 +161,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         if (CollectionUtils.isEmpty(dataFileList)) {
             response = ListMetadataResponse.newBuilder().build();
         } else {
-            List<MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
+            List<Metadata.MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
             response = ListMetadataResponse.newBuilder().addAllMetadata(mtadataPBList).build();
         }
         log.debug("listMetadataByIdentityId, response:{}", response);
@@ -175,13 +177,13 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * </pre>
      */
     @Override
-    public void findMetadataById(com.platon.metis.storage.grpc.lib.api.FindMetadataByIdRequest request,
-                                 io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.FindMetadataByIdResponse> responseObserver) {
+    public void findMetadataById(FindMetadataByIdRequest request,
+                                 io.grpc.stub.StreamObserver<FindMetadataByIdResponse> responseObserver) {
 
         log.debug("findMetadataById, request:{}", request);
 
         String metaDataId = request.getMetadataId();
-        MetadataPB metadataPB = null;
+        Metadata.MetadataPB metadataPB = null;
 
         //1.查询元数据信息
         MetaData dataFile = metaDataService.findByMetaDataId(metaDataId);
@@ -207,8 +209,8 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      * </pre>
      */
     @Override
-    public void findMetadataByIds(com.platon.metis.storage.grpc.lib.api.FindMetadataByIdsRequest request,
-                                  io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataResponse> responseObserver) {
+    public void findMetadataByIds(FindMetadataByIdsRequest request,
+                                  io.grpc.stub.StreamObserver<ListMetadataResponse> responseObserver) {
 
         log.debug("findMetadataByIds, request:{}", request);
 
@@ -221,7 +223,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         if (CollectionUtils.isEmpty(dataFileList)) {
             response = ListMetadataResponse.newBuilder().build();
         } else {
-            List<MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
+            List<Metadata.MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
             response = ListMetadataResponse.newBuilder().addAllMetadata(mtadataPBList).build();
         }
         log.debug("findMetadataByIds, response:{}", response);
@@ -237,15 +239,15 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      */
     @Transactional
     @Override
-    public void revokeMetadata(com.platon.metis.storage.grpc.lib.api.RevokeMetadataRequest request,
-                               io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
+    public void revokeMetadata(RevokeMetadataRequest request,
+                               io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
 
         log.debug("revokeMetaData, request:{}", request);
 
         String metaDataId = request.getMetadataId();
-        metaDataService.updateStatus(metaDataId, Base.MetadataState.MetadataState_Revoked.ordinal());
+        metaDataService.updateStatus(metaDataId, CarrierEnum.MetadataState.MetadataState_Revoked.ordinal());
 
-        Base.SimpleResponse response = Base.SimpleResponse.newBuilder().setStatus(0).build();
+        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
 
         log.debug("revokeMetaData, response:{}", response);
 
@@ -261,12 +263,12 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
      */
     @Transactional
     @Override
-    public void updateMetadata(com.platon.metis.storage.grpc.lib.api.UpdateMetadataRequest request,
-                               io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
+    public void updateMetadata(UpdateMetadataRequest request,
+                               io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
 
         log.debug("updateMetadata, request:{}", request);
 
-        MetadataPB metadata = request.getMetadata();
+        Metadata.MetadataPB metadata = request.getMetadata();
         MetaData dataFile = new MetaData();
         dataFile.setMetaDataId(metadata.getMetadataId());
         dataFile.setIdentityId(metadata.getOwner().getIdentityId());
@@ -287,7 +289,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
 
         metaDataService.update(dataFile);
 
-        Base.SimpleResponse response = Base.SimpleResponse.newBuilder().setStatus(0).build();
+        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
 
         log.debug("revokeMetaData, response:{}", response);
 

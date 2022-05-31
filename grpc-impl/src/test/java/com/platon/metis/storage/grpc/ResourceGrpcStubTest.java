@@ -1,9 +1,11 @@
 package com.platon.metis.storage.grpc;
 
 
-import com.platon.metis.storage.grpc.lib.api.*;
-import com.platon.metis.storage.grpc.lib.types.LocalResourcePB;
-import com.platon.metis.storage.grpc.lib.types.ResourcePB;
+import com.platon.metis.storage.grpc.carrier.types.Common;
+import com.platon.metis.storage.grpc.carrier.types.IdentityData;
+import com.platon.metis.storage.grpc.carrier.types.ResourceData;
+import com.platon.metis.storage.grpc.datacenter.api.Resource;
+import com.platon.metis.storage.grpc.datacenter.api.ResourceServiceGrpc;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.junit.Test;
@@ -15,8 +17,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
-import static com.platon.metis.storage.grpc.lib.types.Base.Organization;
-import static com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -28,16 +28,16 @@ public class ResourceGrpcStubTest {
     @Test
     public void publishPower() {
         log.info("start to test publishPower()...");
-        Organization organization = Organization.newBuilder().setIdentityId("org_id_5").build();
-        PublishPowerRequest request = PublishPowerRequest.newBuilder()
-                .setPower(ResourcePB.newBuilder()
+        IdentityData.Organization organization = IdentityData.Organization.newBuilder().setIdentityId("org_id_5").build();
+        Resource.PublishPowerRequest request = Resource.PublishPowerRequest.newBuilder()
+                .setPower(ResourceData.ResourcePB.newBuilder()
                         .setOwner(organization)
                         .setTotalBandwidth(20000L)
                         .setTotalMem(10000L)
                         .setTotalProcessor(10)
                         .build()
                 ).build();
-        SimpleResponse response = resourceServiceBlockingStub.publishPower(request);
+        Common.SimpleResponse response = resourceServiceBlockingStub.publishPower(request);
 
         log.info("publishPower(), response.status:{}", response.getStatus());
     }
@@ -45,15 +45,15 @@ public class ResourceGrpcStubTest {
     @Test
     public void syncPower() {
         log.info("start to test syncPower()...");
-        SyncPowerRequest request = SyncPowerRequest.newBuilder()
-                .setPower(LocalResourcePB.newBuilder()
+        Resource.SyncPowerRequest request = Resource.SyncPowerRequest.newBuilder()
+                .setPower(ResourceData.LocalResourcePB.newBuilder()
                         .setDataId("powerId_000001_000001")
                         .setUsedProcessor(1000)
                         .setUsedMem(1000)
                         .setUsedBandwidth(1000)
                         .build())
                 .build();
-        SimpleResponse response = resourceServiceBlockingStub.syncPower(request);
+        Common.SimpleResponse response = resourceServiceBlockingStub.syncPower(request);
 
         log.info("syncPower(), response.status:{}", response.getStatus());
     }
@@ -61,10 +61,10 @@ public class ResourceGrpcStubTest {
     @Test
     public void revokePower() {
         log.info("start to test revokePower()...");
-        RevokePowerRequest request = RevokePowerRequest.newBuilder()
+        Resource.RevokePowerRequest request = Resource.RevokePowerRequest.newBuilder()
                 .setPowerId("test_power_id")
                 .build();
-        SimpleResponse response = resourceServiceBlockingStub.revokePower(request);
+        Common.SimpleResponse response = resourceServiceBlockingStub.revokePower(request);
 
         log.info("revokePower(), response.status:{}", response.getStatus());
     }
@@ -78,12 +78,12 @@ public class ResourceGrpcStubTest {
         LocalDateTime lastUpdated = LocalDateTime.parse("1970-01-01 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
 
-        ListPowerRequest request = ListPowerRequest
+        Resource.ListPowerRequest request = Resource.ListPowerRequest
                 .newBuilder()
                 .setLastUpdated(lastUpdated.toInstant(ZoneOffset.UTC).toEpochMilli())
                 .setPageSize(Long.MAX_VALUE)
                 .build();
-        ListPowerResponse response = resourceServiceBlockingStub.listPower(request);
+        Resource.ListPowerResponse response = resourceServiceBlockingStub.listPower(request);
 
         log.info("listPower(), response:{}", response);
     }
@@ -91,10 +91,10 @@ public class ResourceGrpcStubTest {
     @Test
     public void getPowerSummaryByIdentityId() {
         log.info("start to test getPowerSummaryByIdentityId()...");
-        GetPowerSummaryByIdentityRequest request = GetPowerSummaryByIdentityRequest.newBuilder()
+        Resource.GetPowerSummaryByIdentityRequest request = Resource.GetPowerSummaryByIdentityRequest.newBuilder()
                 .setIdentityId("identity_04fc711301f3c784d66955d98d399afb")
                 .build();
-        PowerSummaryResponse response = resourceServiceBlockingStub.getPowerSummaryByIdentityId(request);
+        Resource.PowerSummaryResponse response = resourceServiceBlockingStub.getPowerSummaryByIdentityId(request);
 
         log.info("getPowerSummaryByIdentityId(), response:{}", response);
     }
@@ -107,7 +107,7 @@ public class ResourceGrpcStubTest {
 
         com.google.protobuf.Empty request = com.google.protobuf.Empty.newBuilder().build();
 
-        ListPowerSummaryResponse response = resourceServiceBlockingStub.listPowerSummary(request);
+        Resource.ListPowerSummaryResponse response = resourceServiceBlockingStub.listPowerSummary(request);
 
         log.info("listPowerSummary(), response:{}", response);
     }

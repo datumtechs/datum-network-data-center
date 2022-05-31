@@ -4,11 +4,12 @@ import com.platon.metis.storage.common.exception.BizException;
 import com.platon.metis.storage.common.util.LocalDateTimeUtil;
 import com.platon.metis.storage.dao.entity.MetaDataAuth;
 import com.platon.metis.storage.dao.entity.OrgInfo;
-import com.platon.metis.storage.grpc.lib.api.*;
-import com.platon.metis.storage.grpc.lib.types.Base;
-import com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse;
-import com.platon.metis.storage.grpc.lib.types.IdentityPB;
-import com.platon.metis.storage.grpc.lib.types.MetadataAuthorityPB;
+import com.platon.metis.storage.grpc.carrier.types.Common;
+import com.platon.metis.storage.grpc.carrier.types.IdentityData;
+import com.platon.metis.storage.grpc.carrier.types.Metadata;
+import com.platon.metis.storage.grpc.common.constant.CarrierEnum;
+import com.platon.metis.storage.grpc.datacenter.api.Identity;
+import com.platon.metis.storage.grpc.datacenter.api.IdentityServiceGrpc;
 import com.platon.metis.storage.service.ConvertorService;
 import com.platon.metis.storage.service.MetaDataAuthService;
 import com.platon.metis.storage.service.OrgInfoService;
@@ -46,8 +47,8 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
      * </pre>
      */
     @Override
-    public void listIdentity(ListIdentityRequest request,
-                             io.grpc.stub.StreamObserver<ListIdentityResponse> responseObserver) {
+    public void listIdentity(Identity.ListIdentityRequest request,
+                             io.grpc.stub.StreamObserver<Identity.ListIdentityResponse> responseObserver) {
 
         log.debug("listIdentity, request:{}", request);
 
@@ -57,11 +58,11 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
         }
 
         List<OrgInfo> orgInfoList = orgInfoService.syncOrgInfo(lastUpdateAt, request.getPageSize());
-        List<IdentityPB> organizationList = orgInfoList.parallelStream().map(orgInfo -> {
+        List<IdentityData.IdentityPB> organizationList = orgInfoList.parallelStream().map(orgInfo -> {
             return this.convertorService.toProtoIdentityPB(orgInfo);
         }).collect(Collectors.toList());
 
-        ListIdentityResponse response = ListIdentityResponse.newBuilder().addAllIdentities(organizationList).build();
+        Identity.ListIdentityResponse response = Identity.ListIdentityResponse.newBuilder().addAllIdentities(organizationList).build();
 
         log.debug("listIdentity response:{}", response);
 
@@ -77,12 +78,12 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
      */
     @Transactional
     @Override
-    public void saveIdentity(com.platon.metis.storage.grpc.lib.api.SaveIdentityRequest request,
-                             io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
+    public void saveIdentity(Identity.SaveIdentityRequest request,
+                             io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
 
         log.debug("saveIdentity, request:{}", request);
 
-        IdentityPB information = request.getInformation();
+        IdentityData.IdentityPB information = request.getInformation();
         OrgInfo orgInfo = orgInfoService.findByPK(information.getIdentityId());
 
         if (orgInfo == null) {
@@ -91,8 +92,8 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
             orgInfo.setNodeId(information.getNodeId());
             orgInfo.setNodeName(information.getNodeName());
             orgInfo.setDataId(information.getDataId());
-            orgInfo.setDataStatus(Base.DataStatus.DataStatus_Valid_VALUE);
-            orgInfo.setStatus(Base.CommonStatus.CommonStatus_Valid_VALUE);
+            orgInfo.setDataStatus(CarrierEnum.DataStatus.DataStatus_Valid_VALUE);
+            orgInfo.setStatus(CarrierEnum.CommonStatus.CommonStatus_Valid_VALUE);
             orgInfo.setCredential(information.getCredential());
             orgInfo.setImageUrl(information.getImageUrl());
             orgInfo.setDetails(information.getDetails());
@@ -103,8 +104,8 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
             orgInfo.setNodeId(information.getNodeId());
             orgInfo.setNodeName(information.getNodeName());
             orgInfo.setDataId(information.getDataId());
-            orgInfo.setDataStatus(Base.DataStatus.DataStatus_Valid_VALUE);
-            orgInfo.setStatus(Base.CommonStatus.CommonStatus_Valid_VALUE);
+            orgInfo.setDataStatus(CarrierEnum.DataStatus.DataStatus_Valid_VALUE);
+            orgInfo.setStatus(CarrierEnum.CommonStatus.CommonStatus_Valid_VALUE);
             orgInfo.setCredential(information.getCredential());
             orgInfo.setImageUrl(information.getImageUrl());
             orgInfo.setDetails(information.getDetails());
@@ -112,7 +113,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
             orgInfoService.update(orgInfo);
         }
 
-        SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
 
         log.debug("saveIdentity response:{}, Status.code:{}", response, Status.OK.getCode().value());
 
@@ -129,14 +130,14 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
      */
     @Transactional
     @Override
-    public void revokeIdentity(com.platon.metis.storage.grpc.lib.api.RevokeIdentityRequest request,
-                               io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
+    public void revokeIdentity(Identity.RevokeIdentityRequest request,
+                               io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
 
         log.debug("revokeIdentityJoin, request:{}", request);
 
-        orgInfoService.updateStatus(request.getIdentityId(), Base.CommonStatus.CommonStatus_Invalid.ordinal());
+        orgInfoService.updateStatus(request.getIdentityId(), CarrierEnum.CommonStatus.CommonStatus_Invalid.ordinal());
 
-        SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
 
         log.debug("revokeIdentityJoin response:{}", response);
 
@@ -154,18 +155,18 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
      */
     @Transactional
     @Override
-    public void saveMetadataAuthority(com.platon.metis.storage.grpc.lib.api.MetadataAuthorityRequest request,
-                                      io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
+    public void saveMetadataAuthority(Identity.MetadataAuthorityRequest request,
+                                      io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
         log.debug("saveMetadataAuthority, request:{}", request);
 
         MetaDataAuth metaDataAuth = convertMetadataAuthorityPB(request.getMetadataAuthority());
 
-        metaDataAuth.setDataStatus(Base.DataStatus.DataStatus_Valid_VALUE);
+        metaDataAuth.setDataStatus(CarrierEnum.DataStatus.DataStatus_Valid_VALUE);
         // metaDataAuth.setStatus(AuditMetadataOption.Audit_Pending.ordinal());
 
         metaDataAuthService.insertSelective(metaDataAuth);
 
-        SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
 
         log.debug("saveMetadataAuthority response:{}", response);
 
@@ -174,7 +175,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private static MetaDataAuth convertMetadataAuthorityPB(MetadataAuthorityPB metadataAuthorityPB) {
+    private static MetaDataAuth convertMetadataAuthorityPB(Metadata.MetadataAuthorityPB metadataAuthorityPB) {
         MetaDataAuth metaDataAuth = new MetaDataAuth();
         metaDataAuth.setMetaDataAuthId(metadataAuthorityPB.getMetadataAuthId());
         metaDataAuth.setUser(metadataAuthorityPB.getUser());
@@ -197,11 +198,11 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
         if (metadataAuthorityPB.getAuditAt() > 0) {
             metaDataAuth.setAuditAt(LocalDateTimeUtil.getLocalDateTme(metadataAuthorityPB.getAuditAt()));
         }
-        if (metaDataAuth.getUsageType() == Base.MetadataUsageType.Usage_Period.ordinal()) {
+        if (metaDataAuth.getUsageType() == CarrierEnum.MetadataUsageType.Usage_Period.ordinal()) {
             metaDataAuth.setStartAt(LocalDateTimeUtil.getLocalDateTme(metadataAuthorityPB.getAuth().getUsageRule().getStartAt()));
             metaDataAuth.setEndAt(LocalDateTimeUtil.getLocalDateTme(metadataAuthorityPB.getAuth().getUsageRule().getEndAt()));
             metaDataAuth.setExpire(metadataAuthorityPB.getUsedQuo().getExpire() ? 1 : 0);
-        } else if (metaDataAuth.getUsageType() == Base.MetadataUsageType.Usage_Times.ordinal()) {
+        } else if (metaDataAuth.getUsageType() == CarrierEnum.MetadataUsageType.Usage_Times.ordinal()) {
             metaDataAuth.setTimes(metadataAuthorityPB.getAuth().getUsageRule().getTimes());
             metaDataAuth.setUsedTimes(metadataAuthorityPB.getUsedQuo().getUsedTimes());
         }
@@ -215,17 +216,17 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
      * </pre>
      */
     @Override
-    public void findMetadataAuthority(com.platon.metis.storage.grpc.lib.api.FindMetadataAuthorityRequest request,
-                                      io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.FindMetadataAuthorityResponse> responseObserver) {
+    public void findMetadataAuthority(Identity.FindMetadataAuthorityRequest request,
+                                      io.grpc.stub.StreamObserver<Identity.FindMetadataAuthorityResponse> responseObserver) {
         log.debug("findMetadataAuthority, request:{}", request);
 
         MetaDataAuth metaDataAuth = metaDataAuthService.findByPK(request.getMetadataAuthId());
         if (metaDataAuth == null) {
             throw new BizException(-1, "metadata authority not found");
         }
-        MetadataAuthorityPB metadataAuthorityPB = this.convertorService.toProtoMetadataAuthorityPB(metaDataAuth);
+        Metadata.MetadataAuthorityPB metadataAuthorityPB = this.convertorService.toProtoMetadataAuthorityPB(metaDataAuth);
 
-        FindMetadataAuthorityResponse response = FindMetadataAuthorityResponse.newBuilder()
+        Identity.FindMetadataAuthorityResponse response = Identity.FindMetadataAuthorityResponse.newBuilder()
                 .setMetadataAuthority(metadataAuthorityPB)
                 .build();
 
@@ -244,15 +245,15 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
      */
     @Transactional
     @Override
-    public void updateMetadataAuthority(com.platon.metis.storage.grpc.lib.api.MetadataAuthorityRequest request,
-                                        io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.types.Base.SimpleResponse> responseObserver) {
+    public void updateMetadataAuthority(Identity.MetadataAuthorityRequest request,
+                                        io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
 
         log.debug("updateMetadataAuthority, request:{}", request);
         MetaDataAuth metaDataAuth = convertMetadataAuthorityPB(request.getMetadataAuthority());
 
         metaDataAuthService.updateSelective(metaDataAuth);
 
-        SimpleResponse response = SimpleResponse.newBuilder().setStatus(0).build();
+        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
 
         log.debug("updateMetadataAuthority response:{}", response);
 
@@ -269,8 +270,8 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
      * </pre>
      */
     @Override
-    public void listMetadataAuthority(com.platon.metis.storage.grpc.lib.api.ListMetadataAuthorityRequest request,
-                                      io.grpc.stub.StreamObserver<com.platon.metis.storage.grpc.lib.api.ListMetadataAuthorityResponse> responseObserver) {
+    public void listMetadataAuthority(Identity.ListMetadataAuthorityRequest request,
+                                      io.grpc.stub.StreamObserver<Identity.ListMetadataAuthorityResponse> responseObserver) {
 
         log.debug("listMetadataAuthority, request:{}", request);
 
@@ -282,16 +283,16 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
         List<MetaDataAuth> metaDataAuthList = metaDataAuthService.syncMetaDataAuth(identityId, lastUpdateAt, request.getPageSize());
 
 
-        ListMetadataAuthorityResponse response;
+        Identity.ListMetadataAuthorityResponse response;
         if (CollectionUtils.isEmpty(metaDataAuthList)) {
-            response = ListMetadataAuthorityResponse.newBuilder().build();
+            response = Identity.ListMetadataAuthorityResponse.newBuilder().build();
 
         } else {
-            List<MetadataAuthorityPB> metaDataAuthorityDetailList = metaDataAuthList.parallelStream().map(metaDataAuth -> {
+            List<Metadata.MetadataAuthorityPB> metaDataAuthorityDetailList = metaDataAuthList.parallelStream().map(metaDataAuth -> {
                 return this.convertorService.toProtoMetadataAuthorityPB(metaDataAuth);
             }).collect(Collectors.toList());
 
-            response = ListMetadataAuthorityResponse.newBuilder().addAllMetadataAuthorities(metaDataAuthorityDetailList).build();
+            response = Identity.ListMetadataAuthorityResponse.newBuilder().addAllMetadataAuthorities(metaDataAuthorityDetailList).build();
         }
         log.debug("listMetadataAuthority response:{}", response);
 

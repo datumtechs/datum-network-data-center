@@ -1,10 +1,9 @@
 package com.platon.metis.storage.service;
 
 import com.platon.metis.storage.dao.entity.*;
-import com.platon.metis.storage.grpc.lib.api.MetadataSummaryOwner;
-import com.platon.metis.storage.grpc.lib.types.Base;
-import com.platon.metis.storage.grpc.lib.types.IdentityPB;
-import com.platon.metis.storage.grpc.lib.types.MetadataAuthorityPB;
+import com.platon.metis.storage.grpc.carrier.types.IdentityData;
+import com.platon.metis.storage.grpc.carrier.types.TaskData;
+import com.platon.metis.storage.grpc.datacenter.api.Metadata;
 
 import java.util.List;
 
@@ -14,25 +13,25 @@ import java.util.List;
  */
 public interface ConvertorService {
 
-    IdentityPB toProtoIdentityPB(OrgInfo orgInfo);
+    IdentityData.IdentityPB toProtoIdentityPB(OrgInfo orgInfo);
 
-    Base.Organization toProtoOrganization(OrgInfo orgInfo);
+    IdentityData.Organization toProtoOrganization(OrgInfo orgInfo);
 
-    List<com.platon.metis.storage.grpc.lib.types.TaskEvent> toProtoTaskEvent(List<com.platon.metis.storage.dao.entity.TaskEvent> taskEventList);
+    List<com.platon.metis.storage.grpc.carrier.types.TaskData.TaskEvent> toProtoTaskEvent(List<TaskEvent> taskEventList);
 
-    com.platon.metis.storage.grpc.lib.types.TaskEvent toProtoTaskEvent(com.platon.metis.storage.dao.entity.TaskEvent taskEvent);
+    com.platon.metis.storage.grpc.carrier.types.TaskData.TaskEvent toProtoTaskEvent(TaskEvent taskEvent);
 
-    com.platon.metis.storage.grpc.lib.api.MetadataSummaryOwner toProtoMetaDataSummaryWithOwner(MetaData dataFile);
+    Metadata.MetadataSummaryOwner toProtoMetaDataSummaryWithOwner(MetaData dataFile);
 
-    List<MetadataSummaryOwner> toProtoMetaDataSummaryWithOwner(List<MetaData> dataFileList);
+    List<Metadata.MetadataSummaryOwner> toProtoMetaDataSummaryWithOwner(List<MetaData> dataFileList);
 
-    com.platon.metis.storage.grpc.lib.types.MetadataPB toProtoMetadataPB(MetaData dataFile);
+    com.platon.metis.storage.grpc.carrier.types.Metadata.MetadataPB toProtoMetadataPB(MetaData dataFile);
 
-    List<com.platon.metis.storage.grpc.lib.types.MetadataPB> toProtoMetadataPB(List<MetaData> dataFileList);
+    List<com.platon.metis.storage.grpc.carrier.types.Metadata.MetadataPB> toProtoMetadataPB(List<MetaData> dataFileList);
 
-    com.platon.metis.storage.grpc.lib.types.TaskPB toTaskPB(TaskInfo taskInfo);
+    TaskData.TaskPB toTaskPB(TaskInfo taskInfo);
 
-    List<com.platon.metis.storage.grpc.lib.types.TaskPB> toTaskPB(List<TaskInfo> taskInfoList);
+    List<TaskData.TaskPB> toTaskPB(List<TaskInfo> taskInfoList);
 
-    MetadataAuthorityPB toProtoMetadataAuthorityPB(MetaDataAuth metaDataAuth);
+    com.platon.metis.storage.grpc.carrier.types.Metadata.MetadataAuthorityPB toProtoMetadataAuthorityPB(MetaDataAuth metaDataAuth);
 }
