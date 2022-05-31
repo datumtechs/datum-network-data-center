@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.metis.storage.dao.PowerServerMapper">
-    <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.PowerServer">
+<mapper namespace="com.platon.datum.storage.dao.PowerServerMapper">
+    <resultMap id="BaseResultMap" type="com.platon.datum.storage.dao.entity.PowerServer">
         <!--@mbg.generated-->
         <!--@Table power_server-->
         <id column="data_id" jdbcType="VARCHAR" property="dataId"/>
@@ -40,7 +40,7 @@
         where data_id = #{dataId,jdbcType=VARCHAR}
     </delete>
 
-    <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.PowerServer">
+    <insert id="insertSelective" parameterType="com.platon.datum.storage.dao.entity.PowerServer">
         <!--@mbg.generated-->
         insert into power_server
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -156,7 +156,7 @@
         </foreach>
     </insert>
 
-    <update id="updateByPrimaryKeySelective" parameterType="com.platon.metis.storage.dao.entity.PowerServer">
+    <update id="updateByPrimaryKeySelective" parameterType="com.platon.datum.storage.dao.entity.PowerServer">
         <!--@mbg.generated-->
         update power_server
         <set>
@@ -206,7 +206,7 @@
         where data_id = #{dataId,jdbcType=VARCHAR}
     </update>
 
-    <resultMap id="BaseResultMap_With_orgName" type="com.platon.metis.storage.dao.entity.PowerServer"
+    <resultMap id="BaseResultMap_With_orgName" type="com.platon.datum.storage.dao.entity.PowerServer"
                extends="BaseResultMap">
         <result column="node_name" property="dynamicFields.orgName" jdbcType="VARCHAR"/>
     </resultMap>
@@ -232,7 +232,7 @@
         where identity_id = #{identityId,jdbcType=VARCHAR}
     </select>
 
-    <resultMap id="OrgPowerTaskSummaryResultMap" type="com.platon.metis.storage.dao.entity.OrgPowerTaskSummary">
+    <resultMap id="OrgPowerTaskSummaryResultMap" type="com.platon.datum.storage.dao.entity.OrgPowerTaskSummary">
         <result column="identity_id" jdbcType="VARCHAR" property="identityId"/>
         <result column="memory" jdbcType="BIGINT" property="memory"/>
         <result column="core" jdbcType="INTEGER" property="core"/>

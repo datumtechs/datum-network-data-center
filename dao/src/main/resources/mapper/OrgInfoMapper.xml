@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.metis.storage.dao.OrgInfoMapper">
-    <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.OrgInfo">
+<mapper namespace="com.platon.datum.storage.dao.OrgInfoMapper">
+    <resultMap id="BaseResultMap" type="com.platon.datum.storage.dao.entity.OrgInfo">
         <result column="identity_type" jdbcType="VARCHAR" property="identityType"/>
         <result column="identity_id" jdbcType="VARCHAR" property="identityId"/>
         <result column="node_id" jdbcType="VARCHAR" property="nodeId"/>
@@ -42,7 +42,7 @@
         where identity_id = #{identityId}
     </update>
 
-    <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.OrgInfo">
+    <insert id="insert" parameterType="com.platon.datum.storage.dao.entity.OrgInfo">
         insert into org_info (identity_id, identity_type, node_id, node_name, data_id, data_status, status,
                               credential, image_url, details, nonce)
         values (#{identityId}, #{identityType}, #{nodeId}, #{nodeName}, #{dataId}, #{dataStatus}, #{status},

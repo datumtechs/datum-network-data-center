@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.metis.storage.dao.TaskInfoMapper">
-  <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.TaskInfo">
+<mapper namespace="com.platon.datum.storage.dao.TaskInfoMapper">
+  <resultMap id="BaseResultMap" type="com.platon.datum.storage.dao.entity.TaskInfo">
     <!--@mbg.generated-->
     <!--@Table task_info-->
     <id column="task_id" jdbcType="VARCHAR" property="taskId" />
@@ -47,7 +47,7 @@
     delete from task_info
     where task_id = #{taskId,jdbcType=VARCHAR}
   </delete>
-  <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.TaskInfo">
+  <insert id="insert" parameterType="com.platon.datum.storage.dao.entity.TaskInfo">
     <!--@mbg.generated-->
     insert into task_info (task_id, data_id, data_status, 
       `user`, user_type, task_name, 
@@ -66,7 +66,7 @@
       #{initMemory,jdbcType=BIGINT}, #{initProcessor,jdbcType=INTEGER}, #{initBandwidth,jdbcType=BIGINT}, 
       #{initDuration,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.TaskInfo">
+  <insert id="insertSelective" parameterType="com.platon.datum.storage.dao.entity.TaskInfo">
     <!--@mbg.generated-->
     insert into task_info
     <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -212,7 +212,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.platon.metis.storage.dao.entity.TaskInfo">
+  <update id="updateByPrimaryKeySelective" parameterType="com.platon.datum.storage.dao.entity.TaskInfo">
     <!--@mbg.generated-->
     update task_info
     <set>
@@ -285,7 +285,7 @@
     </set>
     where task_id = #{taskId,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.TaskInfo">
+  <update id="updateByPrimaryKey" parameterType="com.platon.datum.storage.dao.entity.TaskInfo">
     <!--@mbg.generated-->
     update task_info
     set data_id = #{dataId,jdbcType=VARCHAR},

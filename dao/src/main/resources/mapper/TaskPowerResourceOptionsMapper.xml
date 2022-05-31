@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.metis.storage.dao.TaskPowerResourceOptionsMapper">
-    <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.TaskPowerResourceOptions">
+<mapper namespace="com.platon.datum.storage.dao.TaskPowerResourceOptionsMapper">
+    <resultMap id="BaseResultMap" type="com.platon.datum.storage.dao.entity.TaskPowerResourceOptions">
         <!--@mbg.generated-->
         <!--@Table task_power_resource_options-->
         <id column="id" jdbcType="INTEGER" property="id"/>
@@ -34,7 +34,7 @@
         from task_power_resource_options
         where id = #{id,jdbcType=INTEGER}
     </delete>
-    <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.TaskPowerResourceOptions">
+    <insert id="insert" parameterType="com.platon.datum.storage.dao.entity.TaskPowerResourceOptions">
         <!--@mbg.generated-->
         insert into task_power_resource_options (task_id, part_id,
                                                 total_memory, total_processor, total_bandwidth,
@@ -45,7 +45,7 @@
                 #{totalDisk,jdbcType=BIGINT}, #{usedMemory,jdbcType=BIGINT}, #{usedProcessor,jdbcType=INTEGER},
                 #{usedBandwidth,jdbcType=BIGINT}, #{usedDisk,jdbcType=BIGINT})
     </insert>
-    <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.TaskPowerResourceOptions">
+    <insert id="insertSelective" parameterType="com.platon.datum.storage.dao.entity.TaskPowerResourceOptions">
         <!--@mbg.generated-->
         insert into task_power_resource_options
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -114,7 +114,7 @@
         </trim>
     </insert>
     <update id="updateByPrimaryKeySelective"
-            parameterType="com.platon.metis.storage.dao.entity.TaskPowerResourceOptions">
+            parameterType="com.platon.datum.storage.dao.entity.TaskPowerResourceOptions">
         <!--@mbg.generated-->
         update task_power_resource_options
         <set>
@@ -151,7 +151,7 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.TaskPowerResourceOptions">
+    <update id="updateByPrimaryKey" parameterType="com.platon.datum.storage.dao.entity.TaskPowerResourceOptions">
         <!--@mbg.generated-->
         update task_power_resource_options
         set task_id         = #{taskId,jdbcType=VARCHAR},
@@ -167,7 +167,7 @@
         where id = #{id,jdbcType=INTEGER}
     </update>
 
-    <insert id="insertList" parameterType="com.platon.metis.storage.dao.entity.TaskPowerResourceOptions">
+    <insert id="insertList" parameterType="com.platon.datum.storage.dao.entity.TaskPowerResourceOptions">
         <!--@mbg.generated-->
         <foreach collection="optionList" item="option" separator=";">
             insert into task_power_resource_options

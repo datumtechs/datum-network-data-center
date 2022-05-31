@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.metis.storage.dao.MetaDataMapper">
-    <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.MetaData">
+<mapper namespace="com.platon.datum.storage.dao.MetaDataMapper">
+    <resultMap id="BaseResultMap" type="com.platon.datum.storage.dao.entity.MetaData">
         <id column="meta_data_id" jdbcType="VARCHAR" property="metaDataId"/>
         <result column="identity_id" jdbcType="VARCHAR" property="identityId"/>
         <result column="data_id" jdbcType="VARCHAR" property="dataId"/>
@@ -50,7 +50,7 @@
         set status = 3
         where meta_data_id = #{metaDataId,jdbcType=VARCHAR}
     </delete>
-    <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.MetaData">
+    <insert id="insert" parameterType="com.platon.datum.storage.dao.entity.MetaData">
         insert into meta_data (meta_data_id, identity_id, data_id, data_status, meta_data_name, meta_data_type,
                                data_hash, `desc`, location_type, data_type,
                                industry, `status`, publish_at, update_at, nonce, allow_expose, token_address)
@@ -72,7 +72,7 @@
     </insert>
 
 
-    <update id="updateByPrimaryKeySelective" parameterType="com.platon.metis.storage.dao.entity.MetaData">
+    <update id="updateByPrimaryKeySelective" parameterType="com.platon.datum.storage.dao.entity.MetaData">
         update meta_data
         <set>
             <if test="identityId != null or identityId != ''">

@@ -7,7 +7,7 @@ echo "CA's self-signed certificate"
 openssl x509 -in ca-cert.pem -noout -text
 
 # 2. Generate web server's private key and certificate signing request (CSR)
-openssl req -newkey rsa:4096 -nodes -keyout server-key.pem -out server-req.pem -subj "/C=CN/O=storage/OU=storage/CN=*.metis.com"
+openssl req -newkey rsa:4096 -nodes -keyout server-key.pem -out server-req.pem -subj "/C=CN/O=storage/OU=storage/CN=*.datum.com"
 
 # 3. Use CA's private key to sign web server's CSR and get back the signed certificate
 openssl x509 -req -in server-req.pem -days 60 -CA ca-cert.pem -CAkey ca-key.pem -CAcreateserial -out server-cert.pem -extfile server-ext.cnf

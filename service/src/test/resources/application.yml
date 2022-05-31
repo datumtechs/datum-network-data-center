@@ -6,7 +6,7 @@ spring:
 # ==================================== conf for mybatis =====================================
 mybatis:
   mapper-locations: classpath:/mapper/**/*.xml
-  type-aliases-package: com.platon.metis.storage.dao.entity
+  type-aliases-package: com.platon.datum.storage.dao.entity
 
 # =============================== conf for logger ===================================
 logging:

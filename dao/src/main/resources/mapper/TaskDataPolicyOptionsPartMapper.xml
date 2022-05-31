@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.metis.storage.dao.TaskDataPolicyOptionsPartMapper">
-    <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.TaskDataPolicyOptionsPart">
+<mapper namespace="com.platon.datum.storage.dao.TaskDataPolicyOptionsPartMapper">
+    <resultMap id="BaseResultMap" type="com.platon.datum.storage.dao.entity.TaskDataPolicyOptionsPart">
         <!--@mbg.generated-->
         <!--@Table task_data_policy_options_part-->
         <id column="id" jdbcType="INTEGER" property="id"/>
@@ -26,13 +26,13 @@
         where id = #{id,jdbcType=INTEGER}
     </delete>
     <insert id="insert" keyColumn="id" keyProperty="id"
-            parameterType="com.platon.metis.storage.dao.entity.TaskDataPolicyOptionsPart" useGeneratedKeys="true">
+            parameterType="com.platon.datum.storage.dao.entity.TaskDataPolicyOptionsPart" useGeneratedKeys="true">
         <!--@mbg.generated-->
         insert into task_data_policy_options_part (task_id, data_policy_options_part)
         values (#{taskId,jdbcType=VARCHAR}, #{dataPolicyOptionsPart,jdbcType=LONGVARCHAR})
     </insert>
     <insert id="insertSelective" keyColumn="id" keyProperty="id"
-            parameterType="com.platon.metis.storage.dao.entity.TaskDataPolicyOptionsPart" useGeneratedKeys="true">
+            parameterType="com.platon.datum.storage.dao.entity.TaskDataPolicyOptionsPart" useGeneratedKeys="true">
         <!--@mbg.generated-->
         insert into task_data_policy_options_part
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -53,7 +53,7 @@
         </trim>
     </insert>
     <update id="updateByPrimaryKeySelective"
-            parameterType="com.platon.metis.storage.dao.entity.TaskDataPolicyOptionsPart">
+            parameterType="com.platon.datum.storage.dao.entity.TaskDataPolicyOptionsPart">
         <!--@mbg.generated-->
         update task_data_policy_options_part
         <set>
@@ -66,7 +66,7 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.TaskDataPolicyOptionsPart">
+    <update id="updateByPrimaryKey" parameterType="com.platon.datum.storage.dao.entity.TaskDataPolicyOptionsPart">
         <!--@mbg.generated-->
         update task_data_policy_options_part
         set task_id                  = #{taskId,jdbcType=VARCHAR},

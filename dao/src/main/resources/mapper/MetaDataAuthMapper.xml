@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.metis.storage.dao.MetaDataAuthMapper">
-    <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.MetaDataAuth">
+<mapper namespace="com.platon.datum.storage.dao.MetaDataAuthMapper">
+    <resultMap id="BaseResultMap" type="com.platon.datum.storage.dao.entity.MetaDataAuth">
         <!--@mbg.generated-->
         <!--@Table meta_data_auth-->
         <id column="meta_data_auth_id" jdbcType="VARCHAR" property="metaDataAuthId"/>
@@ -46,7 +46,7 @@
         where meta_data_auth_id = #{metaDataAuthId,jdbcType=VARCHAR}
     </delete>
 
-    <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.MetaDataAuth">
+    <insert id="insertSelective" parameterType="com.platon.datum.storage.dao.entity.MetaDataAuth">
         <!--@mbg.generated-->
         insert into meta_data_auth
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -186,7 +186,7 @@
             </if>
         </trim>
     </insert>
-    <update id="updateByPrimaryKeySelective" parameterType="com.platon.metis.storage.dao.entity.MetaDataAuth">
+    <update id="updateByPrimaryKeySelective" parameterType="com.platon.datum.storage.dao.entity.MetaDataAuth">
         <!--@mbg.generated-->
         update meta_data_auth
         <set>

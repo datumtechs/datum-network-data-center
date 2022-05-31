@@ -3,13 +3,13 @@ spring:
   profiles:
     active: dev
   application:
-    name: metis-storage
+    name: datum-storage
 # ==================================== db conf  ==========================================
     datasource:
       type: com.alibaba.druid.pool.DruidDataSource
       driverClassName: com.mysql.cj.jdbc.Driver
       druid:
-        url: jdbc:mysql://192.168.120.136:3306/metis_storage?useSSL=false&useServerPrepStmts=true&rewriteBatchedStatements=true&allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8
+        url: jdbc:mysql://192.168.120.136:3306/datum_storage?useSSL=false&useServerPrepStmts=true&rewriteBatchedStatements=true&allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8
         username: ENC(HkIWS/Vhu9RkQsS542nJeQ==)
         password: ENC(bWqYB1AVri0/bQrC7ta4IZme9ib22Bge)
         initial-size: 100
@@ -40,7 +40,7 @@ spring:
 # ==================================== conf for mybatis =====================================
 mybatis:
   mapper-locations: classpath:/mapper/**/*.xml
-  type-aliases-package: com.platon.metis.storage.dao.entity
+  type-aliases-package: com.platon.datum.storage.dao.entity
 
 
 jasypt:
@@ -52,12 +52,12 @@ jasypt:
 grpc:
   server:
     port: 9090
-    in-process-name: metis-storage-server
+    in-process-name: datum-storage-server
     max-inbound-message-size: 1073741824
   client:
     #允许客户端在同一应用程序内使用以下配置连接到服务器
     inProcess:
-      address: in-process:metis-storage-server
+      address: in-process:datum-storage-server
 # =============================== conf for logger ===================================
 # 日志配置
 logging:

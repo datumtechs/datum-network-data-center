@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.platon.metis.storage.dao.TaskReceiverPolicyOptionsPartMapper">
-    <resultMap id="BaseResultMap" type="com.platon.metis.storage.dao.entity.TaskReceiverPolicyOptionsPart">
+<mapper namespace="com.platon.datum.storage.dao.TaskReceiverPolicyOptionsPartMapper">
+    <resultMap id="BaseResultMap" type="com.platon.datum.storage.dao.entity.TaskReceiverPolicyOptionsPart">
         <!--@mbg.generated-->
         <!--@Table task_receiver_policy_options_part-->
         <id column="id" jdbcType="INTEGER" property="id"/>
@@ -25,12 +25,12 @@
         from task_receiver_policy_options_part
         where id = #{id,jdbcType=INTEGER}
     </delete>
-    <insert id="insert" parameterType="com.platon.metis.storage.dao.entity.TaskReceiverPolicyOptionsPart">
+    <insert id="insert" parameterType="com.platon.datum.storage.dao.entity.TaskReceiverPolicyOptionsPart">
         <!--@mbg.generated-->
         insert into task_receiver_policy_options_part (id, task_id, receiver_policy_options_part)
         values (#{id,jdbcType=INTEGER}, #{taskId,jdbcType=VARCHAR}, #{receiverPolicyOptionsPart,jdbcType=LONGVARCHAR})
     </insert>
-    <insert id="insertSelective" parameterType="com.platon.metis.storage.dao.entity.TaskReceiverPolicyOptionsPart">
+    <insert id="insertSelective" parameterType="com.platon.datum.storage.dao.entity.TaskReceiverPolicyOptionsPart">
         <!--@mbg.generated-->
         insert into task_receiver_policy_options_part
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -57,7 +57,7 @@
         </trim>
     </insert>
     <update id="updateByPrimaryKeySelective"
-            parameterType="com.platon.metis.storage.dao.entity.TaskReceiverPolicyOptionsPart">
+            parameterType="com.platon.datum.storage.dao.entity.TaskReceiverPolicyOptionsPart">
         <!--@mbg.generated-->
         update task_receiver_policy_options_part
         <set>
@@ -70,7 +70,7 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.platon.metis.storage.dao.entity.TaskReceiverPolicyOptionsPart">
+    <update id="updateByPrimaryKey" parameterType="com.platon.datum.storage.dao.entity.TaskReceiverPolicyOptionsPart">
         <!--@mbg.generated-->
         update task_receiver_policy_options_part
         set task_id                      = #{taskId,jdbcType=VARCHAR},
