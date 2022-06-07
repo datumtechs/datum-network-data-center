@@ -24,17 +24,19 @@ public class JasyptConfig {
      */
     static {
         File saltFile = new File(System.getProperty("user.dir"), "jasypt.properties");
-        Properties properties = new Properties();
-        try (InputStream in = new FileInputStream(saltFile)) {
-            properties.load(in);
-            String salt = properties.getProperty("jasypt.encryptor.password");
-            if (StringUtils.isBlank(salt)) {
-                throw new RuntimeException("salt not null");
+        if(saltFile.exists()){
+            Properties properties = new Properties();
+            try (InputStream in = new FileInputStream(saltFile)) {
+                properties.load(in);
+                String salt = properties.getProperty("jasypt.encryptor.password");
+                if (StringUtils.isBlank(salt)) {
+                    throw new RuntimeException("salt not null");
+                }
+                salt = salt.trim();
+                System.setProperty("JASYPT_ENCRYPTOR_PASSWORD", salt);
+            } catch (IOException e) {
+                log.error("error:{}", e);
             }
-            salt = salt.trim();
-            System.setProperty("JASYPT_ENCRYPTOR_PASSWORD", salt);
-        } catch (IOException e) {
-            log.error("error:{}", e);
         }
     }
 }
