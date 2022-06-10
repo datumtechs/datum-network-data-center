@@ -54,8 +54,14 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
 
         ResourceData.ResourcePB power = request.getPower();
 
+        IdentityData.Organization owner = power.getOwner();
+        OrgInfo orgInfo = orgInfoService.findByPK(owner.getIdentityId());
+        if (orgInfo == null) {
+            log.error("identity not found. identityId:={}", owner.getIdentityId());
+            throw new OrgNotFound();
+        }
         PowerServer powerServer = new PowerServer();
-        powerServer.setIdentityId(power.getOwner().getIdentityId());
+        powerServer.setIdentityId(owner.getIdentityId());
         powerServer.setDataId(power.getDataId()); //todo:metadata_pb里其实也一样，不过那边加了metadata_id
         powerServer.setDataStatus(CarrierEnum.DataStatus.DataStatus_Valid_VALUE);
         powerServer.setState(CarrierEnum.PowerState.PowerState_Released.ordinal());
@@ -126,6 +132,13 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
 
         log.debug("revokePower, request:{}", request);
 
+        IdentityData.Organization owner = request.getOwner();
+        OrgInfo orgInfo = orgInfoService.findByPK(owner.getIdentityId());
+        if (orgInfo == null) {
+            log.error("identity not found. identityId:={}", owner.getIdentityId());
+            throw new OrgNotFound();
+        }
+
         powerServerService.updateStatus(request.getPowerId(), CarrierEnum.PowerState.PowerState_Revoked.ordinal());
 
         //接口返回值
@@ -156,30 +169,38 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
 
         List<PowerServer> powerServerList = powerServerService.syncPowerServer(lastUpdateAt, request.getPageSize());
 
-        List<ResourceData.ResourcePB> powerList = powerServerList.parallelStream().map(powerServer -> {
-            IdentityData.Organization organization = IdentityData.Organization.newBuilder()
-                    .setIdentityId(powerServer.getIdentityId())
-                    .setNodeName((String) powerServer.getField("orgName"))
-                    .build();
+        List<ResourceData.ResourcePB> powerList = powerServerList.parallelStream()
+                .map(powerServer -> {
+                    try {
+                        IdentityData.Organization organization = IdentityData.Organization.newBuilder()
+                                .setIdentityId(powerServer.getIdentityId())
+                                .setNodeName((String) powerServer.getField("orgName"))
+                                .build();
 
-            return ResourceData.ResourcePB.newBuilder()
-                    .setOwner(organization)
-                    .setDataId(powerServer.getDataId())
-                    .setDataStatus(CarrierEnum.DataStatus.forNumber(powerServer.getDataStatus()))
-                    .setState(CarrierEnum.PowerState.forNumber(powerServer.getState()))
-                    .setTotalMem(ValueUtils.longValue(powerServer.getTotalMem()))
-                    .setUsedMem(ValueUtils.longValue(powerServer.getUsedMem()))
-                    .setTotalProcessor(ValueUtils.intValue(powerServer.getTotalProcessor()))
-                    .setUsedProcessor(ValueUtils.intValue(powerServer.getUsedProcessor()))
-                    .setTotalBandwidth(ValueUtils.longValue(powerServer.getTotalBandwidth()))
-                    .setUsedBandwidth(ValueUtils.longValue(powerServer.getUsedBandwidth()))
-                    .setTotalDisk(ValueUtils.longValue(powerServer.getTotalDisk()))
-                    .setUsedDisk(ValueUtils.longValue(powerServer.getUsedDisk()))
-                    .setPublishAt(powerServer.getPublishAt() == null ? 0 : powerServer.getPublishAt().toInstant(ZoneOffset.UTC).toEpochMilli())
-                    .setUpdateAt(powerServer.getUpdateAt() == null ? 0 : powerServer.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
-                    .setNonce(powerServer.getNonce())
-                    .build();
-        }).collect(Collectors.toList());
+                        return ResourceData.ResourcePB.newBuilder()
+                                .setOwner(organization)
+                                .setDataId(powerServer.getDataId())
+                                .setDataStatus(CarrierEnum.DataStatus.forNumber(powerServer.getDataStatus()))
+                                .setState(CarrierEnum.PowerState.forNumber(powerServer.getState()))
+                                .setTotalMem(ValueUtils.longValue(powerServer.getTotalMem()))
+                                .setUsedMem(ValueUtils.longValue(powerServer.getUsedMem()))
+                                .setTotalProcessor(ValueUtils.intValue(powerServer.getTotalProcessor()))
+                                .setUsedProcessor(ValueUtils.intValue(powerServer.getUsedProcessor()))
+                                .setTotalBandwidth(ValueUtils.longValue(powerServer.getTotalBandwidth()))
+                                .setUsedBandwidth(ValueUtils.longValue(powerServer.getUsedBandwidth()))
+                                .setTotalDisk(ValueUtils.longValue(powerServer.getTotalDisk()))
+                                .setUsedDisk(ValueUtils.longValue(powerServer.getUsedDisk()))
+                                .setPublishAt(powerServer.getPublishAt() == null ? 0 : powerServer.getPublishAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+                                .setUpdateAt(powerServer.getUpdateAt() == null ? 0 : powerServer.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
+                                .setNonce(powerServer.getNonce())
+                                .build();
+                    } catch (Exception exception) {
+                        log.error("PowerServer -> ResourcePB error", exception);
+                        return null;
+                    }
+                })
+                .filter(resourcePB -> resourcePB != null)
+                .collect(Collectors.toList());
 
         //接口返回值
         Resource.ListPowerResponse response = Resource.ListPowerResponse.newBuilder().addAllPowers(powerList).build();
@@ -257,28 +278,36 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
 
         List<OrgPowerTaskSummary> orgPowerTaskSummaryList = powerServerService.listPowerSummaryGroupByOrgId();
 
-        List<Resource.PowerSummaryResponse> powerTotalSummaryResponseList = orgPowerTaskSummaryList.parallelStream().map(powerSummary -> {
-            OrgInfo orgInfo = orgInfoService.findByPK(powerSummary.getIdentityId());
-            if (orgInfo == null) {
-                log.error("power provider identity not found. identityId:={}", powerSummary.getIdentityId());
-                throw new OrgNotFound();
-            }
-            return Resource.PowerSummaryResponse.newBuilder()
-                    .setOwner(convertorService.toProtoOrganization(orgInfo))
-                    .setPowerSummary(Resource.PowerSummary.newBuilder()
-                            .setInformation(ResourceData.ResourceUsageOverview.newBuilder()
-                                    .setTotalProcessor(ValueUtils.intValue(powerSummary.getCore()))
-                                    .setTotalMem(ValueUtils.longValue(powerSummary.getMemory()))
-                                    .setTotalBandwidth(ValueUtils.longValue(powerSummary.getBandwidth()))
-                                    .setUsedProcessor(ValueUtils.intValue(powerSummary.getUsedCore()))
-                                    .setUsedMem(ValueUtils.longValue(powerSummary.getUsedMemory()))
-                                    .setUsedBandwidth(ValueUtils.longValue(powerSummary.getUsedBandwidth()))
-                                    .build())
-                            .setState(CarrierEnum.PowerState.forNumber(powerSummary.getState()))
-                            .setTotalTaskCount(powerSummary.getPowerTaskCount())
-                            .build())
-                    .build();
-        }).collect(Collectors.toList());
+        List<Resource.PowerSummaryResponse> powerTotalSummaryResponseList = orgPowerTaskSummaryList.parallelStream()
+                .map(powerSummary -> {
+                    try {
+                        OrgInfo orgInfo = orgInfoService.findByPK(powerSummary.getIdentityId());
+                        if (orgInfo == null) {
+                            log.error("power provider identity not found. identityId:={}", powerSummary.getIdentityId());
+                            return null;
+                        }
+                        return Resource.PowerSummaryResponse.newBuilder()
+                                .setOwner(convertorService.toProtoOrganization(orgInfo))
+                                .setPowerSummary(Resource.PowerSummary.newBuilder()
+                                        .setInformation(ResourceData.ResourceUsageOverview.newBuilder()
+                                                .setTotalProcessor(ValueUtils.intValue(powerSummary.getCore()))
+                                                .setTotalMem(ValueUtils.longValue(powerSummary.getMemory()))
+                                                .setTotalBandwidth(ValueUtils.longValue(powerSummary.getBandwidth()))
+                                                .setUsedProcessor(ValueUtils.intValue(powerSummary.getUsedCore()))
+                                                .setUsedMem(ValueUtils.longValue(powerSummary.getUsedMemory()))
+                                                .setUsedBandwidth(ValueUtils.longValue(powerSummary.getUsedBandwidth()))
+                                                .build())
+                                        .setState(CarrierEnum.PowerState.forNumber(powerSummary.getState()))
+                                        .setTotalTaskCount(powerSummary.getPowerTaskCount())
+                                        .build())
+                                .build();
+                    } catch (Exception exception) {
+                        log.error("OrgPowerTaskSummary -> PowerSummaryResponse error!", exception);
+                        return null;
+                    }
+                })
+                .filter(powerSummaryResponse -> powerSummaryResponse != null)
+                .collect(Collectors.toList());
 
         //结果
         Resource.ListPowerSummaryResponse response = Resource.ListPowerSummaryResponse.newBuilder()

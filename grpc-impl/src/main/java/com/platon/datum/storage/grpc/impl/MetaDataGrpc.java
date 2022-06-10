@@ -1,8 +1,10 @@
 package com.platon.datum.storage.grpc.impl;
 
 import com.platon.datum.storage.common.exception.MetaDataNotFound;
+import com.platon.datum.storage.common.exception.OrgNotFound;
 import com.platon.datum.storage.common.util.LocalDateTimeUtil;
 import com.platon.datum.storage.dao.entity.MetaData;
+import com.platon.datum.storage.dao.entity.OrgInfo;
 import com.platon.datum.storage.grpc.carrier.types.Common;
 import com.platon.datum.storage.grpc.carrier.types.Metadata;
 import com.platon.datum.storage.grpc.common.constant.CarrierEnum;
@@ -10,6 +12,7 @@ import com.platon.datum.storage.grpc.datacenter.api.Metadata.*;
 import com.platon.datum.storage.grpc.datacenter.api.MetadataServiceGrpc;
 import com.platon.datum.storage.service.ConvertorService;
 import com.platon.datum.storage.service.MetaDataService;
+import com.platon.datum.storage.service.OrgInfoService;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +35,9 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
     @Autowired
     private ConvertorService convertorService;
 
+    @Autowired
+    private OrgInfoService orgInfoService;
+
     /**
      * <pre>
      * 保存元数据
@@ -43,10 +49,19 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
                              io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
 
         log.debug("metaDataSave, request:{}", request);
+
         Metadata.MetadataPB metadata = request.getMetadata();
+
+        com.platon.datum.storage.grpc.carrier.types.IdentityData.Organization owner = metadata.getOwner();
+        OrgInfo orgInfo = orgInfoService.findByPK(owner.getIdentityId());
+        if (orgInfo == null) {
+            log.error("identity not found. identityId:={}", owner.getIdentityId());
+            throw new OrgNotFound();
+        }
+
         MetaData dataFile = new MetaData();
         dataFile.setMetaDataId(metadata.getMetadataId());
-        dataFile.setIdentityId(metadata.getOwner().getIdentityId());
+        dataFile.setIdentityId(owner.getIdentityId());
         dataFile.setDataId(metadata.getDataId());
         dataFile.setDataStatus(metadata.getDataStatus().getNumber());
         dataFile.setMetaDataName(metadata.getMetadataName());
@@ -244,6 +259,13 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
 
         log.debug("revokeMetaData, request:{}", request);
 
+        com.platon.datum.storage.grpc.carrier.types.IdentityData.Organization owner = request.getOwner();
+        OrgInfo orgInfo = orgInfoService.findByPK(owner.getIdentityId());
+        if (orgInfo == null) {
+            log.error("identity not found. identityId:={}", owner.getIdentityId());
+            throw new OrgNotFound();
+        }
+
         String metaDataId = request.getMetadataId();
         metaDataService.updateStatus(metaDataId, CarrierEnum.MetadataState.MetadataState_Revoked.ordinal());
 
@@ -269,6 +291,14 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         log.debug("updateMetadata, request:{}", request);
 
         Metadata.MetadataPB metadata = request.getMetadata();
+
+        com.platon.datum.storage.grpc.carrier.types.IdentityData.Organization owner = metadata.getOwner();
+        OrgInfo orgInfo = orgInfoService.findByPK(owner.getIdentityId());
+        if (orgInfo == null) {
+            log.error("identity not found. identityId:={}", owner.getIdentityId());
+            throw new OrgNotFound();
+        }
+
         MetaData dataFile = new MetaData();
         dataFile.setMetaDataId(metadata.getMetadataId());
         dataFile.setIdentityId(metadata.getOwner().getIdentityId());

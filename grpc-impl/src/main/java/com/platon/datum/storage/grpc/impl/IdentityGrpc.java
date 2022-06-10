@@ -1,6 +1,7 @@
 package com.platon.datum.storage.grpc.impl;
 
 import com.platon.datum.storage.common.exception.BizException;
+import com.platon.datum.storage.common.exception.OrgNotFound;
 import com.platon.datum.storage.common.util.LocalDateTimeUtil;
 import com.platon.datum.storage.dao.entity.MetaDataAuth;
 import com.platon.datum.storage.dao.entity.OrgInfo;
@@ -134,6 +135,12 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
                                io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
 
         log.debug("revokeIdentityJoin, request:{}", request);
+
+        OrgInfo orgInfo = orgInfoService.findByPK(request.getIdentityId());
+        if (orgInfo == null) {
+            log.error("identity not found. identityId:={}", request.getIdentityId());
+            throw new OrgNotFound();
+        }
 
         orgInfoService.updateStatus(request.getIdentityId(), CarrierEnum.CommonStatus.CommonStatus_Invalid.ordinal());
 
