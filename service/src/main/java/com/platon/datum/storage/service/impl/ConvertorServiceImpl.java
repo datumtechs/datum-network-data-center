@@ -60,6 +60,7 @@ public class ConvertorServiceImpl implements ConvertorService {
     @Override
     public IdentityData.IdentityPB toProtoIdentityPB(OrgInfo orgInfo) {
         return IdentityData.IdentityPB.newBuilder()
+                .setIdeneityTypeValue(orgInfo.getIdentityType())
                 .setIdentityId(orgInfo.getIdentityId())
                 .setNodeId(orgInfo.getNodeId())
                 .setNodeName(orgInfo.getNodeName())
@@ -77,6 +78,7 @@ public class ConvertorServiceImpl implements ConvertorService {
     @Override
     public IdentityData.Organization toProtoOrganization(OrgInfo orgInfo) {
         return IdentityData.Organization.newBuilder()
+                .setIdeneityTypeValue(orgInfo.getIdentityType())
                 .setIdentityId(orgInfo.getIdentityId())
                 .setNodeId(orgInfo.getNodeId())
                 .setNodeName(orgInfo.getNodeName())
@@ -126,9 +128,9 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setState(CarrierEnum.MetadataState.forNumber(dataFile.getStatus()))
                 .setPublishAt(dataFile.getPublishAt() == null ? 0 : dataFile.getPublishAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .setUpdateAt(dataFile.getUpdateAt() == null ? 0 : dataFile.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
-                .setTokenAddress(dataFile.getTokenAddress())
                 .setLocationType(CarrierEnum.DataLocationType.forNumber(dataFile.getLocationType()))
-                .setAllowExpose(dataFile.getAllowExpose() == 1 ? true : false)
+                .setUser(dataFile.getUser())
+                .setUserTypeValue(dataFile.getUserType())
                 .build();
 
 
@@ -173,9 +175,9 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setPublishAt(dataFile.getPublishAt() == null ? 0 : dataFile.getPublishAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .setUpdateAt(dataFile.getUpdateAt() == null ? 0 : dataFile.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .setMetadataOption(dataFile.getMetaDataOption())
-                .setTokenAddress(dataFile.getTokenAddress())
                 .setLocationType(CarrierEnum.DataLocationType.forNumber(dataFile.getLocationType()))
-                .setAllowExpose(dataFile.getAllowExpose() == 1 ? true : false)
+                .setUser(dataFile.getUser())
+                .setUserTypeValue(dataFile.getUserType())
                 .build();
     }
 

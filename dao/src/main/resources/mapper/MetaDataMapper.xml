@@ -17,8 +17,8 @@
         <result column="publish_at" jdbcType="TIMESTAMP" property="publishAt"/>
         <result column="update_at" jdbcType="TIMESTAMP" property="updateAt"/>
         <result column="nonce" jdbcType="INTEGER" property="nonce"/>
-        <result column="allow_expose" jdbcType="INTEGER" property="allowExpose"/>
-        <result column="token_address" jdbcType="VARCHAR" property="tokenAddress"/>
+        <result column="user" jdbcType="VARCHAR" property="user"/>
+        <result column="user_type" jdbcType="INTEGER" property="userType"/>
     </resultMap>
     <sql id="Base_Column_List">
         meta_data_id,
@@ -36,8 +36,8 @@
         publish_at,
         update_at,
         nonce,
-        allow_expose,
-        token_address
+        `user`,
+        `user_type`
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
         select
@@ -53,21 +53,21 @@
     <insert id="insert" parameterType="com.platon.datum.storage.dao.entity.MetaData">
         insert into meta_data (meta_data_id, identity_id, data_id, data_status, meta_data_name, meta_data_type,
                                data_hash, `desc`, location_type, data_type,
-                               industry, `status`, publish_at, update_at, nonce, allow_expose, token_address)
+                               industry, `status`, publish_at, update_at, nonce, `user`, `user_type`)
         values (#{metaDataId}, #{identityId}, #{dataId}, #{dataStatus}, #{metaDataName}, #{metaDataType}, #{dataHash},
                 #{desc}, #{locationType}, #{dataType},
-                #{industry}, #{status}, #{publishAt}, #{updateAt}, #{nonce}, #{allowExpose}, #{tokenAddress})
+                #{industry}, #{status}, #{publishAt}, #{updateAt}, #{nonce}, #{user}, #{userType})
     </insert>
 
     <insert id="insertBatch">
         insert into meta_data (meta_data_id, identity_id, data_id, data_status, meta_data_name, meta_data_type,
                                data_hash, `desc`, location_type, data_type,
-                               industry, `status`, publish_at, update_at, nonce, allow_expose, token_address)
+                               industry, `status`, publish_at, update_at, nonce, `user`, `user_type`)
         values
         <foreach collection="list" item="item" separator=",">
             (#{metaDataId}, #{identityId}, #{dataId}, #{dataStatus}, #{metaDataName}, #{metaDataType}, #{dataHash},
              #{desc}, #{locationType}, #{dataType},
-             #{industry}, #{status}, #{publishAt}, #{updateAt}, #{nonce}, #{allowExpose}, #{tokenAddress})
+             #{industry}, #{status}, #{publishAt}, #{updateAt}, #{nonce}, #{user}, #{userType})
         </foreach>
     </insert>
 
@@ -78,22 +78,22 @@
             <if test="identityId != null or identityId != ''">
                 identity_id = #{identityId},
             </if>
-            <if test="dataId != null or identityId != ''">
+            <if test="dataId != null or dataId != ''">
                 data_id = #{dataId},
             </if>
             <if test="dataStatus != null">
                 data_status = #{dataStatus},
             </if>
-            <if test="metaDataName != null or identityId != ''">
+            <if test="metaDataName != null or metaDataName != ''">
                 meta_data_name = #{metaDataName},
             </if>
             <if test="metaDataType != null">
                 meta_data_type = #{metaDataType},
             </if>
-            <if test="dataHash != null or identityId != ''">
+            <if test="dataHash != null or dataHash != ''">
                 data_hash = #{dataHash},
             </if>
-            <if test="desc != null or identityId != ''">
+            <if test="desc != null or desc != ''">
                 `desc` = #{desc},
             </if>
             <if test="locationType != null">
@@ -117,11 +117,11 @@
             <if test="nonce != null">
                 nonce = #{nonce},
             </if>
-            <if test="allowExpose != null">
-                allow_expose = #{allowExpose},
+            <if test="user != null or user != ''">
+                `user` = #{user},
             </if>
-            <if test="tokenAddress != null or identityId != ''">
-                token_address = #{tokenAddress},
+            <if test="userType != null">
+                `user_type` = #{userType},
             </if>
         </set>
         where meta_data_id = #{metaDataId}

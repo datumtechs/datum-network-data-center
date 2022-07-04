@@ -4,6 +4,8 @@ spring:
     active: dev
   application:
     name: datum-storage
+  main:
+    web-application-type: none
 # ==================================== db conf  ==========================================
     datasource:
       type: com.alibaba.druid.pool.DruidDataSource

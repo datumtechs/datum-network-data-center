@@ -76,8 +76,8 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         dataFile.setUpdateAt(LocalDateTime.now(ZoneOffset.UTC));
         dataFile.setNonce(metadata.getNonce());
         dataFile.setMetaDataOption(metadata.getMetadataOption());
-        dataFile.setAllowExpose(metadata.getAllowExpose() ? 1 : 0);
-        dataFile.setTokenAddress(metadata.getTokenAddress());
+        dataFile.setUser(metadata.getUser());
+        dataFile.setUserType(metadata.getUserTypeValue());
         metaDataService.insertMetaData(dataFile);
         Common.SimpleResponse response = Common.SimpleResponse.newBuilder()
                 .setStatus(0)
@@ -314,8 +314,8 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         dataFile.setStatus(metadata.getState().getNumber());
         dataFile.setNonce(metadata.getNonce());
         dataFile.setMetaDataOption(metadata.getMetadataOption());
-        dataFile.setAllowExpose(metadata.getAllowExpose() ? 1 : 0);
-        dataFile.setTokenAddress(metadata.getTokenAddress());
+        dataFile.setUser(metadata.getUser());
+        dataFile.setUserType(metadata.getUserTypeValue());
 
         metaDataService.update(dataFile);
 

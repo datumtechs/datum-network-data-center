@@ -50,8 +50,8 @@ public class MetaData {
     private Long nonce;
     //元数据的选项，和 data_type 配套使用
     private String metaDataOption;
-    //是否可以被曝光 (1: 可以; 0: 不可以; 如 数据原始内容可以被下载或者支持外域查看时则为1, 默认为0)
-    private Integer allowExpose;
-    //元数据对应的 dataToken 合约的地址
-    private String tokenAddress;
+    //元数据的拥有者地址
+    private String user;
+    //元数据的拥有者地址对应账户类型 0-未定义, 1-第二地址, 2-测试网地址, 3-主网地址
+    private Integer userType;
 }

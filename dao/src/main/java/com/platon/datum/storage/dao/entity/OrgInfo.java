@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 public class OrgInfo {
-    private String identityType;//身份认证标识的类型 (ca 或者 did)
+    private Integer identityType;//身份认证标识的类型 (ca 或者 did)
     private String identityId;//身份认证标识的id
     private String nodeId;//组织节点ID
     private String nodeName;//组织身份名称
