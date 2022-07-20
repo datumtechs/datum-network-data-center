@@ -19,6 +19,7 @@
         <result column="nonce" jdbcType="INTEGER" property="nonce"/>
         <result column="user" jdbcType="VARCHAR" property="user"/>
         <result column="user_type" jdbcType="INTEGER" property="userType"/>
+        <result column="sign" jdbcType="LONGVARCHAR" property="sign" />
     </resultMap>
     <sql id="Base_Column_List">
         meta_data_id,
@@ -37,7 +38,8 @@
         update_at,
         nonce,
         `user`,
-        `user_type`
+        `user_type`,
+        `sign`
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
         select
@@ -53,10 +55,10 @@
     <insert id="insert" parameterType="com.platon.datum.storage.dao.entity.MetaData">
         insert into meta_data (meta_data_id, identity_id, data_id, data_status, meta_data_name, meta_data_type,
                                data_hash, `desc`, location_type, data_type,
-                               industry, `status`, publish_at, update_at, nonce, `user`, `user_type`)
+                               industry, `status`, publish_at, update_at, nonce, `user`, `user_type`, `sign`)
         values (#{metaDataId}, #{identityId}, #{dataId}, #{dataStatus}, #{metaDataName}, #{metaDataType}, #{dataHash},
                 #{desc}, #{locationType}, #{dataType},
-                #{industry}, #{status}, #{publishAt}, #{updateAt}, #{nonce}, #{user}, #{userType})
+                #{industry}, #{status}, #{publishAt}, #{updateAt}, #{nonce}, #{user}, #{userType}, #{sign})
     </insert>
 
     <insert id="insertBatch">
@@ -122,6 +124,9 @@
             </if>
             <if test="userType != null">
                 `user_type` = #{userType},
+            </if>
+            <if test="sign != null or sign != ''">
+                `sign` = #{sign},
             </if>
         </set>
         where meta_data_id = #{metaDataId}

@@ -78,6 +78,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         dataFile.setMetaDataOption(metadata.getMetadataOption());
         dataFile.setUser(metadata.getUser());
         dataFile.setUserType(metadata.getUserTypeValue());
+        dataFile.setSign(metadata.getSign().toStringUtf8());
         metaDataService.insertMetaData(dataFile);
         Common.SimpleResponse response = Common.SimpleResponse.newBuilder()
                 .setStatus(0)
@@ -316,6 +317,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         dataFile.setMetaDataOption(metadata.getMetadataOption());
         dataFile.setUser(metadata.getUser());
         dataFile.setUserType(metadata.getUserTypeValue());
+        dataFile.setSign(metadata.getSign().toStringUtf8());
 
         metaDataService.update(dataFile);
 

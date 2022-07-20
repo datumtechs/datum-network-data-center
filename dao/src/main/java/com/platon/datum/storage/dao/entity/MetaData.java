@@ -54,4 +54,6 @@ public class MetaData {
     private String user;
     //元数据的拥有者地址对应账户类型 0-未定义, 1-第二地址, 2-测试网地址, 3-主网地址
     private Integer userType;
+    //消息签名 (userType 和 user决定算法)
+    private String sign;
 }

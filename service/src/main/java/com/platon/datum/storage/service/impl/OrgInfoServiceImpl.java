@@ -54,4 +54,9 @@ public class OrgInfoServiceImpl implements OrgInfoService {
     public void updateStatus(String identityId, int status) {
         orgInfoMapper.updateStatus(identityId, status);
     }
+
+    @Override
+    public void updateCredential(String identityId, String credential) {
+        orgInfoMapper.updateCredential(identityId, credential);
+    }
 }

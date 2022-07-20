@@ -310,4 +310,32 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
         responseObserver.onCompleted();
 
     }
+
+    /**
+     * <pre>
+     * 更新指定组织的credential
+     * </pre>
+     */
+    @Transactional
+    @Override
+    public void updateIdentityCredential(Identity.UpdateIdentityCredentialRequest request,
+                                        io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
+        log.debug("updateIdentityCredential, request:{}", request);
+
+        OrgInfo orgInfo = orgInfoService.findByPK(request.getIdentityId());
+        if (orgInfo == null) {
+            log.error("identity not found. identityId:={}", request.getIdentityId());
+            throw new OrgNotFound();
+        }
+
+        orgInfoService.updateCredential(request.getIdentityId(), request.getCredential());
+
+        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
+
+        log.debug("updateIdentityCredential response:{}", response);
+
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 }

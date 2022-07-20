@@ -16,4 +16,6 @@ public interface OrgInfoService {
     void update(OrgInfo orgInfo);
 
     void updateStatus(String identityId, int status);
+
+    void updateCredential(String identityId, String credential);
 }

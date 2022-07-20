@@ -54,6 +54,12 @@ message FindMetadataAuthorityResponse {
   carrier.types.MetadataAuthorityPB metadata_authority = 1;
 }
 
+// Update Identity Credential request
+message UpdateIdentityCredentialRequest {
+  string identity_id = 1;
+  string credential = 2;
+}
+
 // 身份信息服务
 service IdentityService {
 
@@ -80,4 +86,7 @@ service IdentityService {
 
   // FindMetadataAuthority retrieves data based on the specified ID.
   rpc FindMetadataAuthority(FindMetadataAuthorityRequest) returns (FindMetadataAuthorityResponse);
+
+  // 更新指定组织的credential
+  rpc UpdateIdentityCredential(UpdateIdentityCredentialRequest) returns (carrier.types.SimpleResponse);
 }

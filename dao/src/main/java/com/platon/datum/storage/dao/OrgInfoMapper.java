@@ -19,4 +19,6 @@ public interface OrgInfoMapper {
     List<OrgInfo> syncOrgInfo(@Param("lastUpdatedAt") LocalDateTime lastUpdatedAt, @Param("limit") long limit);
 
     int insertBatch(List<OrgInfo> orgInfoList);
+
+    int updateCredential(@Param("identityId")  String identityId, @Param("credential") String credential);
 }

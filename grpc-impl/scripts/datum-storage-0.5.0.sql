@@ -43,6 +43,7 @@ CREATE TABLE `meta_data` (
   `nonce` int(11) DEFAULT '0' COMMENT '元数据的 nonce (用来标识该元数据在所属组织中的元数据的序号, 从 0 开始递增)',
   `user` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '元数据的拥有者地址',
   `user_type` tinyint NOT NULL COMMENT '元数据的拥有者地址对应账户类型 0-未定义, 1-第二地址, 2-测试网地址, 3-主网地址',
+  `sign` text COLLATE utf8mb4_unicode_ci COMMENT '消息签名 (userType 和 user决定算法)',
   PRIMARY KEY (`meta_data_id`),
   KEY `update_at` (`update_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='元数据信息';

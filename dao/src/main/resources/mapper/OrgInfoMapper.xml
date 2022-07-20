@@ -110,4 +110,9 @@
         </set>
         where identity_id = #{identityId,jdbcType=VARCHAR}
     </update>
+    <update id="updateCredential">
+        update org_info
+        set credential = #{credential}
+        where identity_id = #{identityId}
+    </update>
 </mapper>

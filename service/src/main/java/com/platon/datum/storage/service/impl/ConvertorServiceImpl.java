@@ -131,6 +131,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setLocationType(CarrierEnum.DataLocationType.forNumber(dataFile.getLocationType()))
                 .setUser(dataFile.getUser())
                 .setUserTypeValue(dataFile.getUserType())
+                .setSign(ByteString.copyFromUtf8(dataFile.getSign()))
                 .build();
 
 
@@ -178,6 +179,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setLocationType(CarrierEnum.DataLocationType.forNumber(dataFile.getLocationType()))
                 .setUser(dataFile.getUser())
                 .setUserTypeValue(dataFile.getUserType())
+                .setSign(ByteString.copyFromUtf8(dataFile.getSign()))
                 .build();
     }
 
