@@ -199,7 +199,7 @@ CREATE TABLE `org_info` (
                             `data_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '预留',
                             `data_status` tinyint(2) DEFAULT '1' COMMENT '1 - valid, 2 - invalid',
                             `status` tinyint(2) NOT NULL DEFAULT '1' COMMENT '1 - valid, 2 - invalid',
-                            `credential` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'json format for credential',
+                            `credential` varchar(4086) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'json format for credential',
                             `image_url` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '组织机构图像url',
                             `details` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '组织机构简介',
                             `nonce` bigint(11) DEFAULT '0' COMMENT '身份信息的 nonce (用来标识该身份在所属组织中发布的序号, 从 0 开始递增; 注: 身份可以来回发布注销，所以nonce表示第几次发布)',

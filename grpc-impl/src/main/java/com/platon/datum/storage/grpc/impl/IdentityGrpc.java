@@ -89,7 +89,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
 
         if (orgInfo == null) {
             orgInfo = new OrgInfo();
-            orgInfo.setIdentityType(information.getIdeneityTypeValue());
+            orgInfo.setIdentityType(information.getIdentityTypeValue());
             orgInfo.setIdentityId(information.getIdentityId());
             orgInfo.setNodeId(information.getNodeId());
             orgInfo.setNodeName(information.getNodeName());
@@ -102,7 +102,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
             orgInfo.setNonce(information.getNonce());
             orgInfoService.insert(orgInfo);
         } else {
-            orgInfo.setIdentityType(information.getIdeneityTypeValue());
+            orgInfo.setIdentityType(information.getIdentityTypeValue());
             orgInfo.setIdentityId(information.getIdentityId());
             orgInfo.setNodeId(information.getNodeId());
             orgInfo.setNodeName(information.getNodeName());

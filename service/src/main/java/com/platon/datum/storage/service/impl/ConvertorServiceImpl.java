@@ -60,7 +60,7 @@ public class ConvertorServiceImpl implements ConvertorService {
     @Override
     public IdentityData.IdentityPB toProtoIdentityPB(OrgInfo orgInfo) {
         return IdentityData.IdentityPB.newBuilder()
-                .setIdeneityTypeValue(orgInfo.getIdentityType())
+                .setIdentityTypeValue(orgInfo.getIdentityType())
                 .setIdentityId(orgInfo.getIdentityId())
                 .setNodeId(orgInfo.getNodeId())
                 .setNodeName(orgInfo.getNodeName())
@@ -78,7 +78,7 @@ public class ConvertorServiceImpl implements ConvertorService {
     @Override
     public IdentityData.Organization toProtoOrganization(OrgInfo orgInfo) {
         return IdentityData.Organization.newBuilder()
-                .setIdeneityTypeValue(orgInfo.getIdentityType())
+                .setIdentityTypeValue(orgInfo.getIdentityType())
                 .setIdentityId(orgInfo.getIdentityId())
                 .setNodeId(orgInfo.getNodeId())
                 .setNodeName(orgInfo.getNodeName())
