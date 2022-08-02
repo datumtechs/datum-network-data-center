@@ -87,6 +87,7 @@ service IdentityService {
   // FindMetadataAuthority retrieves data based on the specified ID.
   rpc FindMetadataAuthority(FindMetadataAuthorityRequest) returns (FindMetadataAuthorityResponse);
 
-  // 更新指定组织的credential
+  // 更新指定组织的credential, 已经设置过的不允许设置
+  // 返回码 0-成功  1000-VC不能重复设置
   rpc UpdateIdentityCredential(UpdateIdentityCredentialRequest) returns (carrier.types.SimpleResponse);
 }

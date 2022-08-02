@@ -17,5 +17,5 @@ public interface OrgInfoService {
 
     void updateStatus(String identityId, int status);
 
-    void updateCredential(String identityId, String credential);
+    boolean updateCredential(String identityId, String credential);
 }

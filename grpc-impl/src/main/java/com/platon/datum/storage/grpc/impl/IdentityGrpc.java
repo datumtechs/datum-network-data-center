@@ -1,5 +1,6 @@
 package com.platon.datum.storage.grpc.impl;
 
+import com.platon.datum.storage.common.enums.CodeEnums;
 import com.platon.datum.storage.common.exception.BizException;
 import com.platon.datum.storage.common.exception.OrgNotFound;
 import com.platon.datum.storage.common.util.LocalDateTimeUtil;
@@ -328,12 +329,21 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
             throw new OrgNotFound();
         }
 
-        orgInfoService.updateCredential(request.getIdentityId(), request.getCredential());
+        Common.SimpleResponse response;
+        if(orgInfoService.updateCredential(request.getIdentityId(), request.getCredential())){
+            response = Common.SimpleResponse.newBuilder()
+                    .setStatus(CodeEnums.SUCCESS.getCode())
+                    .setMsg(CodeEnums.SUCCESS.getMessage())
+                    .build();
 
-        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
+        } else {
+            response = Common.SimpleResponse.newBuilder()
+                    .setStatus(CodeEnums.IDENTITY_VI_HAVE_SET.getCode())
+                    .setMsg(CodeEnums.IDENTITY_VI_HAVE_SET.getMessage())
+                    .build();
+        }
 
         log.debug("updateIdentityCredential response:{}", response);
-
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();

@@ -113,6 +113,6 @@
     <update id="updateCredential">
         update org_info
         set credential = #{credential}
-        where identity_id = #{identityId}
+        where identity_id = #{identityId} and credential is null
     </update>
 </mapper>
