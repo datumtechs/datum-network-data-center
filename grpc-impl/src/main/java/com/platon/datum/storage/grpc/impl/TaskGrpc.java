@@ -1,5 +1,6 @@
 package com.platon.datum.storage.grpc.impl;
 
+import com.platon.datum.storage.common.enums.CodeEnums;
 import com.platon.datum.storage.common.util.LocalDateTimeUtil;
 import com.platon.datum.storage.dao.entity.TaskEvent;
 import com.platon.datum.storage.dao.entity.TaskInfo;
@@ -11,10 +12,10 @@ import com.platon.datum.storage.grpc.carrier.types.ResourceData;
 import com.platon.datum.storage.grpc.carrier.types.TaskData;
 import com.platon.datum.storage.grpc.datacenter.api.Task;
 import com.platon.datum.storage.grpc.datacenter.api.TaskServiceGrpc;
+import com.platon.datum.storage.grpc.utils.GrpcImplUtils;
 import com.platon.datum.storage.service.*;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -30,10 +31,10 @@ import java.util.stream.Collectors;
 @Service
 public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
-    @Autowired
+    @Resource
     private TaskEventService taskEventService;
 
-    @Autowired
+    @Resource
     private ConvertorService convertorService;
 
     @Resource
@@ -70,9 +71,16 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
     @Override
     public void saveTask(Task.SaveTaskRequest request,
                          io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
+        Common.SimpleResponse response = GrpcImplUtils.saveOfUpdate(
+                request,
+                input -> saveTaskInternal(input),
+                "saveTask");
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
-        log.debug("saveTask, request:{}", request);
-
+    private void saveTaskInternal(Task.SaveTaskRequest request) {
         TaskData.TaskPB taskPB = request.getTask();
         //task的请求内容
         String taskId = taskPB.getTaskId();
@@ -98,14 +106,6 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         if (!CollectionUtils.isEmpty(taskEvents)) {
             taskEventService.insert(taskEvents);
         }
-
-        //接口返回值
-        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
-
-        log.debug("saveTask, response:{}", response);
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
     }
 
     /**
@@ -116,18 +116,33 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
     @Override
     public void getTaskDetail(Task.GetTaskDetailRequest request,
                               io.grpc.stub.StreamObserver<Task.GetTaskDetailResponse> responseObserver) {
+        Task.GetTaskDetailResponse response = GrpcImplUtils.query(
+                request,
+                input -> getTaskDetailInternal(input),
+                bizOut -> Task.GetTaskDetailResponse.newBuilder()
+                        .setStatus(CodeEnums.SUCCESS.getCode())
+                        .setMsg(CodeEnums.SUCCESS.getMessage())
+                        .setTask(bizOut).build(),
+                bizError -> Task.GetTaskDetailResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> Task.GetTaskDetailResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"getTaskDetail"
+        );
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
-        log.debug("getDetailTask, request:{}", request);
-
+    private TaskData.TaskPB getTaskDetailInternal(Task.GetTaskDetailRequest request) {
         // 业务代码
         String taskId = request.getTaskId();
         TaskInfo taskInfo = taskInfoService.findByTaskId(taskId);
         TaskData.TaskPB taskPB = convertorService.toTaskPB(taskInfo);
-        log.debug("getTaskDetail, taskDetail:{}", taskPB);
-        Task.GetTaskDetailResponse response = Task.GetTaskDetailResponse.newBuilder().setTask(taskPB).build();
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        return taskPB;
     }
 
 
@@ -139,8 +154,28 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
     @Override
     public void listTask(Task.ListTaskRequest request,
                          io.grpc.stub.StreamObserver<Task.ListTaskResponse> responseObserver) {
+        Task.ListTaskResponse response = GrpcImplUtils.query(
+                request,
+                input -> listTaskInternal(input),
+                bizOut -> Task.ListTaskResponse.newBuilder()
+                        .setStatus(CodeEnums.SUCCESS.getCode())
+                        .setMsg(CodeEnums.SUCCESS.getMessage())
+                        .addAllTasks(bizOut).build(),
+                bizError -> Task.ListTaskResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> Task.ListTaskResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"listTask"
+        );
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
-        log.debug("listTask, request:{}", request);
+    private List<TaskData.TaskPB> listTaskInternal(Task.ListTaskRequest request) {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
@@ -150,20 +185,36 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         List<TaskInfo> taskInfoList = taskInfoService.syncTaskInfo(lastUpdateAt, request.getPageSize());
 
         List<TaskData.TaskPB> grpcTaskList = convertorService.toTaskPB(taskInfoList);
-
-        Task.ListTaskResponse response = Task.ListTaskResponse.newBuilder().addAllTasks(grpcTaskList).build();
-
-        log.debug("listTask, response:{}", response);
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        return grpcTaskList;
     }
 
 
     @Override
     public void listTaskByIdentity(Task.ListTaskByIdentityRequest request,
                                    io.grpc.stub.StreamObserver<Task.ListTaskResponse> responseObserver) {
-        log.debug("listTaskByIdentity, request:{}", request);
+        Task.ListTaskResponse response = GrpcImplUtils.query(
+                request,
+                input -> listTaskByIdentityInternal(input),
+                bizOut -> Task.ListTaskResponse.newBuilder()
+                        .setStatus(CodeEnums.SUCCESS.getCode())
+                        .setMsg(CodeEnums.SUCCESS.getMessage())
+                        .addAllTasks(bizOut).build(),
+                bizError -> Task.ListTaskResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> Task.ListTaskResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"listTaskByIdentity"
+        );
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+
+    }
+
+    private List<TaskData.TaskPB> listTaskByIdentityInternal(Task.ListTaskByIdentityRequest request) {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
@@ -174,14 +225,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
         List<TaskData.TaskPB> grpcTaskList = convertorService.toTaskPB(taskInfoList);
 
-
-        Task.ListTaskResponse response = Task.ListTaskResponse.newBuilder().addAllTasks(grpcTaskList).build();
-
-        log.debug("listTaskByIdentity, response:{}", response);
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
-
+        return grpcTaskList;
     }
 
     /**
@@ -193,18 +237,35 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
     public void listTaskByTaskIds(Task.ListTaskByTaskIdsRequest request,
                                   io.grpc.stub.StreamObserver<Task.ListTaskResponse> responseObserver) {
 
+        Task.ListTaskResponse response = GrpcImplUtils.query(
+                request,
+                input -> listTaskByTaskIdsInternal(input),
+                bizOut -> Task.ListTaskResponse.newBuilder()
+                        .setStatus(CodeEnums.SUCCESS.getCode())
+                        .setMsg(CodeEnums.SUCCESS.getMessage())
+                        .addAllTasks(bizOut).build(),
+                bizError -> Task.ListTaskResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> Task.ListTaskResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"listTaskByIdentity"
+        );
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    private List<TaskData.TaskPB> listTaskByTaskIdsInternal(Task.ListTaskByTaskIdsRequest request) {
+
         log.debug("listTaskByTaskIds, request:{}", request);
 
         List<TaskInfo> taskInfoList = taskInfoService.listTaskInfoByTaskIds(request.getTaskIdsList());
 
         List<TaskData.TaskPB> grpcTaskList = convertorService.toTaskPB(taskInfoList);
-
-        Task.ListTaskResponse response = Task.ListTaskResponse.newBuilder().addAllTasks(grpcTaskList).build();
-
-        log.debug("listTaskByTaskIds, response:{}", response);
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        return grpcTaskList;
     }
 
     /**
@@ -215,20 +276,36 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
     @Override
     public void listTaskEvent(Task.ListTaskEventRequest request,
                               io.grpc.stub.StreamObserver<Task.ListTaskEventResponse> responseObserver) {
-        log.debug("listTaskEvent, request:{}", request);
+        Task.ListTaskEventResponse response = GrpcImplUtils.query(
+                request,
+                input -> listTaskEventInternal(input),
+                bizOut -> Task.ListTaskEventResponse.newBuilder()
+                        .setStatus(CodeEnums.SUCCESS.getCode())
+                        .setMsg(CodeEnums.SUCCESS.getMessage())
+                        .addAllTaskEvents(bizOut).build(),
+                bizError -> Task.ListTaskEventResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> Task.ListTaskEventResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"listTaskEvent"
+        );
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
+    private List<com.platon.datum.storage.grpc.carrier.types.TaskData.TaskEvent> listTaskEventInternal(Task.ListTaskEventRequest request) {
         List<TaskEvent> taskEventList = taskEventService.listTaskEventByTaskId(request.getTaskId());
 
         List<com.platon.datum.storage.grpc.carrier.types.TaskData.TaskEvent>
                 grpcTaskEventList = convertorService.toProtoTaskEvent(taskEventList);
 
-        Task.ListTaskEventResponse response = Task.ListTaskEventResponse.newBuilder().addAllTaskEvents(grpcTaskEventList).build();
-
-        log.debug("listTaskEvent, response:{}", response);
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        return grpcTaskEventList;
     }
+
 
     private List<TaskEvent> toTaskEventList(TaskData.TaskPB taskPB) {
         List<TaskEvent> taskEventList = new ArrayList<>();

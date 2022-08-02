@@ -1,18 +1,17 @@
 package com.platon.datum.storage.service.impl;
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import com.platon.datum.storage.dao.MetaDataMapper;
 import com.platon.datum.storage.dao.MetaDataOptionPartMapper;
 import com.platon.datum.storage.dao.entity.MetaData;
 import com.platon.datum.storage.dao.entity.MetaDataOptionPart;
 import com.platon.datum.storage.service.MetaDataService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +21,10 @@ import java.util.List;
 @Transactional
 public class MetaDataServiceImpl implements MetaDataService {
 
-    @Autowired
+    @Resource
     private MetaDataMapper metaDataMapper;
 
-    @Autowired
+    @Resource
     private MetaDataOptionPartMapper metaDataOptionPartMapper;
 
     @Value("${option-part.size}")

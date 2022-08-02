@@ -28,7 +28,9 @@ message ListIdentityRequest {
 }
 
 message ListIdentityResponse {
-  repeated carrier.types.IdentityPB identities = 1;
+  int32 status = 1;    // 响应码
+  string msg = 2;      // 错误信息
+  repeated carrier.types.IdentityPB identities = 3;
 }
 
 // 定义：元数据授权申请记录
@@ -43,7 +45,9 @@ message ListMetadataAuthorityRequest {
 }
 
 message ListMetadataAuthorityResponse {
-  repeated carrier.types.MetadataAuthorityPB metadata_authorities = 1;          // 数据授权信息列表
+  int32 status = 1;    // 响应码
+  string msg = 2;      // 错误信息
+  repeated carrier.types.MetadataAuthorityPB metadata_authorities = 3;          // 数据授权信息列表
 }
 
 message FindMetadataAuthorityRequest {
@@ -51,7 +55,9 @@ message FindMetadataAuthorityRequest {
 }
 
 message FindMetadataAuthorityResponse {
-  carrier.types.MetadataAuthorityPB metadata_authority = 1;
+  int32 status = 1;    // 响应码
+  string msg = 2;      // 错误信息
+  carrier.types.MetadataAuthorityPB metadata_authority = 3;
 }
 
 // Update Identity Credential request

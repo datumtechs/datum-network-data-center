@@ -2,7 +2,8 @@ package com.platon.datum.storage.service.impl;
 
 import cn.hutool.core.lang.Pair;
 import com.google.protobuf.ByteString;
-import com.platon.datum.storage.common.exception.OrgNotFound;
+import com.platon.datum.storage.common.enums.CodeEnums;
+import com.platon.datum.storage.common.exception.BizException;
 import com.platon.datum.storage.dao.entity.*;
 import com.platon.datum.storage.grpc.carrier.types.IdentityData;
 import com.platon.datum.storage.grpc.carrier.types.ResourceData;
@@ -14,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,10 +29,10 @@ import java.util.stream.Collectors;
 @Transactional
 public class ConvertorServiceImpl implements ConvertorService {
 
-    @Autowired
+    @Resource
     private OrgInfoService orgInfoService;
 
-    @Autowired
+    @Resource
     private TaskEventService taskEventService;
 
     @Resource
@@ -115,7 +115,7 @@ public class ConvertorServiceImpl implements ConvertorService {
         OrgInfo orgInfo = orgInfoService.findByPK(dataFile.getIdentityId());
         if (orgInfo == null) {
             log.error("identity not found. identityId:={}", dataFile.getIdentityId());
-            throw new OrgNotFound();
+            throw new BizException(CodeEnums.ORG_NOT_FOUND);
         }
         //1.组装整个元数据摘要
         com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataSummary metadataSummary = com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataSummary.newBuilder()
@@ -153,7 +153,7 @@ public class ConvertorServiceImpl implements ConvertorService {
         OrgInfo orgInfo = orgInfoService.findByPK(dataFile.getIdentityId());
         if (orgInfo == null) {
             log.error("identity not found. identityId:={}", dataFile.getIdentityId());
-            throw new OrgNotFound();
+            throw new BizException(CodeEnums.ORG_NOT_FOUND);
         }
         //1.组装元数据所属组织信息
         IdentityData.Organization owner = IdentityData.Organization.newBuilder()
@@ -334,7 +334,7 @@ public class ConvertorServiceImpl implements ConvertorService {
         OrgInfo orgInfo = orgInfoService.findByPK(metaDataAuth.getIdentityId());
         if (orgInfo == null) {
             log.error("identity not found. identityId:={}", metaDataAuth.getIdentityId());
-            throw new OrgNotFound();
+            throw new BizException(CodeEnums.ORG_NOT_FOUND);
         }
 
         return com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataAuthorityPB.newBuilder()

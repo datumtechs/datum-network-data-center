@@ -44,15 +44,19 @@ message PowerSummary {
 }
 
 message PowerSummaryResponse {
+  int32 status = 1;    // 响应码
+  string msg = 2;      // 错误信息
   // 算力拥有者信息
-  carrier.types.Organization owner = 1;
+  carrier.types.Organization owner = 3;
   // 算力总摘要
-  PowerSummary power_summary = 2;
+  PowerSummary power_summary = 4;
 }
 
 message ListPowerSummaryResponse {
+  int32 status = 1;    // 响应码
+  string msg = 2;      // 错误信息
   // 全网的算力总摘要列表
-  repeated PowerSummaryResponse powers = 1;
+  repeated PowerSummaryResponse powers = 3;
 }
 
 message GetPowerSummaryByIdentityRequest {
@@ -66,7 +70,9 @@ message ListPowerRequest {
 }
 
 message ListPowerResponse {
-  repeated carrier.types.ResourcePB powers  = 1;
+  int32 status = 1;    // 响应码
+  string msg = 2;      // 错误信息
+  repeated carrier.types.ResourcePB powers  = 3;
 }
 
 message SyncPowerRequest {

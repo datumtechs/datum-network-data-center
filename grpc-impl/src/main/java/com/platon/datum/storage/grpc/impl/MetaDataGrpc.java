@@ -1,7 +1,7 @@
 package com.platon.datum.storage.grpc.impl;
 
-import com.platon.datum.storage.common.exception.MetaDataNotFound;
-import com.platon.datum.storage.common.exception.OrgNotFound;
+import com.platon.datum.storage.common.enums.CodeEnums;
+import com.platon.datum.storage.common.exception.BizException;
 import com.platon.datum.storage.common.util.LocalDateTimeUtil;
 import com.platon.datum.storage.dao.entity.MetaData;
 import com.platon.datum.storage.dao.entity.OrgInfo;
@@ -10,16 +10,16 @@ import com.platon.datum.storage.grpc.carrier.types.Metadata;
 import com.platon.datum.storage.grpc.common.constant.CarrierEnum;
 import com.platon.datum.storage.grpc.datacenter.api.Metadata.*;
 import com.platon.datum.storage.grpc.datacenter.api.MetadataServiceGrpc;
+import com.platon.datum.storage.grpc.utils.GrpcImplUtils;
 import com.platon.datum.storage.service.ConvertorService;
 import com.platon.datum.storage.service.MetaDataService;
 import com.platon.datum.storage.service.OrgInfoService;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -29,13 +29,13 @@ import java.util.List;
 @Service
 public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
 
-    @Autowired
+    @Resource
     private MetaDataService metaDataService;
 
-    @Autowired
+    @Resource
     private ConvertorService convertorService;
 
-    @Autowired
+    @Resource
     private OrgInfoService orgInfoService;
 
     /**
@@ -48,15 +48,23 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
     public void saveMetadata(SaveMetadataRequest request,
                              io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
 
-        log.debug("metaDataSave, request:{}", request);
+        Common.SimpleResponse response = GrpcImplUtils.saveOfUpdate(
+                request,
+                input -> saveMetadataInternal(input),
+                "saveMetadata");
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
+    public void saveMetadataInternal(SaveMetadataRequest request){
         Metadata.MetadataPB metadata = request.getMetadata();
 
         com.platon.datum.storage.grpc.carrier.types.IdentityData.Organization owner = metadata.getOwner();
         OrgInfo orgInfo = orgInfoService.findByPK(owner.getIdentityId());
         if (orgInfo == null) {
             log.error("identity not found. identityId:={}", owner.getIdentityId());
-            throw new OrgNotFound();
+            throw new BizException(CodeEnums.ORG_NOT_FOUND);
         }
 
         MetaData dataFile = new MetaData();
@@ -80,14 +88,6 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         dataFile.setUserType(metadata.getUserTypeValue());
         dataFile.setSign(metadata.getSign().toStringUtf8());
         metaDataService.insertMetaData(dataFile);
-        Common.SimpleResponse response = Common.SimpleResponse.newBuilder()
-                .setStatus(0)
-                .build();
-        log.debug("metaDataSave, response:{}", response);
-
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
     }
 
     /**
@@ -98,8 +98,28 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
     @Override
     public void listMetadataSummary(ListMetadataSummaryRequest request,
                                     io.grpc.stub.StreamObserver<ListMetadataSummaryResponse> responseObserver) {
-        log.debug("listMetadataSummary, request:{}", request);
+        ListMetadataSummaryResponse response = GrpcImplUtils.query(
+                request,
+                input -> listMetadataSummaryInternal(input),
+                bizOut -> ListMetadataSummaryResponse.newBuilder()
+                        .setStatus(CodeEnums.SUCCESS.getCode())
+                        .setMsg(CodeEnums.SUCCESS.getMessage())
+                        .addAllMetadataSummaries(bizOut).build(),
+                bizError -> ListMetadataSummaryResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> ListMetadataSummaryResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"listMetadataSummary"
+        );
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
+    private List<MetadataSummaryOwner> listMetadataSummaryInternal(ListMetadataSummaryRequest request) {
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
             lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
@@ -108,14 +128,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         List<MetaData> dataFileList = metaDataService.listDataFile(CarrierEnum.MetadataState.MetadataState_Released.ordinal(), lastUpdateAt, request.getPageSize());
 
         List<MetadataSummaryOwner> metaDataSummaryOwnerList = convertorService.toProtoMetaDataSummaryWithOwner(dataFileList);
-
-        ListMetadataSummaryResponse response = ListMetadataSummaryResponse.newBuilder()
-                .addAllMetadataSummaries(metaDataSummaryOwnerList)
-                .build();
-        log.debug("listMetadataSummary, response:{}", response);
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        return metaDataSummaryOwnerList;
     }
 
     /**
@@ -126,9 +139,28 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
     @Override
     public void listMetadata(ListMetadataRequest request,
                              io.grpc.stub.StreamObserver<ListMetadataResponse> responseObserver) {
+        ListMetadataResponse response = GrpcImplUtils.query(
+                request,
+                input -> listMetadataInternal(input),
+                bizOut -> ListMetadataResponse.newBuilder()
+                        .setStatus(CodeEnums.SUCCESS.getCode())
+                        .setMsg(CodeEnums.SUCCESS.getMessage())
+                        .addAllMetadata(bizOut).build(),
+                bizError -> ListMetadataResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> ListMetadataResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"listMetadata"
+        );
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
-        log.debug("listMetadata, request:{}", request);
-
+    private List<Metadata.MetadataPB> listMetadataInternal(ListMetadataRequest request) {
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
             lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
@@ -138,19 +170,8 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         List<MetaData> dataFileList = metaDataService.syncDataFile(lastUpdateAt, request.getPageSize());
 
         //2.将元数据信息转换成proto接口所需的数据结构
-        ListMetadataResponse response;
-        if (CollectionUtils.isEmpty(dataFileList)) {
-            response = ListMetadataResponse.newBuilder().build();
-        } else {
-            List<Metadata.MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
-            response = ListMetadataResponse.newBuilder().addAllMetadata(mtadataPBList).build();
-        }
-
-        log.debug("listMetadata, response:{}", response);
-
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        List<Metadata.MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
+        return mtadataPBList;
     }
 
 
@@ -162,8 +183,28 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
     @Override
     public void listMetadataByIdentityId(ListMetadataByIdentityIdRequest request,
                                          io.grpc.stub.StreamObserver<ListMetadataResponse> responseObserver) {
-        log.debug("listMetadataByIdentityId, request:{}", request);
+        ListMetadataResponse response = GrpcImplUtils.query(
+                request,
+                input -> listMetadataByIdentityIdInternal(input),
+                bizOut -> ListMetadataResponse.newBuilder()
+                        .setStatus(CodeEnums.SUCCESS.getCode())
+                        .setMsg(CodeEnums.SUCCESS.getMessage())
+                        .addAllMetadata(bizOut).build(),
+                bizError -> ListMetadataResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> ListMetadataResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"listMetadataByIdentityId"
+        );
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
+    private List<Metadata.MetadataPB> listMetadataByIdentityIdInternal(ListMetadataByIdentityIdRequest request) {
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
             lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
@@ -173,19 +214,11 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         List<MetaData> dataFileList = metaDataService.syncDataFileByIdentityId(request.getIdentityId(), lastUpdateAt, request.getPageSize());
 
         //2.将元数据信息转换成proto接口所需的数据结构
-        ListMetadataResponse response;
-        if (CollectionUtils.isEmpty(dataFileList)) {
-            response = ListMetadataResponse.newBuilder().build();
-        } else {
-            List<Metadata.MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
-            response = ListMetadataResponse.newBuilder().addAllMetadata(mtadataPBList).build();
-        }
-        log.debug("listMetadataByIdentityId, response:{}", response);
+        List<Metadata.MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
 
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        return mtadataPBList;
     }
+
 
     /**
      * <pre>
@@ -195,9 +228,28 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
     @Override
     public void findMetadataById(FindMetadataByIdRequest request,
                                  io.grpc.stub.StreamObserver<FindMetadataByIdResponse> responseObserver) {
+        FindMetadataByIdResponse response = GrpcImplUtils.query(
+                request,
+                input -> findMetadataByIdInternal(input),
+                bizOut -> FindMetadataByIdResponse.newBuilder()
+                        .setStatus(CodeEnums.SUCCESS.getCode())
+                        .setMsg(CodeEnums.SUCCESS.getMessage())
+                        .setMetadata(bizOut).build(),
+                bizError -> FindMetadataByIdResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> FindMetadataByIdResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"findMetadataById"
+        );
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
-        log.debug("findMetadataById, request:{}", request);
-
+    private Metadata.MetadataPB findMetadataByIdInternal(FindMetadataByIdRequest request) {
         String metaDataId = request.getMetadataId();
         Metadata.MetadataPB metadataPB = null;
 
@@ -207,16 +259,10 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         //2.将元数据信息转换成proto接口所需的数据结构
         if (dataFile != null) {
             metadataPB = convertorService.toProtoMetadataPB(dataFile);
+            return metadataPB;
         } else {
-            throw new MetaDataNotFound();
+            throw new BizException(CodeEnums.METADATA_NOT_FOUND);
         }
-
-        FindMetadataByIdResponse response = FindMetadataByIdResponse.newBuilder().setMetadata(metadataPB).build();
-
-        log.debug("findMetadataById, response:{}", response);
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
     }
 
     /**
@@ -227,25 +273,34 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
     @Override
     public void findMetadataByIds(FindMetadataByIdsRequest request,
                                   io.grpc.stub.StreamObserver<ListMetadataResponse> responseObserver) {
-
-        log.debug("findMetadataByIds, request:{}", request);
-
-        List<String> metaDataIdList = request.getMetadataIdsList();
-        //1.查询元数据信息
-        List<MetaData> dataFileList = metaDataService.findByMetaDataIdList(metaDataIdList);
-
-        ListMetadataResponse response = null;
-        //2.将元数据信息转换成proto接口所需的数据结构
-        if (CollectionUtils.isEmpty(dataFileList)) {
-            response = ListMetadataResponse.newBuilder().build();
-        } else {
-            List<Metadata.MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
-            response = ListMetadataResponse.newBuilder().addAllMetadata(mtadataPBList).build();
-        }
-        log.debug("findMetadataByIds, response:{}", response);
+        ListMetadataResponse response = GrpcImplUtils.query(
+                request,
+                input -> findMetadataByIdsInternal(input),
+                bizOut -> ListMetadataResponse.newBuilder()
+                        .setStatus(CodeEnums.SUCCESS.getCode())
+                        .setMsg(CodeEnums.SUCCESS.getMessage())
+                        .addAllMetadata(bizOut).build(),
+                bizError -> ListMetadataResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> ListMetadataResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"findMetadataByIds"
+        );
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
+    }
+
+    private List<Metadata.MetadataPB> findMetadataByIdsInternal(FindMetadataByIdsRequest request) {
+        List<String> metaDataIdList = request.getMetadataIdsList();
+        //1.查询元数据信息
+        List<MetaData> dataFileList = metaDataService.findByMetaDataIdList(metaDataIdList);
+        //2.将元数据信息转换成proto接口所需的数据结构
+        List<Metadata.MetadataPB> mtadataPBList = convertorService.toProtoMetadataPB(dataFileList);
+        return mtadataPBList;
     }
 
     /**
@@ -257,26 +312,25 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
     @Override
     public void revokeMetadata(RevokeMetadataRequest request,
                                io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
+        Common.SimpleResponse response = GrpcImplUtils.saveOfUpdate(
+                request,
+                input -> revokeMetadata(input),
+                "revokeMetaData");
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
-        log.debug("revokeMetaData, request:{}", request);
-
+    private void revokeMetadata(RevokeMetadataRequest request) {
         com.platon.datum.storage.grpc.carrier.types.IdentityData.Organization owner = request.getOwner();
         OrgInfo orgInfo = orgInfoService.findByPK(owner.getIdentityId());
         if (orgInfo == null) {
             log.error("identity not found. identityId:={}", owner.getIdentityId());
-            throw new OrgNotFound();
+            throw new BizException(CodeEnums.ORG_NOT_FOUND);
         }
 
         String metaDataId = request.getMetadataId();
         metaDataService.updateStatus(metaDataId, CarrierEnum.MetadataState.MetadataState_Revoked.ordinal());
-
-        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
-
-        log.debug("revokeMetaData, response:{}", response);
-
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
     }
 
     /**
@@ -289,7 +343,17 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
     public void updateMetadata(UpdateMetadataRequest request,
                                io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
 
-        log.debug("updateMetadata, request:{}", request);
+        Common.SimpleResponse response = GrpcImplUtils.saveOfUpdate(
+                request,
+                input -> updateMetadata(input),
+                "updateMetadata");
+
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    private void updateMetadata(UpdateMetadataRequest request) {
 
         Metadata.MetadataPB metadata = request.getMetadata();
 
@@ -297,7 +361,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         OrgInfo orgInfo = orgInfoService.findByPK(owner.getIdentityId());
         if (orgInfo == null) {
             log.error("identity not found. identityId:={}", owner.getIdentityId());
-            throw new OrgNotFound();
+            throw new BizException(CodeEnums.ORG_NOT_FOUND);
         }
 
         MetaData dataFile = new MetaData();
@@ -320,13 +384,5 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         dataFile.setSign(metadata.getSign().toStringUtf8());
 
         metaDataService.update(dataFile);
-
-        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
-
-        log.debug("revokeMetaData, response:{}", response);
-
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
     }
 }

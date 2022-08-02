@@ -1,6 +1,8 @@
 package com.platon.datum.storage.grpc.impl;
 
-import com.platon.datum.storage.common.exception.OrgNotFound;
+
+import com.platon.datum.storage.common.enums.CodeEnums;
+import com.platon.datum.storage.common.exception.BizException;
 import com.platon.datum.storage.common.util.LocalDateTimeUtil;
 import com.platon.datum.storage.common.util.ValueUtils;
 import com.platon.datum.storage.dao.entity.OrgInfo;
@@ -12,12 +14,13 @@ import com.platon.datum.storage.grpc.carrier.types.ResourceData;
 import com.platon.datum.storage.grpc.common.constant.CarrierEnum;
 import com.platon.datum.storage.grpc.datacenter.api.Resource;
 import com.platon.datum.storage.grpc.datacenter.api.ResourceServiceGrpc;
+import com.platon.datum.storage.grpc.utils.GrpcImplUtils;
 import com.platon.datum.storage.service.ConvertorService;
 import com.platon.datum.storage.service.OrgInfoService;
 import com.platon.datum.storage.service.PowerServerService;
+import com.sun.org.apache.regexp.internal.RE;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,13 +34,13 @@ import java.util.stream.Collectors;
 @Service
 public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
 
-    @Autowired
+    @javax.annotation.Resource
     private PowerServerService powerServerService;
 
-    @Autowired
+    @javax.annotation.Resource
     private OrgInfoService orgInfoService;
 
-    @Autowired
+    @javax.annotation.Resource
     private ConvertorService convertorService;
 
     /**
@@ -49,8 +52,16 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
     @Override
     public void publishPower(Resource.PublishPowerRequest request,
                              io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
+        Common.SimpleResponse response = GrpcImplUtils.saveOfUpdate(
+                request,
+                input -> publishPowerInternal(input),
+                "publishPower");
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
-        log.debug("publishPower, request:{}", request);
+    private void publishPowerInternal(Resource.PublishPowerRequest request) {
 
         ResourceData.ResourcePB power = request.getPower();
 
@@ -58,7 +69,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         OrgInfo orgInfo = orgInfoService.findByPK(owner.getIdentityId());
         if (orgInfo == null) {
             log.error("identity not found. identityId:={}", owner.getIdentityId());
-            throw new OrgNotFound();
+            throw new BizException(CodeEnums.ORG_NOT_FOUND);
         }
         PowerServer powerServer = new PowerServer();
         powerServer.setIdentityId(owner.getIdentityId());
@@ -76,15 +87,6 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         powerServer.setPublishAt(LocalDateTime.now(ZoneOffset.UTC));
         powerServer.setNonce(power.getNonce());
         powerServerService.insert(powerServer);
-
-        //接口返回值
-        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
-
-        log.debug("publishPower, response:{}", response);
-
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
     }
 
 
@@ -97,9 +99,16 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
     @Override
     public void syncPower(Resource.SyncPowerRequest request,
                           io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
+        Common.SimpleResponse response = GrpcImplUtils.saveOfUpdate(
+                request,
+                input -> syncPowerInternal(input),
+                "syncPower");
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
-        log.debug("syncPower, request:{}", request);
-
+    private void syncPowerInternal(Resource.SyncPowerRequest request) {
         ResourceData.LocalResourcePB power = request.getPower();
 
         PowerServer powerServer = new PowerServer();
@@ -109,15 +118,6 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         powerServer.setUsedMem(power.getUsedMem());
         powerServer.setUsedBandwidth(power.getUsedBandwidth());
         powerServerService.updateByPrimaryKeySelective(powerServer);
-
-        //接口返回值
-        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
-
-        log.debug("syncPower, response:{}", response);
-
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
     }
 
     /**
@@ -129,26 +129,24 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
     @Override
     public void revokePower(Resource.RevokePowerRequest request,
                             io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
+        Common.SimpleResponse response = GrpcImplUtils.saveOfUpdate(
+                request,
+                input -> revokePowerInternal(input),
+                "revokePower");
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
-        log.debug("revokePower, request:{}", request);
+    private void revokePowerInternal(Resource.RevokePowerRequest request) {
 
         IdentityData.Organization owner = request.getOwner();
         OrgInfo orgInfo = orgInfoService.findByPK(owner.getIdentityId());
         if (orgInfo == null) {
             log.error("identity not found. identityId:={}", owner.getIdentityId());
-            throw new OrgNotFound();
+            throw new BizException(CodeEnums.ORG_NOT_FOUND);
         }
-
         powerServerService.updateStatus(request.getPowerId(), CarrierEnum.PowerState.PowerState_Revoked.ordinal());
-
-        //接口返回值
-        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
-
-        log.debug("revokePower, response:{}", response);
-
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
     }
 
     /**
@@ -159,9 +157,28 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
     @Override
     public void listPower(Resource.ListPowerRequest request,
                           io.grpc.stub.StreamObserver<Resource.ListPowerResponse> responseObserver) {
+        Resource.ListPowerResponse response = GrpcImplUtils.query(
+                request,
+                input -> listPowerInternal(input),
+                bizOut -> Resource.ListPowerResponse.newBuilder()
+                        .setStatus(CodeEnums.SUCCESS.getCode())
+                        .setMsg(CodeEnums.SUCCESS.getMessage())
+                        .addAllPowers(bizOut).build(),
+                bizError -> Resource.ListPowerResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> Resource.ListPowerResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"listPower"
+        );
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
-        log.debug("listPower, request:{}", request);
-
+    private List<ResourceData.ResourcePB> listPowerInternal(Resource.ListPowerRequest request) {
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
             lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
@@ -203,13 +220,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
                 .collect(Collectors.toList());
 
         //接口返回值
-        Resource.ListPowerResponse response = Resource.ListPowerResponse.newBuilder().addAllPowers(powerList).build();
-
-        log.debug("listPower, response:{}", response);
-
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        return powerList;
     }
 
 
@@ -221,45 +232,58 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
     @Override
     public void getPowerSummaryByIdentityId(Resource.GetPowerSummaryByIdentityRequest request,
                                             io.grpc.stub.StreamObserver<Resource.PowerSummaryResponse> responseObserver) {
-        log.debug("getPowerSummaryByIdentityId, request:{}", request);
 
-        String identityId = request.getIdentityId();
-        OrgInfo orgInfo = orgInfoService.findByPK(identityId);
+        Resource.PowerSummaryResponse response = GrpcImplUtils.query(
+                request,
+                input -> getPowerSummaryByIdentityIdInternal(input),
+                bizOut -> {
+                    String identityId = request.getIdentityId();
+                    OrgInfo orgInfo = orgInfoService.findByPK(identityId);
+                    if (orgInfo == null) {
+                        log.error("identity not found. identityId:={}", identityId);
+                        throw new BizException(CodeEnums.ORG_NOT_FOUND);
+                    }
+                    return Resource.PowerSummaryResponse.newBuilder()
+                            .setStatus(CodeEnums.SUCCESS.getCode())
+                            .setMsg(CodeEnums.SUCCESS.getMessage())
+                            .setOwner(convertorService.toProtoOrganization(orgInfo))
+                            .setPowerSummary(Resource.PowerSummary.newBuilder()
+                                    .setInformation(ResourceData.ResourceUsageOverview.newBuilder()
+                                            .setTotalProcessor(ValueUtils.intValue(bizOut.getCore()))
+                                            .setTotalMem(ValueUtils.longValue(bizOut.getMemory()))
+                                            .setTotalBandwidth(ValueUtils.longValue(bizOut.getBandwidth()))
+                                            .setUsedProcessor(ValueUtils.intValue(bizOut.getUsedCore()))
+                                            .setUsedMem(ValueUtils.longValue(bizOut.getUsedMemory()))
+                                            .setUsedBandwidth(ValueUtils.longValue(bizOut.getUsedBandwidth()))
+                                            .build())
+                                    .setState(CarrierEnum.PowerState.forNumber(bizOut.getState()))
+                                    .setTotalTaskCount(bizOut.getPowerTaskCount())
+                                    .build())
+                            .build();
+                },
+                bizError -> Resource.PowerSummaryResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> Resource.PowerSummaryResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"getPowerSummaryByIdentityId"
+        );
 
-        if (orgInfo == null) {
-            log.error("identity not found. identityId:={}", identityId);
-            throw new OrgNotFound();
-        }
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
-        //int taskCounts = taskPowerProviderService.countTaskAsPowerProvider(identityId);
-
-        OrgPowerTaskSummary powerSummary = powerServerService.getPowerSummaryByOrgId(identityId);
+    private OrgPowerTaskSummary getPowerSummaryByIdentityIdInternal(Resource.GetPowerSummaryByIdentityRequest request) {
+        OrgPowerTaskSummary powerSummary = powerServerService.getPowerSummaryByOrgId(request.getIdentityId());
 
         if (powerSummary == null) {
             powerSummary = new OrgPowerTaskSummary();
         }
 
-        Resource.PowerSummaryResponse response = Resource.PowerSummaryResponse.newBuilder()
-                .setOwner(convertorService.toProtoOrganization(orgInfo))
-                .setPowerSummary(Resource.PowerSummary.newBuilder()
-                        .setInformation(ResourceData.ResourceUsageOverview.newBuilder()
-                                .setTotalProcessor(ValueUtils.intValue(powerSummary.getCore()))
-                                .setTotalMem(ValueUtils.longValue(powerSummary.getMemory()))
-                                .setTotalBandwidth(ValueUtils.longValue(powerSummary.getBandwidth()))
-                                .setUsedProcessor(ValueUtils.intValue(powerSummary.getUsedCore()))
-                                .setUsedMem(ValueUtils.longValue(powerSummary.getUsedMemory()))
-                                .setUsedBandwidth(ValueUtils.longValue(powerSummary.getUsedBandwidth()))
-                                .build())
-                        .setState(CarrierEnum.PowerState.forNumber(powerSummary.getState()))
-                        .setTotalTaskCount(powerSummary.getPowerTaskCount())
-                        .build())
-                .build();
-
-        log.debug("getPowerSummaryByIdentityId, response:{}", response);
-
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        return powerSummary;
     }
 
 
@@ -273,8 +297,28 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
     @Override
     public void listPowerSummary(com.google.protobuf.Empty request,
                                  io.grpc.stub.StreamObserver<Resource.ListPowerSummaryResponse> responseObserver) {
+        Resource.ListPowerSummaryResponse response = GrpcImplUtils.query(
+                request,
+                input -> listPowerSummaryInternal(input),
+                bizOut -> Resource.ListPowerSummaryResponse.newBuilder()
+                        .setStatus(CodeEnums.SUCCESS.getCode())
+                        .setMsg(CodeEnums.SUCCESS.getMessage())
+                        .addAllPowers(bizOut).build(),
+                bizError -> Resource.ListPowerSummaryResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> Resource.ListPowerSummaryResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"listPowerSummary"
+        );
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
-        log.debug("getPowerTotalSummaryList, request:{}", request);
+    private List<Resource.PowerSummaryResponse> listPowerSummaryInternal(com.google.protobuf.Empty request) {
 
         List<OrgPowerTaskSummary> orgPowerTaskSummaryList = powerServerService.listPowerSummaryGroupByOrgId();
 
@@ -310,14 +354,6 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
                 .collect(Collectors.toList());
 
         //结果
-        Resource.ListPowerSummaryResponse response = Resource.ListPowerSummaryResponse.newBuilder()
-                .addAllPowers(powerTotalSummaryResponseList)
-                .build();
-
-        log.debug("getPowerTotalSummaryList, response:{}", response);
-
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        return powerTotalSummaryResponseList;
     }
 }

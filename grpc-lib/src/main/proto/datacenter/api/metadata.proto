@@ -34,8 +34,10 @@ message ListMetadataSummaryRequest {
 
 // 获取元数据摘要列表响应参数
 message ListMetadataSummaryResponse {
+  int32 status = 1;    // 响应码
+  string msg = 2;      // 错误信息
   // 摘要信息列表
-  repeated MetadataSummaryOwner metadata_summaries = 1;
+  repeated MetadataSummaryOwner metadata_summaries = 3;
 }
 
 message MetadataSummaryOwner {
@@ -73,7 +75,9 @@ message ListMetadataByIdentityIdRequest {
 }
 
 message ListMetadataResponse {
-  repeated carrier.types.MetadataPB metadata = 1;
+  int32 status = 1;    // 响应码
+  string msg = 2;      // 错误信息
+  repeated carrier.types.MetadataPB metadata = 3;
 }
 
 message FindMetadataByIdRequest {
@@ -81,7 +85,9 @@ message FindMetadataByIdRequest {
 }
 
 message FindMetadataByIdResponse {
-  carrier.types.MetadataPB metadata = 1;
+  int32 status = 1;    // 响应码
+  string msg = 2;      // 错误信息
+  carrier.types.MetadataPB metadata = 3;
 }
 
 message FindMetadataByIdsRequest {

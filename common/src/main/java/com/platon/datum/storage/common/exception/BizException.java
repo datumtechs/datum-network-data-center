@@ -1,41 +1,31 @@
 package com.platon.datum.storage.common.exception;
 
+import com.platon.datum.storage.common.enums.CodeEnums;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class BizException extends RuntimeException{
-    private int errorCode;
 
-    public int getErrorCode() {
-        return errorCode;
+    private int code;
+    private String message;
+
+    public BizException(CodeEnums codeEnums) {
+        super(codeEnums.getMessage());
+        this.code = codeEnums.getCode();
+        this.message = codeEnums.getMessage();
     }
 
-    public void setErrorCode(int errorCode) {
-        this.errorCode = errorCode;
-    }
-
-    public BizException(int errorCode, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-        this.errorCode = errorCode;
-    }
-
-    public BizException(int errorCode) {
-        this.errorCode = errorCode;
-    }
-
-    public BizException(int errorCode, String message) {
+    public BizException(int code, String message) {
         super(message);
-        this.errorCode = errorCode;
+        this.code = code;
+        this.message = message;
     }
 
-    public BizException(int errorCode, String message, Throwable cause) {
+    public BizException(int code, String message, Throwable cause) {
         super(message, cause);
-        this.errorCode = errorCode;
+        this.code = code;
+        this.message = message;
     }
-
-    public BizException(int errorCode, Throwable cause) {
-        super(cause);
-        this.errorCode = errorCode;
-    }
-
-    public BizException() {
-    }
-
 }

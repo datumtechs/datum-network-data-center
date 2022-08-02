@@ -1,8 +1,8 @@
 package com.platon.datum.storage.grpc.impl;
 
+import com.google.protobuf.Int32Value;
 import com.platon.datum.storage.common.enums.CodeEnums;
 import com.platon.datum.storage.common.exception.BizException;
-import com.platon.datum.storage.common.exception.OrgNotFound;
 import com.platon.datum.storage.common.util.LocalDateTimeUtil;
 import com.platon.datum.storage.dao.entity.MetaDataAuth;
 import com.platon.datum.storage.dao.entity.OrgInfo;
@@ -12,18 +12,17 @@ import com.platon.datum.storage.grpc.carrier.types.Metadata;
 import com.platon.datum.storage.grpc.common.constant.CarrierEnum;
 import com.platon.datum.storage.grpc.datacenter.api.Identity;
 import com.platon.datum.storage.grpc.datacenter.api.IdentityServiceGrpc;
+import com.platon.datum.storage.grpc.utils.GrpcImplUtils;
 import com.platon.datum.storage.service.ConvertorService;
 import com.platon.datum.storage.service.MetaDataAuthService;
 import com.platon.datum.storage.service.OrgInfoService;
-import io.grpc.Status;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.apache.commons.codec.binary.Hex;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,13 +33,13 @@ import java.util.stream.Collectors;
 @Service
 public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
 
-    @Autowired
+    @Resource
     private OrgInfoService orgInfoService;
 
-    @Autowired
+    @Resource
     private MetaDataAuthService metaDataAuthService;
 
-    @Autowired
+    @Resource
     private ConvertorService convertorService;
 
     /**
@@ -51,26 +50,35 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
     @Override
     public void listIdentity(Identity.ListIdentityRequest request,
                              io.grpc.stub.StreamObserver<Identity.ListIdentityResponse> responseObserver) {
+        Identity.ListIdentityResponse response = GrpcImplUtils.query(
+                request,
+                input -> listIdentityInternal(input),
+                bizOut -> Identity.ListIdentityResponse.newBuilder()
+//                            .setStatus(CodeEnums.SUCCESS.getCode())
+                            .setMsg(CodeEnums.SUCCESS.getMessage())
+                            .addAllIdentities(bizOut).build(),
+                bizError -> Identity.ListIdentityResponse.newBuilder()
+                    .setStatus(bizError.getCode())
+                    .setMsg(bizError.getMessage())
+                    .build(),
+                error -> Identity.ListIdentityResponse.newBuilder()
+                    .setStatus(CodeEnums.EXCEPTION.getCode())
+                    .setMsg(error.getMessage())
+                    .build(),"listIdentity"
+                );
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
-        log.debug("listIdentity, request:{}", request);
-
+    private List<IdentityData.IdentityPB> listIdentityInternal(Identity.ListIdentityRequest request){
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
             lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
         }
-
         List<OrgInfo> orgInfoList = orgInfoService.syncOrgInfo(lastUpdateAt, request.getPageSize());
-        List<IdentityData.IdentityPB> organizationList = orgInfoList.parallelStream().map(orgInfo -> {
-            return this.convertorService.toProtoIdentityPB(orgInfo);
-        }).collect(Collectors.toList());
-
-        Identity.ListIdentityResponse response = Identity.ListIdentityResponse.newBuilder().addAllIdentities(organizationList).build();
-
-        log.debug("listIdentity response:{}", response);
-
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        List<IdentityData.IdentityPB> organizationList = orgInfoList.parallelStream().map(orgInfo -> this.convertorService.toProtoIdentityPB(orgInfo)).collect(Collectors.toList());
+        return organizationList;
     }
 
     /**
@@ -82,9 +90,16 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
     @Override
     public void saveIdentity(Identity.SaveIdentityRequest request,
                              io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
+        Common.SimpleResponse response = GrpcImplUtils.saveOfUpdate(
+                request,
+                input -> saveIdentityInternal(input),
+                "saveIdentity");
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
-        log.debug("saveIdentity, request:{}", request);
-
+    public void saveIdentityInternal(Identity.SaveIdentityRequest request) {
         IdentityData.IdentityPB information = request.getInformation();
         OrgInfo orgInfo = orgInfoService.findByPK(information.getIdentityId());
 
@@ -116,15 +131,6 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
             orgInfo.setNonce(information.getNonce());
             orgInfoService.update(orgInfo);
         }
-
-        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
-
-        log.debug("saveIdentity response:{}, Status.code:{}", response, Status.OK.getCode().value());
-
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
-
     }
 
     /**
@@ -136,24 +142,22 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
     @Override
     public void revokeIdentity(Identity.RevokeIdentityRequest request,
                                io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
-
-        log.debug("revokeIdentityJoin, request:{}", request);
-
-        OrgInfo orgInfo = orgInfoService.findByPK(request.getIdentityId());
-        if (orgInfo == null) {
-            log.error("identity not found. identityId:={}", request.getIdentityId());
-            throw new OrgNotFound();
-        }
-
-        orgInfoService.updateStatus(request.getIdentityId(), CarrierEnum.CommonStatus.CommonStatus_Invalid.ordinal());
-
-        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
-
-        log.debug("revokeIdentityJoin response:{}", response);
-
+        Common.SimpleResponse response = GrpcImplUtils.saveOfUpdate(
+                request,
+                input -> revokeIdentityInternal(input),
+                "revokeIdentityJoin");
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
+    }
+
+    public void revokeIdentityInternal(Identity.RevokeIdentityRequest request) {
+        OrgInfo orgInfo = orgInfoService.findByPK(request.getIdentityId());
+        if (orgInfo == null) {
+            log.error("identity not found. identityId:={}", request.getIdentityId());
+            throw new BizException(CodeEnums.ORG_NOT_FOUND);
+        }
+        orgInfoService.updateStatus(request.getIdentityId(), CarrierEnum.CommonStatus.CommonStatus_Invalid.ordinal());
     }
 
 
@@ -167,23 +171,21 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
     @Override
     public void saveMetadataAuthority(Identity.MetadataAuthorityRequest request,
                                       io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
-        log.debug("saveMetadataAuthority, request:{}", request);
-
-        MetaDataAuth metaDataAuth = convertMetadataAuthorityPB(request.getMetadataAuthority());
-
-        metaDataAuth.setDataStatus(CarrierEnum.DataStatus.DataStatus_Valid_VALUE);
-        // metaDataAuth.setStatus(AuditMetadataOption.Audit_Pending.ordinal());
-
-        metaDataAuthService.insertSelective(metaDataAuth);
-
-        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
-
-        log.debug("saveMetadataAuthority response:{}", response);
-
+        Common.SimpleResponse response = GrpcImplUtils.saveOfUpdate(
+                request,
+                input -> saveMetadataAuthorityInternal(input),
+                "saveMetadataAuthority");
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
+
+    public void saveMetadataAuthorityInternal(Identity.MetadataAuthorityRequest request){
+        MetaDataAuth metaDataAuth = convertMetadataAuthorityPB(request.getMetadataAuthority());
+        metaDataAuth.setDataStatus(CarrierEnum.DataStatus.DataStatus_Valid_VALUE);
+        metaDataAuthService.insertSelective(metaDataAuth);
+    }
+
 
     private static MetaDataAuth convertMetadataAuthorityPB(Metadata.MetadataAuthorityPB metadataAuthorityPB) {
         MetaDataAuth metaDataAuth = new MetaDataAuth();
@@ -228,23 +230,36 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
     @Override
     public void findMetadataAuthority(Identity.FindMetadataAuthorityRequest request,
                                       io.grpc.stub.StreamObserver<Identity.FindMetadataAuthorityResponse> responseObserver) {
-        log.debug("findMetadataAuthority, request:{}", request);
-
-        MetaDataAuth metaDataAuth = metaDataAuthService.findByPK(request.getMetadataAuthId());
-        if (metaDataAuth == null) {
-            throw new BizException(-1, "metadata authority not found");
-        }
-        Metadata.MetadataAuthorityPB metadataAuthorityPB = this.convertorService.toProtoMetadataAuthorityPB(metaDataAuth);
-
-        Identity.FindMetadataAuthorityResponse response = Identity.FindMetadataAuthorityResponse.newBuilder()
-                .setMetadataAuthority(metadataAuthorityPB)
-                .build();
-
-        log.debug("findMetadataAuthority response:{}", response);
+        Identity.FindMetadataAuthorityResponse response = GrpcImplUtils.query(
+                request,
+                input -> findMetadataAuthorityInternal(input),
+                bizOut -> Identity.FindMetadataAuthorityResponse.newBuilder()
+                        .setStatus(CodeEnums.SUCCESS.getCode())
+                        .setMsg(CodeEnums.SUCCESS.getMessage())
+                        .setMetadataAuthority(bizOut)
+                        .build(),
+                bizError -> Identity.FindMetadataAuthorityResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> Identity.FindMetadataAuthorityResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"findMetadataAuthority"
+        );
 
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
+    }
+
+    public Metadata.MetadataAuthorityPB findMetadataAuthorityInternal(Identity.FindMetadataAuthorityRequest request){
+        MetaDataAuth metaDataAuth = metaDataAuthService.findByPK(request.getMetadataAuthId());
+        if (metaDataAuth == null) {
+            throw new BizException(CodeEnums.METADATA_AUTHORITY_NOT_FOUND);
+        }
+        Metadata.MetadataAuthorityPB metadataAuthorityPB = this.convertorService.toProtoMetadataAuthorityPB(metaDataAuth);
+        return metadataAuthorityPB;
     }
 
     /**
@@ -257,19 +272,18 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
     @Override
     public void updateMetadataAuthority(Identity.MetadataAuthorityRequest request,
                                         io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
-
-        log.debug("updateMetadataAuthority, request:{}", request);
-        MetaDataAuth metaDataAuth = convertMetadataAuthorityPB(request.getMetadataAuthority());
-
-        metaDataAuthService.updateSelective(metaDataAuth);
-
-        Common.SimpleResponse response = Common.SimpleResponse.newBuilder().setStatus(0).build();
-
-        log.debug("updateMetadataAuthority response:{}", response);
-
+        Common.SimpleResponse response = GrpcImplUtils.saveOfUpdate(
+                request,
+                input -> updateMetadataAuthorityInternal(input),
+                "updateMetadataAuthority");
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
+    }
+
+    public void updateMetadataAuthorityInternal(Identity.MetadataAuthorityRequest request){
+        MetaDataAuth metaDataAuth = convertMetadataAuthorityPB(request.getMetadataAuthority());
+        metaDataAuthService.updateSelective(metaDataAuth);
     }
 
 
@@ -282,35 +296,40 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
     @Override
     public void listMetadataAuthority(Identity.ListMetadataAuthorityRequest request,
                                       io.grpc.stub.StreamObserver<Identity.ListMetadataAuthorityResponse> responseObserver) {
+        Identity.ListMetadataAuthorityResponse  response = GrpcImplUtils.query(
+                request,
+                input -> listMetadataAuthorityInternal(input),
+                bizOut -> Identity.ListMetadataAuthorityResponse.newBuilder()
+                        .setStatus(CodeEnums.SUCCESS.getCode())
+                        .setMsg(CodeEnums.SUCCESS.getMessage())
+                        .addAllMetadataAuthorities(bizOut)
+                        .build(),
+                bizError -> Identity.ListMetadataAuthorityResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> Identity.ListMetadataAuthorityResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"findMetadataAuthority"
+        );
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
 
-        log.debug("listMetadataAuthority, request:{}", request);
+    }
 
+    public List<Metadata.MetadataAuthorityPB> listMetadataAuthorityInternal(Identity.ListMetadataAuthorityRequest request){
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
             lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
         }
         String identityId = request.getIdentityId();
         List<MetaDataAuth> metaDataAuthList = metaDataAuthService.syncMetaDataAuth(identityId, lastUpdateAt, request.getPageSize());
-
-
-        Identity.ListMetadataAuthorityResponse response;
-        if (CollectionUtils.isEmpty(metaDataAuthList)) {
-            response = Identity.ListMetadataAuthorityResponse.newBuilder().build();
-
-        } else {
-            List<Metadata.MetadataAuthorityPB> metaDataAuthorityDetailList = metaDataAuthList.parallelStream().map(metaDataAuth -> {
-                return this.convertorService.toProtoMetadataAuthorityPB(metaDataAuth);
-            }).collect(Collectors.toList());
-
-            response = Identity.ListMetadataAuthorityResponse.newBuilder().addAllMetadataAuthorities(metaDataAuthorityDetailList).build();
-        }
-        log.debug("listMetadataAuthority response:{}", response);
-
-        // 返回
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
-
+        List<Metadata.MetadataAuthorityPB> metadataAuthorityPBList = metaDataAuthList.parallelStream().map(metaDataAuth -> this.convertorService.toProtoMetadataAuthorityPB(metaDataAuth)).collect(Collectors.toList());
+        return metadataAuthorityPBList;
     }
+
 
     /**
      * <pre>
@@ -321,31 +340,23 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
     @Override
     public void updateIdentityCredential(Identity.UpdateIdentityCredentialRequest request,
                                         io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
-        log.debug("updateIdentityCredential, request:{}", request);
-
-        OrgInfo orgInfo = orgInfoService.findByPK(request.getIdentityId());
-        if (orgInfo == null) {
-            log.error("identity not found. identityId:={}", request.getIdentityId());
-            throw new OrgNotFound();
-        }
-
-        Common.SimpleResponse response;
-        if(orgInfoService.updateCredential(request.getIdentityId(), request.getCredential())){
-            response = Common.SimpleResponse.newBuilder()
-                    .setStatus(CodeEnums.SUCCESS.getCode())
-                    .setMsg(CodeEnums.SUCCESS.getMessage())
-                    .build();
-
-        } else {
-            response = Common.SimpleResponse.newBuilder()
-                    .setStatus(CodeEnums.IDENTITY_VI_HAVE_SET.getCode())
-                    .setMsg(CodeEnums.IDENTITY_VI_HAVE_SET.getMessage())
-                    .build();
-        }
-
-        log.debug("updateIdentityCredential response:{}", response);
+        Common.SimpleResponse response = GrpcImplUtils.saveOfUpdate(
+                request,
+                input -> updateIdentityCredentialInternal(input),
+                "updateIdentityCredential");
         // 返回
         responseObserver.onNext(response);
         responseObserver.onCompleted();
+    }
+
+    public void updateIdentityCredentialInternal(Identity.UpdateIdentityCredentialRequest request){
+        OrgInfo orgInfo = orgInfoService.findByPK(request.getIdentityId());
+        if (orgInfo == null) {
+            log.error("identity not found. identityId:={}", request.getIdentityId());
+            throw new BizException(CodeEnums.ORG_NOT_FOUND);
+        }
+        if(!orgInfoService.updateCredential(request.getIdentityId(), request.getCredential())){
+            throw new BizException(CodeEnums.ORG_VI_HAVE_SET);
+        }
     }
 }
