@@ -1,6 +1,5 @@
 package com.platon.datum.storage.dao.entity;
 
-import com.platon.datum.storage.dao.entity.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -10,8 +9,8 @@ import java.time.LocalDateTime;
 /**
  * @Author juzix
  * @Date 2022/4/27 10:45
- * @Version 
- * @Desc 
+ * @Version
+ * @Desc
  *******************************
  */
 

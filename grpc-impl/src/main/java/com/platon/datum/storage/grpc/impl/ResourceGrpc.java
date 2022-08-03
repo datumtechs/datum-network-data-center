@@ -18,7 +18,6 @@ import com.platon.datum.storage.grpc.utils.GrpcImplUtils;
 import com.platon.datum.storage.service.ConvertorService;
 import com.platon.datum.storage.service.OrgInfoService;
 import com.platon.datum.storage.service.PowerServerService;
-import com.sun.org.apache.regexp.internal.RE;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.stereotype.Service;
