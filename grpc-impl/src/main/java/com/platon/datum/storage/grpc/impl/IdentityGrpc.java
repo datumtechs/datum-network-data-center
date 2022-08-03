@@ -1,6 +1,5 @@
 package com.platon.datum.storage.grpc.impl;
 
-import com.google.protobuf.Int32Value;
 import com.platon.datum.storage.common.enums.CodeEnums;
 import com.platon.datum.storage.common.exception.BizException;
 import com.platon.datum.storage.common.util.LocalDateTimeUtil;
@@ -54,7 +53,7 @@ public class IdentityGrpc extends IdentityServiceGrpc.IdentityServiceImplBase {
                 request,
                 input -> listIdentityInternal(input),
                 bizOut -> Identity.ListIdentityResponse.newBuilder()
-//                            .setStatus(CodeEnums.SUCCESS.getCode())
+                            .setStatus(CodeEnums.SUCCESS.getCode())
                             .setMsg(CodeEnums.SUCCESS.getMessage())
                             .addAllIdentities(bizOut).build(),
                 bizError -> Identity.ListIdentityResponse.newBuilder()
