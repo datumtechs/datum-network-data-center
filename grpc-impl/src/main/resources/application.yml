@@ -67,7 +67,7 @@ logging:
   level:
     root: INFO
     org.springframework.web: INFO
-    com.platon: DEBUG
+    com.platon: INFO
   file:
     # 日志文件名格式
     name: ./logs/${spring.application.name}.log
