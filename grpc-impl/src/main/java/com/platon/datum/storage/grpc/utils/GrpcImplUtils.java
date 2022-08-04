@@ -1,8 +1,8 @@
 package com.platon.datum.storage.grpc.utils;
 
+import carrier.types.Common;
 import com.platon.datum.storage.common.enums.CodeEnums;
 import com.platon.datum.storage.common.exception.BizException;
-import com.platon.datum.storage.grpc.carrier.types.Common;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.function.Consumer;

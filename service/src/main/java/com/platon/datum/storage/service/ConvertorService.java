@@ -1,9 +1,9 @@
 package com.platon.datum.storage.service;
 
+import carrier.types.Identitydata;
+import carrier.types.Metadata;
+import carrier.types.Taskdata;
 import com.platon.datum.storage.dao.entity.*;
-import com.platon.datum.storage.grpc.carrier.types.IdentityData;
-import com.platon.datum.storage.grpc.carrier.types.TaskData;
-import com.platon.datum.storage.grpc.datacenter.api.Metadata;
 
 import java.util.List;
 
@@ -13,25 +13,25 @@ import java.util.List;
  */
 public interface ConvertorService {
 
-    IdentityData.IdentityPB toProtoIdentityPB(OrgInfo orgInfo);
+    Identitydata.IdentityPB toProtoIdentityPB(OrgInfo orgInfo);
 
-    IdentityData.Organization toProtoOrganization(OrgInfo orgInfo);
+    Identitydata.Organization toProtoOrganization(OrgInfo orgInfo);
 
-    List<com.platon.datum.storage.grpc.carrier.types.TaskData.TaskEvent> toProtoTaskEvent(List<TaskEvent> taskEventList);
+    List<Taskdata.TaskEvent> toProtoTaskEvent(List<TaskEvent> taskEventList);
 
-    com.platon.datum.storage.grpc.carrier.types.TaskData.TaskEvent toProtoTaskEvent(TaskEvent taskEvent);
+    Taskdata.TaskEvent toProtoTaskEvent(TaskEvent taskEvent);
 
-    Metadata.MetadataSummaryOwner toProtoMetaDataSummaryWithOwner(MetaData dataFile);
+    datacenter.api.Metadata.MetadataSummaryOwner toProtoMetaDataSummaryWithOwner(MetaData dataFile);
 
-    List<Metadata.MetadataSummaryOwner> toProtoMetaDataSummaryWithOwner(List<MetaData> dataFileList);
+    List<datacenter.api.Metadata.MetadataSummaryOwner> toProtoMetaDataSummaryWithOwner(List<MetaData> dataFileList);
 
-    com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataPB toProtoMetadataPB(MetaData dataFile);
+    Metadata.MetadataPB toProtoMetadataPB(MetaData dataFile);
 
-    List<com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataPB> toProtoMetadataPB(List<MetaData> dataFileList);
+    List<Metadata.MetadataPB> toProtoMetadataPB(List<MetaData> dataFileList);
 
-    TaskData.TaskPB toTaskPB(TaskInfo taskInfo);
+    Taskdata.TaskPB toTaskPB(TaskInfo taskInfo);
 
-    List<TaskData.TaskPB> toTaskPB(List<TaskInfo> taskInfoList);
+    List<Taskdata.TaskPB> toTaskPB(List<TaskInfo> taskInfoList);
 
-    com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataAuthorityPB toProtoMetadataAuthorityPB(MetaDataAuth metaDataAuth);
+    Metadata.MetadataAuthorityPB toProtoMetadataAuthorityPB(MetaDataAuth metaDataAuth);
 }

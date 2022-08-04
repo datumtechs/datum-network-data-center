@@ -1,16 +1,16 @@
 package com.platon.datum.storage.service.impl;
 
+import carrier.types.Identitydata;
+import carrier.types.Resourcedata;
+import carrier.types.Taskdata;
 import cn.hutool.core.lang.Pair;
 import com.google.protobuf.ByteString;
 import com.platon.datum.storage.common.enums.CodeEnums;
 import com.platon.datum.storage.common.exception.BizException;
 import com.platon.datum.storage.dao.entity.*;
-import com.platon.datum.storage.grpc.carrier.types.IdentityData;
-import com.platon.datum.storage.grpc.carrier.types.ResourceData;
-import com.platon.datum.storage.grpc.carrier.types.TaskData;
-import com.platon.datum.storage.grpc.common.constant.CarrierEnum;
-import com.platon.datum.storage.grpc.datacenter.api.Metadata;
 import com.platon.datum.storage.service.*;
+import common.constant.CarrierEnum;
+import datacenter.api.Metadata;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
@@ -58,8 +58,8 @@ public class ConvertorServiceImpl implements ConvertorService {
 
 
     @Override
-    public IdentityData.IdentityPB toProtoIdentityPB(OrgInfo orgInfo) {
-        return IdentityData.IdentityPB.newBuilder()
+    public Identitydata.IdentityPB toProtoIdentityPB(OrgInfo orgInfo) {
+        return Identitydata.IdentityPB.newBuilder()
                 .setIdentityTypeValue(orgInfo.getIdentityType())
                 .setIdentityId(orgInfo.getIdentityId())
                 .setNodeId(orgInfo.getNodeId())
@@ -76,8 +76,8 @@ public class ConvertorServiceImpl implements ConvertorService {
     }
 
     @Override
-    public IdentityData.Organization toProtoOrganization(OrgInfo orgInfo) {
-        return IdentityData.Organization.newBuilder()
+    public Identitydata.Organization toProtoOrganization(OrgInfo orgInfo) {
+        return Identitydata.Organization.newBuilder()
                 .setIdentityTypeValue(orgInfo.getIdentityType())
                 .setIdentityId(orgInfo.getIdentityId())
                 .setNodeId(orgInfo.getNodeId())
@@ -92,15 +92,15 @@ public class ConvertorServiceImpl implements ConvertorService {
 
 
     @Override
-    public List<com.platon.datum.storage.grpc.carrier.types.TaskData.TaskEvent> toProtoTaskEvent(List<com.platon.datum.storage.dao.entity.TaskEvent> taskEventList) {
+    public List<Taskdata.TaskEvent> toProtoTaskEvent(List<com.platon.datum.storage.dao.entity.TaskEvent> taskEventList) {
         return taskEventList.stream().map(taskEvent -> {
             return toProtoTaskEvent(taskEvent);
         }).collect(Collectors.toList());
     }
 
     @Override
-    public com.platon.datum.storage.grpc.carrier.types.TaskData.TaskEvent toProtoTaskEvent(com.platon.datum.storage.dao.entity.TaskEvent taskEvent) {
-        return com.platon.datum.storage.grpc.carrier.types.TaskData.TaskEvent.newBuilder()
+    public Taskdata.TaskEvent toProtoTaskEvent(com.platon.datum.storage.dao.entity.TaskEvent taskEvent) {
+        return Taskdata.TaskEvent.newBuilder()
                 .setTaskId(taskEvent.getTaskId())
                 .setType(taskEvent.getEventType())
                 .setContent(taskEvent.getEventContent())
@@ -118,7 +118,7 @@ public class ConvertorServiceImpl implements ConvertorService {
             throw new BizException(CodeEnums.ORG_NOT_FOUND);
         }
         //1.组装整个元数据摘要
-        com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataSummary metadataSummary = com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataSummary.newBuilder()
+        carrier.types.Metadata.MetadataSummary metadataSummary = carrier.types.Metadata.MetadataSummary.newBuilder()
                 .setMetadataId(dataFile.getMetaDataId())
                 .setMetadataName(dataFile.getMetaDataName())
                 .setDataType(CarrierEnum.OrigindataType.forNumber(dataFile.getDataType()))
@@ -149,21 +149,21 @@ public class ConvertorServiceImpl implements ConvertorService {
     }
 
     @Override
-    public com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataPB toProtoMetadataPB(MetaData dataFile) {
+    public carrier.types.Metadata.MetadataPB toProtoMetadataPB(MetaData dataFile) {
         OrgInfo orgInfo = orgInfoService.findByPK(dataFile.getIdentityId());
         if (orgInfo == null) {
             log.error("identity not found. identityId:={}", dataFile.getIdentityId());
             throw new BizException(CodeEnums.ORG_NOT_FOUND);
         }
         //1.组装元数据所属组织信息
-        IdentityData.Organization owner = IdentityData.Organization.newBuilder()
+        Identitydata.Organization owner = Identitydata.Organization.newBuilder()
                 .setIdentityId(orgInfo.getIdentityId())
                 .setNodeName(orgInfo.getNodeName())
                 .setNodeId(orgInfo.getNodeId())
                 .build();
 
         //1.组装整个元数据
-        return com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataPB.newBuilder()
+        return carrier.types.Metadata.MetadataPB.newBuilder()
                 .setOwner(owner)
                 .setMetadataId(dataFile.getMetaDataId())
                 .setMetadataName(dataFile.getMetaDataName())
@@ -184,18 +184,18 @@ public class ConvertorServiceImpl implements ConvertorService {
     }
 
     @Override
-    public List<com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataPB> toProtoMetadataPB(List<MetaData> dataFileList) {
+    public List<carrier.types.Metadata.MetadataPB> toProtoMetadataPB(List<MetaData> dataFileList) {
         return dataFileList.stream().map(dataFile -> {
             return this.toProtoMetadataPB(dataFile);
         }).filter(item -> item != null).collect(Collectors.toList());
     }
 
     @Override
-    public TaskData.TaskPB toTaskPB(TaskInfo taskInfo) {
+    public Taskdata.TaskPB toTaskPB(TaskInfo taskInfo) {
         String taskId = taskInfo.getTaskId();
 
         //初始资源
-        ResourceData.TaskResourceCostDeclare taskResourceCostDeclare = ResourceData.TaskResourceCostDeclare.newBuilder()
+        Resourcedata.TaskResourceCostDeclare taskResourceCostDeclare = Resourcedata.TaskResourceCostDeclare.newBuilder()
                 .setMemory(taskInfo.getInitMemory())
                 .setProcessor(taskInfo.getInitProcessor())
                 .setBandwidth(taskInfo.getInitBandwidth())
@@ -203,15 +203,15 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .build();
 
         //参与任务的组织信息
-        TaskData.TaskOrganization senderOrg = null;
-        TaskData.TaskOrganization algoSupplierOrg = null;
-        List<TaskData.TaskOrganization> dataSupplierOrgList = new ArrayList<>();
-        List<TaskData.TaskOrganization> powerSupplierOrgList = new ArrayList<>();
-        List<TaskData.TaskOrganization> receiverOrgList = new ArrayList<>();
+        Taskdata.TaskOrganization senderOrg = null;
+        Taskdata.TaskOrganization algoSupplierOrg = null;
+        List<Taskdata.TaskOrganization> dataSupplierOrgList = new ArrayList<>();
+        List<Taskdata.TaskOrganization> powerSupplierOrgList = new ArrayList<>();
+        List<Taskdata.TaskOrganization> receiverOrgList = new ArrayList<>();
         List<TaskOrg> taskOrgList = taskOrgService.findTaskOrgList(taskId);
         for (int i = 0; i < taskOrgList.size(); i++) {
             TaskOrg taskOrg = taskOrgList.get(i);
-            TaskData.TaskOrganization taskOrganization = TaskData.TaskOrganization.newBuilder()
+            Taskdata.TaskOrganization taskOrganization = Taskdata.TaskOrganization.newBuilder()
                     .setPartyId(taskOrg.getPartyId())
                     .setNodeName(taskOrg.getNodeName())
                     .setNodeId(taskOrg.getNodeId())
@@ -248,9 +248,9 @@ public class ConvertorServiceImpl implements ConvertorService {
         String algorithmCodeExtraParams = algorithmPair.getValue();
         List<String> powerPolicyOption = taskPowerOptionPartService.getPowerOption(taskId);
         List<TaskPowerResourceOptions> list = taskPowerResourceOptionsService.getPowerResourceOption(taskId);
-        List<com.platon.datum.storage.grpc.carrier.types.TaskData.TaskPowerResourceOption> powerResourceOptionList = list.stream()
+        List<Taskdata.TaskPowerResourceOption> powerResourceOptionList = list.stream()
                 .map(option -> {
-                    ResourceData.ResourceUsageOverview overview = ResourceData.ResourceUsageOverview.newBuilder()
+                    Resourcedata.ResourceUsageOverview overview = Resourcedata.ResourceUsageOverview.newBuilder()
                             .setTotalMem(option.getTotalMemory())
                             .setUsedMem(option.getUsedMemory())
                             .setTotalProcessor(option.getTotalProcessor())
@@ -261,8 +261,8 @@ public class ConvertorServiceImpl implements ConvertorService {
                             .setUsedDisk(option.getUsedDisk())
                             .build();
 
-                    com.platon.datum.storage.grpc.carrier.types.TaskData.TaskPowerResourceOption taskPowerResourceOption =
-                            com.platon.datum.storage.grpc.carrier.types.TaskData.TaskPowerResourceOption.newBuilder()
+                    Taskdata.TaskPowerResourceOption taskPowerResourceOption =
+                            Taskdata.TaskPowerResourceOption.newBuilder()
                                     .setPartyId(option.getPartId())
                                     .setResourceUsedOverview(overview)
                                     .build();
@@ -275,7 +275,7 @@ public class ConvertorServiceImpl implements ConvertorService {
         List<TaskEvent> taskEventList = taskEventService.listTaskEventByTaskId(taskId);
 
         //组装最终响应体
-        return com.platon.datum.storage.grpc.carrier.types.TaskData.TaskPB.newBuilder()
+        return Taskdata.TaskPB.newBuilder()
                 .setTaskId(taskId)
                 .setDataId(taskInfo.getDataId())
                 .setDataStatus(CarrierEnum.DataStatus.forNumber(taskInfo.getDataStatus()))
@@ -313,15 +313,15 @@ public class ConvertorServiceImpl implements ConvertorService {
     }
 
     @Override
-    public List<com.platon.datum.storage.grpc.carrier.types.TaskData.TaskPB> toTaskPB(List<TaskInfo> taskInfoList) {
-        List<com.platon.datum.storage.grpc.carrier.types.TaskData.TaskPB> grpcTaskList = taskInfoList.stream()
+    public List<Taskdata.TaskPB> toTaskPB(List<TaskInfo> taskInfoList) {
+        List<Taskdata.TaskPB> grpcTaskList = taskInfoList.stream()
                 .map(this::toTaskPB)
                 .collect(Collectors.toList());
         return grpcTaskList;
     }
 
     @Override
-    public com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataAuthorityPB toProtoMetadataAuthorityPB(MetaDataAuth metaDataAuth) {
+    public carrier.types.Metadata.MetadataAuthorityPB toProtoMetadataAuthorityPB(MetaDataAuth metaDataAuth) {
         ByteString sign = ByteString.EMPTY;
         if (StringUtils.isNotEmpty(metaDataAuth.getSign())) {
             try {
@@ -337,21 +337,21 @@ public class ConvertorServiceImpl implements ConvertorService {
             throw new BizException(CodeEnums.ORG_NOT_FOUND);
         }
 
-        return com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataAuthorityPB.newBuilder()
+        return carrier.types.Metadata.MetadataAuthorityPB.newBuilder()
                 .setMetadataAuthId(metaDataAuth.getMetaDataAuthId())
                 .setUser(metaDataAuth.getUser())
                 .setDataId(metaDataAuth.getDataId())
                 .setDataStatus(CarrierEnum.DataStatus.forNumber(metaDataAuth.getDataStatus()))
                 .setUserType(CarrierEnum.UserType.forNumber(metaDataAuth.getUserType()))
-                .setAuth(com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataAuthority.newBuilder()
+                .setAuth(carrier.types.Metadata.MetadataAuthority.newBuilder()
                         .setMetadataId(metaDataAuth.getMetaDataId())
-                        .setOwner(IdentityData.Organization.newBuilder()
+                        .setOwner(Identitydata.Organization.newBuilder()
                                 .setIdentityId(metaDataAuth.getIdentityId())
                                 .setNodeId(orgInfo.getNodeId())
                                 .setNodeName(orgInfo.getNodeName())
                                 .setStatus(CarrierEnum.CommonStatus.forNumber(orgInfo.getStatus()))
                                 .build())
-                        .setUsageRule(com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataUsageRule.newBuilder()
+                        .setUsageRule(carrier.types.Metadata.MetadataUsageRule.newBuilder()
                                 .setUsageType(CarrierEnum.MetadataUsageType.forNumber(metaDataAuth.getUsageType()))
                                 .setTimes(metaDataAuth.getTimes())
                                 .setStartAt(metaDataAuth.getStartAt() == null ? 0 : metaDataAuth.getStartAt().toInstant(ZoneOffset.UTC).toEpochMilli())
@@ -360,7 +360,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                 )
                 .setAuditOption(CarrierEnum.AuditMetadataOption.forNumber(metaDataAuth.getAuditOption()))
                 .setAuditSuggestion(StringUtils.trimToEmpty(metaDataAuth.getAuditSuggestion()))
-                .setUsedQuo(com.platon.datum.storage.grpc.carrier.types.Metadata.MetadataUsedQuo.newBuilder().setUsageType(CarrierEnum.MetadataUsageType.forNumber(metaDataAuth.getUsageType()))
+                .setUsedQuo(carrier.types.Metadata.MetadataUsedQuo.newBuilder().setUsageType(CarrierEnum.MetadataUsageType.forNumber(metaDataAuth.getUsageType()))
                         .setExpire(metaDataAuth.getExpire() == 1 ? true : false)
                         .setUsedTimes(metaDataAuth.getUsedTimes())
                         .build())

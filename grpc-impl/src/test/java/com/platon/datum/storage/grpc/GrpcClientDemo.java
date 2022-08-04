@@ -1,7 +1,7 @@
 package com.platon.datum.storage.grpc;
 
-import com.platon.datum.storage.grpc.datacenter.api.Resource;
-import com.platon.datum.storage.grpc.datacenter.api.ResourceServiceGrpc;
+import datacenter.api.Resource;
+import datacenter.api.ResourceServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;

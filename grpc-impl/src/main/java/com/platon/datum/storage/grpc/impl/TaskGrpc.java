@@ -1,5 +1,8 @@
 package com.platon.datum.storage.grpc.impl;
 
+import carrier.types.Common;
+import carrier.types.Resourcedata;
+import carrier.types.Taskdata;
 import com.platon.datum.storage.common.enums.CodeEnums;
 import com.platon.datum.storage.common.util.LocalDateTimeUtil;
 import com.platon.datum.storage.dao.entity.TaskEvent;
@@ -7,13 +10,10 @@ import com.platon.datum.storage.dao.entity.TaskInfo;
 import com.platon.datum.storage.dao.entity.TaskOrg;
 import com.platon.datum.storage.dao.entity.TaskOrg.TaskRoleEnum;
 import com.platon.datum.storage.dao.entity.TaskPowerResourceOptions;
-import com.platon.datum.storage.grpc.carrier.types.Common;
-import com.platon.datum.storage.grpc.carrier.types.ResourceData;
-import com.platon.datum.storage.grpc.carrier.types.TaskData;
-import com.platon.datum.storage.grpc.datacenter.api.Task;
-import com.platon.datum.storage.grpc.datacenter.api.TaskServiceGrpc;
 import com.platon.datum.storage.grpc.utils.GrpcImplUtils;
 import com.platon.datum.storage.service.*;
+import datacenter.api.Task;
+import datacenter.api.TaskServiceGrpc;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.stereotype.Service;
@@ -67,7 +67,6 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
      * 存储任务
      * </pre>
      */
-    @Transactional(rollbackFor = {Exception.class, RuntimeException.class})
     @Override
     public void saveTask(Task.SaveTaskRequest request,
                          io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
@@ -80,8 +79,9 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private void saveTaskInternal(Task.SaveTaskRequest request) {
-        TaskData.TaskPB taskPB = request.getTask();
+    @Transactional(rollbackFor = {Exception.class, RuntimeException.class})
+    public void saveTaskInternal(Task.SaveTaskRequest request) {
+        Taskdata.TaskPB taskPB = request.getTask();
         //task的请求内容
         String taskId = taskPB.getTaskId();
 
@@ -137,11 +137,11 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private TaskData.TaskPB getTaskDetailInternal(Task.GetTaskDetailRequest request) {
+    private Taskdata.TaskPB getTaskDetailInternal(Task.GetTaskDetailRequest request) {
         // 业务代码
         String taskId = request.getTaskId();
         TaskInfo taskInfo = taskInfoService.findByTaskId(taskId);
-        TaskData.TaskPB taskPB = convertorService.toTaskPB(taskInfo);
+        Taskdata.TaskPB taskPB = convertorService.toTaskPB(taskInfo);
         return taskPB;
     }
 
@@ -175,7 +175,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private List<TaskData.TaskPB> listTaskInternal(Task.ListTaskRequest request) {
+    private List<Taskdata.TaskPB> listTaskInternal(Task.ListTaskRequest request) {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
@@ -184,7 +184,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
         List<TaskInfo> taskInfoList = taskInfoService.syncTaskInfo(lastUpdateAt, request.getPageSize());
 
-        List<TaskData.TaskPB> grpcTaskList = convertorService.toTaskPB(taskInfoList);
+        List<Taskdata.TaskPB> grpcTaskList = convertorService.toTaskPB(taskInfoList);
         return grpcTaskList;
     }
 
@@ -214,7 +214,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
     }
 
-    private List<TaskData.TaskPB> listTaskByIdentityInternal(Task.ListTaskByIdentityRequest request) {
+    private List<Taskdata.TaskPB> listTaskByIdentityInternal(Task.ListTaskByIdentityRequest request) {
 
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
@@ -223,7 +223,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
 
         List<TaskInfo> taskInfoList = taskInfoService.listTaskInfoByIdentityId(request.getIdentityId(), lastUpdateAt, request.getPageSize());
 
-        List<TaskData.TaskPB> grpcTaskList = convertorService.toTaskPB(taskInfoList);
+        List<Taskdata.TaskPB> grpcTaskList = convertorService.toTaskPB(taskInfoList);
 
         return grpcTaskList;
     }
@@ -258,13 +258,13 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private List<TaskData.TaskPB> listTaskByTaskIdsInternal(Task.ListTaskByTaskIdsRequest request) {
+    private List<Taskdata.TaskPB> listTaskByTaskIdsInternal(Task.ListTaskByTaskIdsRequest request) {
 
         log.debug("listTaskByTaskIds, request:{}", request);
 
         List<TaskInfo> taskInfoList = taskInfoService.listTaskInfoByTaskIds(request.getTaskIdsList());
 
-        List<TaskData.TaskPB> grpcTaskList = convertorService.toTaskPB(taskInfoList);
+        List<Taskdata.TaskPB> grpcTaskList = convertorService.toTaskPB(taskInfoList);
         return grpcTaskList;
     }
 
@@ -297,19 +297,19 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private List<com.platon.datum.storage.grpc.carrier.types.TaskData.TaskEvent> listTaskEventInternal(Task.ListTaskEventRequest request) {
+    private List<Taskdata.TaskEvent> listTaskEventInternal(Task.ListTaskEventRequest request) {
         List<TaskEvent> taskEventList = taskEventService.listTaskEventByTaskId(request.getTaskId());
 
-        List<com.platon.datum.storage.grpc.carrier.types.TaskData.TaskEvent>
+        List<Taskdata.TaskEvent>
                 grpcTaskEventList = convertorService.toProtoTaskEvent(taskEventList);
 
         return grpcTaskEventList;
     }
 
 
-    private List<TaskEvent> toTaskEventList(TaskData.TaskPB taskPB) {
+    private List<TaskEvent> toTaskEventList(Taskdata.TaskPB taskPB) {
         List<TaskEvent> taskEventList = new ArrayList<>();
-        for (com.platon.datum.storage.grpc.carrier.types.TaskData.TaskEvent event : taskPB.getTaskEventsList()) {
+        for (Taskdata.TaskEvent event : taskPB.getTaskEventsList()) {
             TaskEvent taskEvent = new TaskEvent();
             taskEvent.setTaskId(taskPB.getTaskId());
             taskEvent.setEventAt(LocalDateTimeUtil.getLocalDateTme(event.getCreateAt()));
@@ -322,13 +322,13 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         return taskEventList;
     }
 
-    private List<TaskPowerResourceOptions> toPowerResourceOption(TaskData.TaskPB taskPB) {
+    private List<TaskPowerResourceOptions> toPowerResourceOption(Taskdata.TaskPB taskPB) {
         List<TaskPowerResourceOptions> list = taskPB.getPowerResourceOptionsList().stream()
                 .map(taskPowerResourceOption -> {
                     TaskPowerResourceOptions option = new TaskPowerResourceOptions();
                     option.setTaskId(taskPB.getTaskId());
                     option.setPartId(taskPowerResourceOption.getPartyId());
-                    ResourceData.ResourceUsageOverview resourceUsedOverview = taskPowerResourceOption.getResourceUsedOverview();
+                    Resourcedata.ResourceUsageOverview resourceUsedOverview = taskPowerResourceOption.getResourceUsedOverview();
                     option.setTotalMemory(resourceUsedOverview.getTotalMem());
                     option.setUsedMemory(resourceUsedOverview.getUsedMem());
                     option.setTotalProcessor(resourceUsedOverview.getTotalProcessor());
@@ -342,7 +342,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         return list;
     }
 
-    private List<TaskOrg> toTaskOrgList(TaskData.TaskPB taskPB) {
+    private List<TaskOrg> toTaskOrgList(Taskdata.TaskPB taskPB) {
         String taskId = taskPB.getTaskId();
         TaskOrg senderOrg = toTaskOrg(taskId, TaskRoleEnum.sender, taskPB.getSender());
         TaskOrg algoSupplierOrg = toTaskOrg(taskId, TaskRoleEnum.algoSupplier, taskPB.getAlgoSupplier());
@@ -364,7 +364,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         return taskOrgList;
     }
 
-    private TaskInfo toTaskInfo(TaskData.TaskPB taskPB) {
+    private TaskInfo toTaskInfo(Taskdata.TaskPB taskPB) {
         TaskInfo taskInfo = new TaskInfo();
         taskInfo.setTaskId(taskPB.getTaskId());
         taskInfo.setDataId(taskPB.getDataId());
@@ -392,7 +392,7 @@ public class TaskGrpc extends TaskServiceGrpc.TaskServiceImplBase {
         return taskInfo;
     }
 
-    private TaskOrg toTaskOrg(String taskId, TaskRoleEnum taskRole, TaskData.TaskOrganization taskOrganization) {
+    private TaskOrg toTaskOrg(String taskId, TaskRoleEnum taskRole, Taskdata.TaskOrganization taskOrganization) {
         TaskOrg org = new TaskOrg();
         org.setTaskId(taskId);
         org.setTaskRole(taskRole.getRole());

@@ -1,10 +1,6 @@
 syntax = "proto3";
 
 option go_package = "github.com/datumtechs/datum-network-carrier/pb/datacenter/api";
-//一个proto文件会生成一个最外部类，里面会包含很多子类，指定这个proto文件生成的类所属的包名
-option java_package = "com.platon.datum.storage.grpc.datacenter.api";
-//这个proto文件生成会为其中的所有message生成一个最外部类，此配置设置该类类名，如果没有指定此值，则类名为proto文件名的驼峰命名方法
-option java_outer_classname = "Identity";
 
 package datacenter.api;
 
@@ -21,6 +17,18 @@ message RevokeIdentityRequest {
   string identity_id = 1;
 }
 
+// add by v0.5.0
+
+message FindIdentityRequest {
+  string identity_id = 1;
+}
+// add by v0.5.0
+message FindIdentityResponse {
+  int32                     status = 1;     // 响应码
+  string                    msg = 2;        // 错误信息
+  carrier.types.IdentityPB  identity = 3;   // 组织身份信息
+}
+
 message ListIdentityRequest {
   // 同步时间点，用于进行数据增量拉去
   uint64 last_updated = 1;  // 从对应updateAt那条记录开始拉
@@ -28,9 +36,9 @@ message ListIdentityRequest {
 }
 
 message ListIdentityResponse {
-  int32 status = 1;    // 响应码
-  string msg = 2;      // 错误信息
-  repeated carrier.types.IdentityPB identities = 3;
+  int32                             status = 1;       // 响应码
+  string                            msg = 2;          // 错误信息
+  repeated carrier.types.IdentityPB identities = 3;   // 组织身份信息列表
 }
 
 // 定义：元数据授权申请记录
@@ -39,15 +47,15 @@ message MetadataAuthorityRequest {
 }
 
 message ListMetadataAuthorityRequest {
-  string identity_id = 1;   // 组织标识
-  uint64 last_updated = 2;   // 最后同步时间（毫秒级时间戳）
-  uint64 page_size = 3; // 单次批量数据的返回条数
+  string identity_id = 1;     // 组织标识
+  uint64 last_updated = 2;    // 最后同步时间（毫秒级时间戳）
+  uint64 page_size = 3;       // 单次批量数据的返回条数
 }
 
 message ListMetadataAuthorityResponse {
-  int32 status = 1;    // 响应码
-  string msg = 2;      // 错误信息
-  repeated carrier.types.MetadataAuthorityPB metadata_authorities = 3;          // 数据授权信息列表
+  int32                                       status = 1;                       // 响应码
+  string                                      msg = 2;                          // 错误信息
+  repeated carrier.types.MetadataAuthorityPB  metadata_authorities = 3;         // 数据授权信息列表
 }
 
 message FindMetadataAuthorityRequest {
@@ -55,9 +63,9 @@ message FindMetadataAuthorityRequest {
 }
 
 message FindMetadataAuthorityResponse {
-  int32 status = 1;    // 响应码
-  string msg = 2;      // 错误信息
-  carrier.types.MetadataAuthorityPB metadata_authority = 3;
+  int32                             status = 1;               // 响应码
+  string                            msg = 2;                  // 错误信息
+  carrier.types.MetadataAuthorityPB metadata_authority = 3;   // 元数据授权信息
 }
 
 // Update Identity Credential request
@@ -78,6 +86,18 @@ service IdentityService {
   // 注销准入网络
   rpc RevokeIdentity (RevokeIdentityRequest) returns (carrier.types.SimpleResponse);
 
+  // add by v0.5.0
+  rpc FindIdentity (FindIdentityRequest) returns (FindIdentityResponse);
+  
+  // add by v0.5.0
+  // 更新指定组织的credential, 已经设置过的不允许设置
+  // 返回码 0-成功  1000-VC不能重复设置
+  rpc UpdateIdentityCredential(UpdateIdentityCredentialRequest) returns (carrier.types.SimpleResponse);
+}
+
+
+service MetadataAuthService {
+
   // v2.0
   // 存储元数据鉴权申请记录
   rpc SaveMetadataAuthority(MetadataAuthorityRequest) returns (carrier.types.SimpleResponse);
@@ -92,8 +112,4 @@ service IdentityService {
 
   // FindMetadataAuthority retrieves data based on the specified ID.
   rpc FindMetadataAuthority(FindMetadataAuthorityRequest) returns (FindMetadataAuthorityResponse);
-
-  // 更新指定组织的credential, 已经设置过的不允许设置
-  // 返回码 0-成功  1000-VC不能重复设置
-  rpc UpdateIdentityCredential(UpdateIdentityCredentialRequest) returns (carrier.types.SimpleResponse);
 }

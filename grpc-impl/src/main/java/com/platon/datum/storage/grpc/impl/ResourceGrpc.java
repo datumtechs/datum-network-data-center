@@ -1,6 +1,9 @@
 package com.platon.datum.storage.grpc.impl;
 
 
+import carrier.types.Common;
+import carrier.types.Identitydata;
+import carrier.types.Resourcedata;
 import com.platon.datum.storage.common.enums.CodeEnums;
 import com.platon.datum.storage.common.exception.BizException;
 import com.platon.datum.storage.common.util.LocalDateTimeUtil;
@@ -8,16 +11,13 @@ import com.platon.datum.storage.common.util.ValueUtils;
 import com.platon.datum.storage.dao.entity.OrgInfo;
 import com.platon.datum.storage.dao.entity.OrgPowerTaskSummary;
 import com.platon.datum.storage.dao.entity.PowerServer;
-import com.platon.datum.storage.grpc.carrier.types.Common;
-import com.platon.datum.storage.grpc.carrier.types.IdentityData;
-import com.platon.datum.storage.grpc.carrier.types.ResourceData;
-import com.platon.datum.storage.grpc.common.constant.CarrierEnum;
-import com.platon.datum.storage.grpc.datacenter.api.Resource;
-import com.platon.datum.storage.grpc.datacenter.api.ResourceServiceGrpc;
 import com.platon.datum.storage.grpc.utils.GrpcImplUtils;
 import com.platon.datum.storage.service.ConvertorService;
 import com.platon.datum.storage.service.OrgInfoService;
 import com.platon.datum.storage.service.PowerServerService;
+import common.constant.CarrierEnum;
+import datacenter.api.Resource;
+import datacenter.api.ResourceServiceGrpc;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.stereotype.Service;
@@ -47,7 +47,6 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * 存储资源
      * </pre>
      */
-    @Transactional
     @Override
     public void publishPower(Resource.PublishPowerRequest request,
                              io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
@@ -60,11 +59,12 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private void publishPowerInternal(Resource.PublishPowerRequest request) {
+    @Transactional
+    public void publishPowerInternal(Resource.PublishPowerRequest request) {
 
-        ResourceData.ResourcePB power = request.getPower();
+        Resourcedata.ResourcePB power = request.getPower();
 
-        IdentityData.Organization owner = power.getOwner();
+        Identitydata.Organization owner = power.getOwner();
         OrgInfo orgInfo = orgInfoService.findByPK(owner.getIdentityId());
         if (orgInfo == null) {
             log.error("identity not found. identityId:={}", owner.getIdentityId());
@@ -94,7 +94,6 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * 新增，算力同步，实时通知算力的使用情况（组织下的具体的服务器）
      * </pre>
      */
-    @Transactional
     @Override
     public void syncPower(Resource.SyncPowerRequest request,
                           io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
@@ -107,8 +106,9 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private void syncPowerInternal(Resource.SyncPowerRequest request) {
-        ResourceData.LocalResourcePB power = request.getPower();
+    @Transactional
+    public void syncPowerInternal(Resource.SyncPowerRequest request) {
+        Resourcedata.LocalResourcePB power = request.getPower();
 
         PowerServer powerServer = new PowerServer();
         powerServer.setDataId(power.getDataId());
@@ -124,7 +124,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
      * 撤销资源
      * </pre>
      */
-    @Transactional
+
     @Override
     public void revokePower(Resource.RevokePowerRequest request,
                             io.grpc.stub.StreamObserver<Common.SimpleResponse> responseObserver) {
@@ -137,9 +137,10 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private void revokePowerInternal(Resource.RevokePowerRequest request) {
+    @Transactional
+    public void revokePowerInternal(Resource.RevokePowerRequest request) {
 
-        IdentityData.Organization owner = request.getOwner();
+        Identitydata.Organization owner = request.getOwner();
         OrgInfo orgInfo = orgInfoService.findByPK(owner.getIdentityId());
         if (orgInfo == null) {
             log.error("identity not found. identityId:={}", owner.getIdentityId());
@@ -177,7 +178,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private List<ResourceData.ResourcePB> listPowerInternal(Resource.ListPowerRequest request) {
+    private List<Resourcedata.ResourcePB> listPowerInternal(Resource.ListPowerRequest request) {
         LocalDateTime lastUpdateAt = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         if (request.getLastUpdated() > 0) {
             lastUpdateAt = LocalDateTimeUtil.getLocalDateTme(request.getLastUpdated());
@@ -185,15 +186,15 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
 
         List<PowerServer> powerServerList = powerServerService.syncPowerServer(lastUpdateAt, request.getPageSize());
 
-        List<ResourceData.ResourcePB> powerList = powerServerList.parallelStream()
+        List<Resourcedata.ResourcePB> powerList = powerServerList.parallelStream()
                 .map(powerServer -> {
                     try {
-                        IdentityData.Organization organization = IdentityData.Organization.newBuilder()
+                        Identitydata.Organization organization = Identitydata.Organization.newBuilder()
                                 .setIdentityId(powerServer.getIdentityId())
                                 .setNodeName((String) powerServer.getField("orgName"))
                                 .build();
 
-                        return ResourceData.ResourcePB.newBuilder()
+                        return Resourcedata.ResourcePB.newBuilder()
                                 .setOwner(organization)
                                 .setDataId(powerServer.getDataId())
                                 .setDataStatus(CarrierEnum.DataStatus.forNumber(powerServer.getDataStatus()))
@@ -247,7 +248,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
                             .setMsg(CodeEnums.SUCCESS.getMessage())
                             .setOwner(convertorService.toProtoOrganization(orgInfo))
                             .setPowerSummary(Resource.PowerSummary.newBuilder()
-                                    .setInformation(ResourceData.ResourceUsageOverview.newBuilder()
+                                    .setInformation(Resourcedata.ResourceUsageOverview.newBuilder()
                                             .setTotalProcessor(ValueUtils.intValue(bizOut.getCore()))
                                             .setTotalMem(ValueUtils.longValue(bizOut.getMemory()))
                                             .setTotalBandwidth(ValueUtils.longValue(bizOut.getBandwidth()))
@@ -332,7 +333,7 @@ public class ResourceGrpc extends ResourceServiceGrpc.ResourceServiceImplBase {
                         return Resource.PowerSummaryResponse.newBuilder()
                                 .setOwner(convertorService.toProtoOrganization(orgInfo))
                                 .setPowerSummary(Resource.PowerSummary.newBuilder()
-                                        .setInformation(ResourceData.ResourceUsageOverview.newBuilder()
+                                        .setInformation(Resourcedata.ResourceUsageOverview.newBuilder()
                                                 .setTotalProcessor(ValueUtils.intValue(powerSummary.getCore()))
                                                 .setTotalMem(ValueUtils.longValue(powerSummary.getMemory()))
                                                 .setTotalBandwidth(ValueUtils.longValue(powerSummary.getBandwidth()))

@@ -1,11 +1,11 @@
 package com.platon.datum.storage.grpc;
 
 
-import com.platon.datum.storage.grpc.carrier.types.Common;
-import com.platon.datum.storage.grpc.carrier.types.IdentityData;
-import com.platon.datum.storage.grpc.carrier.types.ResourceData;
-import com.platon.datum.storage.grpc.datacenter.api.Resource;
-import com.platon.datum.storage.grpc.datacenter.api.ResourceServiceGrpc;
+import carrier.types.Common;
+import carrier.types.Identitydata;
+import carrier.types.Resourcedata;
+import datacenter.api.Resource;
+import datacenter.api.ResourceServiceGrpc;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.junit.Test;
@@ -28,9 +28,9 @@ public class ResourceGrpcStubTest {
     @Test
     public void publishPower() {
         log.info("start to test publishPower()...");
-        IdentityData.Organization organization = IdentityData.Organization.newBuilder().setIdentityId("org_id_5").build();
+        Identitydata.Organization organization = Identitydata.Organization.newBuilder().setIdentityId("org_id_5").build();
         Resource.PublishPowerRequest request = Resource.PublishPowerRequest.newBuilder()
-                .setPower(ResourceData.ResourcePB.newBuilder()
+                .setPower(Resourcedata.ResourcePB.newBuilder()
                         .setOwner(organization)
                         .setTotalBandwidth(20000L)
                         .setTotalMem(10000L)
@@ -46,7 +46,7 @@ public class ResourceGrpcStubTest {
     public void syncPower() {
         log.info("start to test syncPower()...");
         Resource.SyncPowerRequest request = Resource.SyncPowerRequest.newBuilder()
-                .setPower(ResourceData.LocalResourcePB.newBuilder()
+                .setPower(Resourcedata.LocalResourcePB.newBuilder()
                         .setDataId("powerId_000001_000001")
                         .setUsedProcessor(1000)
                         .setUsedMem(1000)
