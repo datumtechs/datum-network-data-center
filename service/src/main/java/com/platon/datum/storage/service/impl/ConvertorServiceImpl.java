@@ -167,6 +167,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setOwner(owner)
                 .setMetadataId(dataFile.getMetaDataId())
                 .setMetadataName(dataFile.getMetaDataName())
+                .setMetadataType(CarrierEnum.MetadataType.forNumber(dataFile.getMetaDataType()))
                 .setDataType(CarrierEnum.OrigindataType.forNumber(dataFile.getDataType()))
                 .setDesc(StringUtils.trimToEmpty(dataFile.getDesc()))
                 .setState(CarrierEnum.MetadataState.forNumber(dataFile.getStatus()))
