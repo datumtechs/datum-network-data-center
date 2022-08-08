@@ -174,6 +174,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setIndustry(dataFile.getIndustry())
                 .setDataStatus(CarrierEnum.DataStatus.forNumber(dataFile.getDataStatus()))
                 .setDataId(dataFile.getDataId())
+                .setDataHash(dataFile.getDataHash())
                 .setPublishAt(dataFile.getPublishAt() == null ? 0 : dataFile.getPublishAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .setUpdateAt(dataFile.getUpdateAt() == null ? 0 : dataFile.getUpdateAt().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .setMetadataOption(dataFile.getMetaDataOption())
@@ -181,6 +182,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setUser(dataFile.getUser())
                 .setUserTypeValue(dataFile.getUserType())
                 .setSign(ByteString.copyFromUtf8(dataFile.getSign()))
+                .setNonce(dataFile.getNonce())
                 .build();
     }
 
