@@ -346,7 +346,7 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         Common.SimpleResponse response = GrpcImplUtils.saveOfUpdate(
                 request,
                 input -> updateMetadata(input),
-                "updateMetadata");
+                    "updateMetadata");
 
         // 返回
         responseObserver.onNext(response);

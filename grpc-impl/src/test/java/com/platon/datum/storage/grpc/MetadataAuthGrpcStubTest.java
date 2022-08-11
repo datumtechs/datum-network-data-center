@@ -79,11 +79,11 @@ public class MetadataAuthGrpcStubTest {
     public void findMetadataAuthority() {
         log.info("start to test findMetadataAuthority()...");
 
-        Auth.FindMetadataAuthorityRequest request = Auth.FindMetadataAuthorityRequest.newBuilder()
+        Auth.FindMetadataAuthorityByIdRequest request = Auth.FindMetadataAuthorityByIdRequest.newBuilder()
                 .setMetadataAuthId("metaDataAuthId_01")
                 .build();
 
-        Auth.FindMetadataAuthorityResponse response = metadataAuthServiceBlockingStub.findMetadataAuthority(request);
+        Auth.FindMetadataAuthorityByIdResponse response = metadataAuthServiceBlockingStub.findMetadataAuthorityById(request);
 
         log.info("findMetadataAuthority(), response.getMetadataAuthority().getAuth().getOwner().getIdentityId():{}", response.getMetadataAuthority().getAuth().getOwner().getIdentityId());
     }

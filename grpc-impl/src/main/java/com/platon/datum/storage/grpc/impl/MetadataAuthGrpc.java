@@ -176,24 +176,24 @@ public class MetadataAuthGrpc extends MetadataAuthServiceGrpc.MetadataAuthServic
      * </pre>
      */
     @Override
-    public void findMetadataAuthority(Auth.FindMetadataAuthorityRequest request,
-                                      io.grpc.stub.StreamObserver<Auth.FindMetadataAuthorityResponse> responseObserver) {
-        Auth.FindMetadataAuthorityResponse response = GrpcImplUtils.query(
+    public void findMetadataAuthorityById(Auth.FindMetadataAuthorityByIdRequest request,
+                                      io.grpc.stub.StreamObserver<Auth.FindMetadataAuthorityByIdResponse> responseObserver) {
+        Auth.FindMetadataAuthorityByIdResponse response = GrpcImplUtils.query(
                 request,
-                input -> findMetadataAuthorityInternal(input),
-                bizOut -> Auth.FindMetadataAuthorityResponse.newBuilder()
+                input -> getMetadataAuthorityById(input.getMetadataAuthId()),
+                bizOut -> Auth.FindMetadataAuthorityByIdResponse.newBuilder()
                         .setStatus(CodeEnums.SUCCESS.getCode())
                         .setMsg(CodeEnums.SUCCESS.getMessage())
                         .setMetadataAuthority(bizOut)
                         .build(),
-                bizError -> Auth.FindMetadataAuthorityResponse.newBuilder()
+                bizError -> Auth.FindMetadataAuthorityByIdResponse.newBuilder()
                         .setStatus(bizError.getCode())
                         .setMsg(bizError.getMessage())
                         .build(),
-                error -> Auth.FindMetadataAuthorityResponse.newBuilder()
+                error -> Auth.FindMetadataAuthorityByIdResponse.newBuilder()
                         .setStatus(CodeEnums.EXCEPTION.getCode())
                         .setMsg(error.getMessage())
-                        .build(),"findMetadataAuthority"
+                        .build(),"findMetadataAuthorityById"
         );
 
         // 返回
@@ -201,8 +201,43 @@ public class MetadataAuthGrpc extends MetadataAuthServiceGrpc.MetadataAuthServic
         responseObserver.onCompleted();
     }
 
-    public Metadata.MetadataAuthorityPB findMetadataAuthorityInternal(Auth.FindMetadataAuthorityRequest request){
-        MetaDataAuth metaDataAuth = metaDataAuthService.findByPK(request.getMetadataAuthId());
+    /**
+     * <pre>
+     * FindMetadataAuthorityByIds retrieves data by ids.  add by v0.5.0
+     * </pre>
+     */
+    @Override
+    public void findMetadataAuthorityByIds(Auth.FindMetadataAuthorityByIdsRequest request,
+                                          io.grpc.stub.StreamObserver<Auth.ListMetadataAuthorityResponse> responseObserver) {
+        Auth.ListMetadataAuthorityResponse response = GrpcImplUtils.query(
+                request,
+                input -> findMetadataAuthorityByIdsInternal(input),
+                bizOut -> Auth.ListMetadataAuthorityResponse.newBuilder()
+                        .setStatus(CodeEnums.SUCCESS.getCode())
+                        .setMsg(CodeEnums.SUCCESS.getMessage())
+                        .addAllMetadataAuthorities(bizOut)
+                        .build(),
+                bizError -> Auth.ListMetadataAuthorityResponse.newBuilder()
+                        .setStatus(bizError.getCode())
+                        .setMsg(bizError.getMessage())
+                        .build(),
+                error -> Auth.ListMetadataAuthorityResponse.newBuilder()
+                        .setStatus(CodeEnums.EXCEPTION.getCode())
+                        .setMsg(error.getMessage())
+                        .build(),"findMetadataAuthorityByIds"
+        );
+
+        // 返回
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    public List<Metadata.MetadataAuthorityPB> findMetadataAuthorityByIdsInternal(Auth.FindMetadataAuthorityByIdsRequest request){
+        return request.getMetadataAuthIdsList().stream().map(metadataAuthId -> getMetadataAuthorityById(metadataAuthId)).collect(Collectors.toList());
+    }
+
+    public Metadata.MetadataAuthorityPB getMetadataAuthorityById(String metadataAuthId){
+        MetaDataAuth metaDataAuth = metaDataAuthService.findByPK(metadataAuthId);
         if (metaDataAuth == null) {
             throw new BizException(CodeEnums.METADATA_AUTHORITY_NOT_FOUND);
         }

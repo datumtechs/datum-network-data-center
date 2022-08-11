@@ -58,14 +58,18 @@ message ListMetadataAuthorityResponse {
   repeated carrier.types.MetadataAuthorityPB  metadata_authorities = 3;         // 数据授权信息列表
 }
 
-message FindMetadataAuthorityRequest {
+message FindMetadataAuthorityByIdRequest {
   string metadata_auth_id = 1;
 }
 
-message FindMetadataAuthorityResponse {
+message FindMetadataAuthorityByIdResponse {
   int32                             status = 1;               // 响应码
   string                            msg = 2;                  // 错误信息
   carrier.types.MetadataAuthorityPB metadata_authority = 3;   // 元数据授权信息
+}
+// add by v0.5.0
+message FindMetadataAuthorityByIdsRequest {
+  repeated string metadata_auth_ids = 1;
 }
 
 // Update Identity Credential request
@@ -110,6 +114,9 @@ service MetadataAuthService {
   // 规则：参数存在时根据条件获取，参数不存在时全量返回
   rpc ListMetadataAuthority(ListMetadataAuthorityRequest) returns (ListMetadataAuthorityResponse);
 
-  // FindMetadataAuthority retrieves data based on the specified ID.
-  rpc FindMetadataAuthority(FindMetadataAuthorityRequest) returns (FindMetadataAuthorityResponse);
+  // FindMetadataAuthorityById retrieves data based on the specified id.
+  rpc FindMetadataAuthorityById(FindMetadataAuthorityByIdRequest) returns (FindMetadataAuthorityByIdResponse);
+
+  // FindMetadataAuthorityByIds retrieves data by ids.  add by v0.5.0
+  rpc FindMetadataAuthorityByIds(FindMetadataAuthorityByIdsRequest) returns (ListMetadataAuthorityResponse);
 }
