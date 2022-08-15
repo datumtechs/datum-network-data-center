@@ -14,6 +14,7 @@ public enum CodeEnums {
     // 元数据相关
     METADATA_NOT_FOUND(2000, "MetaData not found"),
     METADATA_AUTHORITY_NOT_FOUND(2001 , "MetaData authority not found"),
+    METADATA_CONTRACT_HAVE_SET(2002 , "MetaData The voucher contract has been set up"),
     // 任务相关
     TASK_METADATA_NOT_FOUND(3000, "Task metadata not found"),
     ;

@@ -2,6 +2,8 @@ package com.platon.datum.storage.grpc.impl;
 
 import carrier.types.Common;
 import carrier.types.Identitydata;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.platon.datum.storage.common.enums.CodeEnums;
 import com.platon.datum.storage.common.exception.BizException;
 import com.platon.datum.storage.common.util.LocalDateTimeUtil;
@@ -16,13 +18,17 @@ import datacenter.api.Metadata;
 import datacenter.api.MetadataServiceGrpc;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @GrpcService
@@ -365,6 +371,18 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
             throw new BizException(CodeEnums.ORG_NOT_FOUND);
         }
 
+        Map<Integer, Optional<String>> req = getAddressFromOption(metadata.getMetadataOption());
+        if(req.get(2).isPresent() || req.get(3).isPresent()){
+            MetaData dbMetaData = metaDataService.findByMetaDataId(metadata.getMetadataId());
+            Map<Integer, Optional<String>> db = getAddressFromOption(dbMetaData.getMetaDataOption());
+            if(req.get(2).isPresent() && db.get(2).isPresent() && !StringUtils.equals(req.get(2).get(), db.get(2).get())){
+                throw new BizException(CodeEnums.METADATA_CONTRACT_HAVE_SET);
+            }
+            if(req.get(3).isPresent() && db.get(3).isPresent() && !StringUtils.equals(req.get(3).get(), db.get(3).get())){
+                throw new BizException(CodeEnums.METADATA_CONTRACT_HAVE_SET);
+            }
+        }
+
         MetaData dataFile = new MetaData();
         dataFile.setMetaDataId(metadata.getMetadataId());
         dataFile.setIdentityId(metadata.getOwner().getIdentityId());
@@ -385,5 +403,25 @@ public class MetaDataGrpc extends MetadataServiceGrpc.MetadataServiceImplBase {
         dataFile.setSign(metadata.getSign().toStringUtf8());
 
         metaDataService.update(dataFile);
+    }
+
+    private static Map<Integer, Optional<String>>  getAddressFromOption(String option){
+        JSONObject optionObj = JSONObject.parseObject(option);
+        Map<Integer,  Optional<String>> result = new HashMap<>();
+        result.put(2, Optional.empty());
+        result.put(3, Optional.empty());
+        JSONArray consumeTypes = optionObj.getJSONArray("consumeTypes");
+        JSONArray consumeOptions = optionObj.getJSONArray("consumeOptions");
+        for (int i = 0; i < consumeTypes.size(); i++) {
+            // 无属性
+            if(consumeTypes.getIntValue(i) == 2){
+                result.put(2, Optional.of(JSONArray.parseArray(consumeOptions.getString(i)).getJSONObject(0).getString("contract")));
+            }
+            //  有属性
+            if(consumeTypes.getIntValue(i) == 3) {
+                result.put(3, Optional.of(JSONArray.parseArray(consumeOptions.getString(i)).getString(0)));
+            }
+        }
+        return result;
     }
 }
