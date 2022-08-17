@@ -364,7 +364,7 @@ public class ConvertorServiceImpl implements ConvertorService {
                 .setAuditOption(CarrierEnum.AuditMetadataOption.forNumber(metaDataAuth.getAuditOption()))
                 .setAuditSuggestion(StringUtils.trimToEmpty(metaDataAuth.getAuditSuggestion()))
                 .setUsedQuo(carrier.types.Metadata.MetadataUsedQuo.newBuilder().setUsageType(CarrierEnum.MetadataUsageType.forNumber(metaDataAuth.getUsageType()))
-                        .setExpire(metaDataAuth.getExpire() == 1 ? true : false)
+                        .setExpire(metaDataAuth.getExpire() != null &&  metaDataAuth.getExpire()  == 1 ? true : false)
                         .setUsedTimes(metaDataAuth.getUsedTimes())
                         .build())
 
